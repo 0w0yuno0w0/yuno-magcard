@@ -462,6 +462,37 @@
                 transform: scale(0.38);
                 transform-origin: top center;
             } */
+
+
+@media screen and (max-width: 450px) {
+    #character-card {
+        width: 90vw !important; /* 画面幅の90%に強制的に収める */
+        height: auto !important;
+        margin: 0 auto !important;
+        transform: none !important; /* ズレの原因となる変換を解除 */
+    }
+    
+    /* プレビュー内の文字や要素も追従して少し縮小させる */
+    #character-card {
+        font-size: 0.9em;
+    }
+}
+
+/* 設定画面エリアを画面の下部に固定（またはスクロール対応） */
+.controls-panel {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 1000;
+    padding: 10px;
+    box-sizing: border-box;
+    border-top: 1px solid #ccc;
+}
+
+
+
+
         }
     </style>
 </head>
