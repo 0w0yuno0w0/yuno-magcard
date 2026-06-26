@@ -1284,20 +1284,17 @@ window.scrollTo(0, 0); // ページトップに強制移動
 
         // 3. ブラウザが400x550pxの正しい位置関係で文字やジョブを再配置するのを少し待つ
         setTimeout(() => {
-            html2canvas(cardEl2, { 
-                scale: 2,               // 400x550 を 2倍（800x1100）の高画質で出力
-                useCORS: true, 
-                logging: false, 
-                backgroundColor: null,
-                width: 400,             // キャプチャ範囲をカードサイズに固定（白背景防止）
-                height: 550,
-                windowWidth: 400,       // html2canvasの仮想ウィンドウ幅をカードに合わせる（位置ズレ防止）
-                windowHeight: 550,
-                x: 0,                   // カード左端からキャプチャ
-                y: 0,
-                scrollX: 0,
-                scrollY: 0
-            }).then(canvas => {
+  html2canvas(cardEl2, {
+    scale: 2, // 解像度を上げる
+    width: 400, // CSSで指定している本来の幅（px）を指定
+    height: 550, // CSSで指定している本来の高さ（px）を指定
+    windowWidth: document.documentElement.offsetWidth,
+    windowHeight: document.documentElement.offsetHeight,
+    scrollX: -window.scrollX, // スクロール位置を補正
+    scrollY: -window.scrollY,
+    useCORS: true,
+    backgroundColor: null
+}).then(canvas => {
                 
                 // 4. 撮影が終わったら、即座に元のスマホ表示（縮小状態など）に戻す
                 cardEl2.style.width = origWidth;
