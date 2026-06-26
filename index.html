@@ -27,7 +27,13 @@
     margin-bottom: 0px !important; /* 下のジョブ名との間隔をゼロに */
     line-height: 1.2 !important;
 }
-
+#character-card {
+    /* ...既存のスタイル... */
+    box-sizing: border-box; /* 重要: パディングやボーダーを含めて400x550にする */
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+}
 
         :root {
             --text-theme-color: #FFFFFF;
@@ -1301,12 +1307,13 @@ height: 275px !important;       /* ここを小さくするとプレビューも
         scale: 2,
         useCORS: true, 
         logging: false, 
+backgroundColor: null, // 透明背景にする
         width: 400,
         height: 550,
         windowWidth: 400,
         windowHeight: 550,
-        scrollX: -window.scrollX,
-        scrollY: -window.scrollY
+   x: 0,                  // 描画開始位置を左端0に固定
+    y: 0,                  // 描画開始位置を上端0に固定
     }).then(canvas => {
         document.body.removeChild(clone); // クローンを削除
 
