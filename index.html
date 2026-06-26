@@ -1094,10 +1094,8 @@ let selectedTopics = [];
     });
 
     window.addEventListener('touchmove', (e) => {
-        if (!document.getElementById('card-image').src) return;
-        e.preventDefault();
         if (e.touches.length === 2 && lastPinchDist !== null) {
-            // ピンチズーム
+            e.preventDefault();
             const newDist = getPinchDist(e.touches);
             const ratio = newDist / lastPinchDist;
             imgScale = Math.min(Math.max(0.05, imgScale * ratio), 4.0);
@@ -1107,6 +1105,7 @@ let selectedTopics = [];
             document.getElementById('val-scale').innerText = imgScale.toFixed(2);
             updateImageTransform();
         } else if (e.touches.length === 1 && isDraggingBg) {
+            e.preventDefault();
             imgX = e.touches[0].clientX - bgStartX;
             imgY = e.touches[0].clientY - bgStartY;
             updateImageTransform();
