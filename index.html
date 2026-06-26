@@ -1170,15 +1170,36 @@ touch-action: none;
         updateImageTransform();
     });
 
-    function syncPositionSliders() {
-        const sx = document.getElementById('input-img-x');
-        const sy = document.getElementById('input-img-y');
-        imgX = Math.min(Math.max(parseInt(sx.min), imgX), parseInt(sx.max));
-        imgY = Math.min(Math.max(parseInt(sy.min), imgY), parseInt(sy.max));
-        sx.value = imgX; document.getElementById('val-img-x').innerText = imgX + 'px';
-        sy.value = imgY; document.getElementById('val-img-y').innerText = imgY + 'px';
-    }
+   function syncPositionSliders() {
+    const sx = document.getElementById('input-img-x');
+    const sy = document.getElementById('input-img-y');
+    const ss = document.getElementById('input-scale'); // 拡大率スライダーも取得
 
+    // 左右・上下位置を整数に四捨五入
+    imgX = Math.round(imgX);
+    imgY = Math.round(imgY);
+
+    // 最小値・最大値の範囲内に収める
+    imgX = Math.min(Math.max(parseInt(sx.min), imgX), parseInt(sx.max));
+    imgY = Math.min(Math.max(parseInt(sy.min), imgY), parseInt(sy.max));
+
+    // 拡大率（Scale）を小数点第2位で四捨五入
+    imgScale = Math.round(imgScale * 100) / 100;
+    imgScale = Math.min(Math.max(parseFloat(ss.min), imgScale), parseFloat(ss.max));
+
+    // 画面の各数値表示（スライダーとテキスト）を更新
+    sx.value = imgX; 
+    document.getElementById('val-img-x').innerText = imgX + 'px';
+    
+    sy.value = imgY; 
+    document.getElementById('val-img-y').innerText = imgY + 'px';
+    
+    ss.value = imgScale;
+    document.getElementById('val-scale').innerText = imgScale.toFixed(2);
+
+    // 綺麗にした数値で画像を再描画
+    updateImageTransform();
+}
     document.getElementById('image-input').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
