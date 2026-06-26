@@ -1275,7 +1275,20 @@ let selectedTopics = [];
     })();
 
     document.getElementById('download-btn').addEventListener('click', () => {
-        html2canvas(document.getElementById('character-card'), { scale: 2, useCORS: true, logging: false, backgroundColor: null }).then(canvas => {
+        const cardEl2 = document.getElementById('character-card');
+        const wasShrunk = cardEl2.classList.contains('card-shrunk');
+        // 縮小中なら一時的に元に戻す
+        if (wasShrunk) {
+            cardEl2.classList.remove('card-shrunk');
+            cardEl2.style.marginBottom = '';
+        }
+        html2canvas(cardEl2, { scale: 2, useCORS: true, logging: false, backgroundColor: null }).then(canvas => {
+            // ダウンロード後に元の状態に戻す
+            if (wasShrunk) {
+                cardEl2.classList.add('card-shrunk');
+                const naturalH = cardEl2.offsetHeight;
+                cardEl2.style.marginBottom = `-${naturalH * (1 - 0.38)}px`;
+            }
             const link = document.createElement('a');
             link.download = `${document.getElementById('card-name').innerText}_magazine.png`;
             link.href = canvas.toDataURL('image/png'); link.click();
