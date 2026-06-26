@@ -202,10 +202,10 @@
             overflow: hidden;
             box-shadow: 0 25px 60px rgba(0,0,0,0.15);
             border-radius: 4px;
-            cursor: grab;
+            cursor: default;
             user-select: none;
         }
-        #character-card:active { cursor: grabbing; }
+        #character-card:active { cursor: default; }
 
         .bg-image-container {
             width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: hidden; pointer-events: none;
@@ -241,13 +241,12 @@
             top: 140px;
             left: 24px;
             display: flex;
-            pointer-events: auto;
-            cursor: move;
+            pointer-events: none;
+            cursor: default;
             z-index: 10;
             box-sizing: border-box;
             transition: font-size 0.1s, gap 0.1s;
         }
-        #magazine-topics-container:active { cursor: grabbing; }
 
         /* 通常の縦並びスタイル */
         #magazine-topics-container.layout-vertical {
@@ -339,13 +338,12 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            pointer-events: auto;
-            cursor: move;
+            pointer-events: none;
+            cursor: default;
             z-index: 10;
             box-sizing: border-box;
             max-width: 260px;
         }
-        #magazine-jobs-container:active { cursor: grabbing; }
         .job-display-item {
             display: flex;
             flex-direction: column;
@@ -402,13 +400,13 @@
             line-height: 0.95; 
             letter-spacing: 1px; 
             margin: 0; 
-            text-transform: uppercase; 
+            
         }
 
         /* フッター */
         .magazine-footer {
-            display: flex; justify-content: space-between; align-items: flex-end; font-size: 8px; font-weight: 700; letter-spacing: 1.5px; border-top: 1px dashed rgba(255,255,255,0.25); padding-top: 10px; margin-top: 10px;
-        }
+    display: flex; justify-content: space-between; align-items: flex-end; font-size: 8px; font-weight: 700; letter-spacing: 1.5px; padding-top: 10px; margin-top: 10px;
+}
         .footer-left { display: flex; flex-direction: column; gap: 3px; }
         .footer-right { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; font-weight: 700; line-height: 1; text-align: right; }
         
@@ -425,72 +423,16 @@
         }
 
         .hint-text { font-size: 12px; color: #8E8E93; text-align: center; line-height: 1.6; }
+/* 💡 ここから追加 */
 
-        /* フローティングプレビュー小窓 */
+        /* 💡 ここまで追加 */
+        /* フローティングプレビュー小窓 — 無効化 */
         #floating-preview {
-            position: fixed;
-            top: 40px;
-            right: 40px;
-            width: 220px;
-            background: #1C1C1E;
-            border-radius: 14px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.35);
-            z-index: 9999;
-            user-select: none;
-            overflow: hidden;
-        }
-        #floating-preview-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            cursor: move;
-            background: #2C2C2E;
-        }
-        #floating-preview-header span {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            color: #8E8E93;
-            text-transform: uppercase;
-        }
-        #floating-preview-close {
-            background: none;
-            border: none;
-            color: #8E8E93;
-            font-size: 16px;
-            cursor: pointer;
-            line-height: 1;
-            padding: 0;
-        }
-        #floating-preview-close:hover { color: #FFF; }
-        #floating-preview-body {
-            padding: 10px;
-        }
-        #floating-preview-canvas {
-            width: 100%;
-            border-radius: 6px;
-            display: block;
+            display: none !important;
         }
         #floating-preview-toggle {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #1C1C1E;
-            color: #FFF;
-            border: none;
-            border-radius: 50px;
-            padding: 12px 20px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            cursor: pointer;
-            z-index: 9998;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-            transition: background 0.2s;
+            display: none !important;
         }
-        #floating-preview-toggle:hover { background: #3A3A3C; }
-
 
 /* スマホ画面（幅1000px以下）になったらレイアウトを縦に変える */
 @media screen and (max-width: 1000px) {
@@ -514,6 +456,12 @@
     .preview-panel {
         width: 100%;
         order: -1; /* プレビューを一番上に持ってくる */
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: #ffffff;
+        padding: 10px 0;
+        margin: -10px 0 0 0;
     }
 
     #character-card {
@@ -523,9 +471,6 @@
         aspect-ratio: 400 / 550; /* 比率を維持して自動伸縮 */
     }
 }
-
-
-
 
     </style>
 </head>
@@ -556,10 +501,10 @@
                 <div class="control-row">
                     <span class="control-label">Photo Filter</span>
                     <select id="input-filter">
-                        <option value="none">None (原色)</option>
-                        <option value="sepia(0.15) contrast(1.1) saturate(1.1) hue-rotate(-5deg)">Warm Film (暖色系フィルム)</option>
-                        <option value="contrast(0.95) brightness(1.05) saturate(0.8) hue-rotate(10deg)">Cool Fade (透明感フェード)</option>
-                        <option value="grayscale(1) contrast(1.2)">Dramatic Noir (モノクロ)</option>
+                        <option value="none">原色</option>
+                        <option value="sepia(0.15) contrast(1.1) saturate(1.1) hue-rotate(-5deg)">暖色系フィルム</option>
+                        <option value="contrast(0.95) brightness(1.05) saturate(0.8) hue-rotate(10deg)">透明感フェード</option>
+                        <option value="grayscale(1) contrast(1.2)">モノクロ</option>
                     </select>
                 </div>
                 <div class="control-row">
@@ -599,25 +544,63 @@
             <div class="form-group">
                 <label>誌名フォント</label>
                 <select id="input-mag-font">
-                    <option value="'Cormorant Garamond', serif">Cormorant Garamond（デフォルト）</option>
-                    <option value="'Playfair Display', serif">Playfair Display（Vogue系）</option>
-                    <option value="'Libre Baskerville', serif">Libre Baskerville（クラシック）</option>
-                    <option value="'Josefin Sans', sans-serif">Josefin Sans（モダン細身）</option>
-                    <option value="'Cinzel', serif">Cinzel（彫刻・荘厳）</option>
+                    <option value="'Cormorant Garamond', serif">デフォルト</option>
+                    <option value="'Playfair Display', serif">Vogue系</option>
+                    <option value="'Libre Baskerville', serif">クラシック</option>
+                    <option value="'Josefin Sans', sans-serif">モダン</option>
+                    <option value="'Cinzel', serif">Cinzel</option>
                 </select>
             </div>
             <div class="form-group">
-                <label>Model Name (お名前)</label>
-                <input type="text" id="input-name" value="YOURNAME">
+                <label>Name (お名前)</label>
+                <input type="text" id="input-name" value="NAME">
             </div>
             <div class="form-group">
                 <label>DC / Server</label>
                 <select id="input-server">
-                    <optgroup label="Elemental"><option value="ELEMENTAL / AEGIS">Aegis</option><option value="ELEMENTAL / ATMOS">Atmos</option><option value="ELEMENTAL / CARBUNCLE">Carbuncle</option><option value="ELEMENTAL / GARUDA">Garuda</option><option value="ELEMENTAL / GUNGNIR">Gungnir</option><option value="ELEMENTAL / KUJATA">Kujata</option><option value="ELEMENTAL / TONBERRY">Tonberry</option><option value="ELEMENTAL / TYPHON">Typhon</option></optgroup>
-                    <optgroup label="Gaia"><option value="GAIA / ALEXANDER">Alexander</option><option value="GAIA / BAHAMUT">Bahamut</option><option value="GAIA / DURANDAL">Durandal</option><option value="GAIA / FENRIR">Fenrir</option><option value="GAIA / IFRIT">Ifrit</option><option value="GAIA / RIDILL">Ridill</option><option value="GAIA / TIAMAT">Tiamat</option><option value="GAIA / ULTIMA">Ultima</option></optgroup>
-                    <optgroup label="Mana"><option value="MANA / ANIMA" selected>Anima</option><option value="MANA / ASURA">Asura</option><option value="MANA / CHOCOBO">Chocobo</option><option value="MANA / HADES">Hades</option><option value="MANA / IXION">Ixion</option><option value="MANA / MASAMUNE">Masamune</option><option value="MANA / PANDAEMONIUM">Pandaemonium</option><option value="MANA / TITAN">Titan</option></optgroup>
-                    <optgroup label="Meteor"><option value="METEOR / BELIAS">Belias</option><option value="METEOR / MANDRAGORA">Mandragora</option><option value="METEOR / RAMUH">Ramuh</option><option value="METEOR / SHINRYU">Shinryu</option><option value="METEOR / UNICORN">Unicorn</option><option value="METEOR / VALEFOR">Valefor</option><option value="METEOR / YOJIMBO">Yojimbo</option><option value="METEOR / ZEROMUS">Zeromus</option></optgroup>
-                </select>
+    <option value="" disabled selected>サーバーを選んでください</option>
+
+    <optgroup label="Elemental">
+        <option value="ELEMENTAL / AEGIS">Aegis</option>
+        <option value="ELEMENTAL / ATMOS">Atmos</option>
+        <option value="ELEMENTAL / CARBUNCLE">Carbuncle</option>
+        <option value="ELEMENTAL / GARUDA">Garuda</option>
+        <option value="ELEMENTAL / GUNGNIR">Gungnir</option>
+        <option value="ELEMENTAL / KUJATA">Kujata</option>
+        <option value="ELEMENTAL / TONBERRY">Tonberry</option>
+        <option value="ELEMENTAL / TYPHON">Typhon</option>
+    </optgroup>
+    <optgroup label="Gaia">
+        <option value="GAIA / ALEXANDER">Alexander</option>
+        <option value="GAIA / BAHAMUT">Bahamut</option>
+        <option value="GAIA / DURANDAL">Durandal</option>
+        <option value="GAIA / FENRIR">Fenrir</option>
+        <option value="GAIA / IFRIT">Ifrit</option>
+        <option value="GAIA / RIDILL">Ridill</option>
+        <option value="GAIA / TIAMAT">Tiamat</option>
+        <option value="GAIA / ULTIMA">Ultima</option>
+    </optgroup>
+    <optgroup label="Mana">
+        <option value="MANA / ANIMA">Anima</option>
+        <option value="MANA / ASURA">Asura</option>
+        <option value="MANA / CHOCOBO">Chocobo</option>
+        <option value="MANA / HADES">Hades</option>
+        <option value="MANA / IXION">Ixion</option>
+        <option value="MANA / MASAMUNE">Masamune</option>
+        <option value="MANA / PANDAEMONIUM">Pandaemonium</option>
+        <option value="MANA / TITAN">Titan</option>
+    </optgroup>
+    <optgroup label="Meteor">
+        <option value="METEOR / BELIAS">Belias</option>
+        <option value="METEOR / MANDRAGORA">Mandragora</option>
+        <option value="METEOR / RAMUH">Ramuh</option>
+        <option value="METEOR / SHINRYU">Shinryu</option>
+        <option value="METEOR / UNICORN">Unicorn</option>
+        <option value="METEOR / VALEFOR">Valefor</option>
+        <option value="METEOR / YOJIMBO">Yojimbo</option>
+        <option value="METEOR / ZEROMUS">Zeromus</option>
+    </optgroup>
+</select>
             </div>
             <div class="form-group">
                 <label>活動時間帯 (Active Hours)</label>
@@ -633,10 +616,11 @@
             <div class="section-title">Main Job</div>
             <div class="form-group">
                 <select id="input-main-job">
+                    <option value="" disabled selected>メインジョブを選択してください。</option>
                     <optgroup label="TANK"><option value="PALADIN">ナイト (Paladin)</option><option value="WARRIOR">戦士 (Warrior)</option><option value="DARK KNIGHT">暗黒騎士 (Dark Knight)</option><option value="GUNBREAKER">ガンブレイカー (Gunbreaker)</option></optgroup>
-                    <optgroup label="HEALER"><option value="WHITE MAGE" selected>白魔道士 (White Mage)</option><option value="SCHOLAR">学者 (Scholar)</option><option value="ASTROLOGIAN">占星術師 (Astrologian)</option><option value="SAGE">賢者 (Sage)</option></optgroup>
+                    <optgroup label="HEALER"><option value="WHITE MAGE">白魔道士 (White Mage)</option><option value="SCHOLAR">学者 (Scholar)</option><option value="ASTROLOGIAN">占星術師 (Astrologian)</option><option value="SAGE">賢者 (Sage)</option></optgroup>
                     <optgroup label="MELEE DPS"><option value="MONK">モンク (Monk)</option><option value="DRAGOON">竜騎士 (Dragoon)</option><option value="NINJA">忍者 (Ninja)</option><option value="SAMURAI">侍 (Samurai)</option><option value="REAPER">リーパー (Reaper)</option><option value="VIPER">ヴァイパー (Viper)</option></optgroup>
-                    <optgroup label="RANGED DPS"><option value="BARD">吟遊詩人 (Bard)</option><option value="MACHINIST">機工士 (Machinist)</option><option value="DANCER">踊り手 (Dancer)</option></optgroup>
+                    <optgroup label="RANGED DPS"><option value="BARD">吟遊詩人 (Bard)</option><option value="MACHINIST">機工士 (Machinist)</option><option value="DANCER">踊り子 (Dancer)</option></optgroup>
                     <optgroup label="MAGIC DPS"><option value="BLACK MAGE">黒魔道士 (Black Mage)</option><option value="SUMMONER">召喚士 (Summoner)</option><option value="RED MAGE">赤魔道士 (Red Mage)</option><option value="BLUEMAGE">青魔道士 (Blue Mage)</option><option value="PICTOMANCER">ピクトマンサー (Pictomancer)</option></optgroup>
                 </select>
             </div>
@@ -648,7 +632,7 @@
                 <div class="role-block">
                     <div class="role-title">TANK</div>
                     <div class="sub-job-btn-group">
-                        <span class="job-tag" data-job="PLD">ナ</span><span class="job-tag" data-job="WAR">戦</span><span class="job-tag" data-job="DRK">暗</span><span class="job-tag" data-job="GNB">ガン</span>
+                        <span class="job-tag" data-job="PLD">ナ</span><span class="job-tag" data-job="WAR">戦</span><span class="job-tag" data-job="DRK">暗</span><span class="job-tag" data-job="GNB">ガンブレ</span>
                     </div>
                 </div>
                 <div class="role-block">
@@ -660,16 +644,16 @@
                 <div class="role-block">
                     <div class="role-title">DPS</div>
                     <div class="sub-job-btn-group">
-                        <span class="job-tag" data-job="MNK">モ</span><span class="job-tag" data-job="DRG">竜</span><span class="job-tag" data-job="NIN">忍</span><span class="job-tag" data-job="SAM">侍</span><span class="job-tag" data-job="RPR">リ</span><span class="job-tag" data-job="VPR">ヴァ</span>
+                        <span class="job-tag" data-job="MNK">モ</span><span class="job-tag" data-job="DRG">竜</span><span class="job-tag" data-job="NIN">忍</span><span class="job-tag" data-job="SAM">侍</span><span class="job-tag" data-job="RPR">リーパー</span><span class="job-tag" data-job="VPR">ヴァイパー</span>
                         <span class="job-tag" data-job="BRD">詩</span><span class="job-tag" data-job="MCH">機</span><span class="job-tag" data-job="DNC">踊</span>
-                        <span class="job-tag" data-job="BLM">黒</span><span class="job-tag" data-job="SMN">召</span><span class="job-tag" data-job="RDM">赤</span><span class="job-tag" data-job="PCT">ピ</span>
+                        <span class="job-tag" data-job="BLM">黒魔</span><span class="job-tag" data-job="SMN">召</span><span class="job-tag" data-job="RDM">赤魔</span><span class="job-tag" data-job="PCT">ピクト</span>
                     </div>
                 </div>
                 <div class="role-block">
                     <div class="role-title">HAND / LAND</div>
                     <div class="sub-job-btn-group">
-                        <span class="job-tag" data-job="CRP">木</span><span class="job-tag" data-job="BSM">鍛</span><span class="job-tag" data-job="ARM">板</span><span class="job-tag" data-job="GSM">彫</span><span class="job-tag" data-job="LWR">革</span><span class="job-tag" data-job="WVR">裁</span><span class="job-tag" data-job="ALC">錬</span><span class="job-tag" data-job="CUL">調</span>
-                        <span class="job-tag" data-job="MIN">採</span><span class="job-tag" data-job="BTN">園</span><span class="job-tag" data-job="FSH">漁</span>
+                        <span class="job-tag" data-job="CRP">木工</span><span class="job-tag" data-job="BSM">鍛冶</span><span class="job-tag" data-job="ARM">甲冑</span><span class="job-tag" data-job="GSM">彫金</span><span class="job-tag" data-job="LWR">革</span><span class="job-tag" data-job="WVR">裁縫</span><span class="job-tag" data-job="ALC">錬金</span><span class="job-tag" data-job="CUL">調理</span>
+                        <span class="job-tag" data-job="MIN">採掘</span><span class="job-tag" data-job="BTN">園芸</span><span class="job-tag" data-job="FSH">漁師</span>
                     </div>
                 </div>
             </div>
@@ -700,8 +684,8 @@
             <div class="form-group" style="margin-top: 10px;">
                 <label>見出しのレイアウト形式</label>
                 <select id="input-topic-layout">
-                    <option value="layout-horizontal" selected>案3：ミニマル横並び (Horizontal)</option>
-                    <option value="layout-vertical">通常：マガジン縦並び (Vertical)</option>
+                    <option value="layout-horizontal" selected>横並び (Horizontal)</option>
+                    <option value="layout-vertical">縦並び (Vertical)</option>
                 </select>
             </div>
             <div class="form-group" style="gap: 12px; background: #FFF; padding: 14px; border-radius: 12px; border: 1px solid #D1D1D6;">
@@ -731,7 +715,7 @@
                 </div>
                 <div class="control-row">
                     <span class="control-label" style="width: 70px;">左右位置</span>
-                    <input type="range" id="input-job-x" min="10" max="250" value="23">
+                    <input type="range" id="input-job-x" min="10" max="350" value="23">
                     <span class="value-badge" id="val-job-x">23px</span>
                 </div>
                 <div class="control-row">
@@ -741,7 +725,7 @@
                 </div>
             </div>
         </div>
-        <button class="btn-primary" id="download-btn">カバーをダウンロード</button>
+        <button class="btn-primary" id="download-btn">画像をダウンロード</button>
     </div>
 
     <div class="preview-panel">
@@ -753,8 +737,8 @@
                 <div class="magazine-header">
                     <h1 class="magazine-title" id="card-mag-title">EORZEA</h1>
                 </div>
-                <div id="magazine-topics-container" class="layout-horizontal" title="ドラッグして好きな場所に移動できます"></div>
-                <div id="magazine-jobs-container" title="ドラッグして好きな場所に移動できます"></div>
+                <div id="magazine-topics-container" class="layout-horizontal"></div>
+                <div id="magazine-jobs-container"></div>
                 <div class="magazine-main-feature">
                     <div class="magazine-sub-meta" id="card-meta-container">
                         <span id="card-server">MANA / ANIMA</span>
@@ -762,7 +746,7 @@
                         <span id="card-time">ACTIVE // 21:00 - 25:00</span>
                     </div>
                     <span class="feature-tag" id="card-feature-tag">COVER MODEL SPECIAL</span>
-                    <h2 class="main-headline" id="card-name">YOURNAME</h2>
+                    <h2 class="main-headline" id="card-name">NAME</h2>
                 </div>
                 <div class="magazine-footer">
                     <div class="footer-left"></div>
@@ -773,15 +757,12 @@
                 </div>
             </div>
         </div>
-        <div class="hint-text">
-            ✨ <strong>Complete Restore & Font Unified:</strong><br>
-            時間帯・全ジョブ・サブジョブ選択を完全復元しました。
-        </div>
+
     </div>
 </div>
 
 <!-- フローティングプレビュー小窓 -->
-<div id="floating-preview">
+"<div id="floating-preview">"
     <div id="floating-preview-header">
         <span>Preview</span>
         <button id="floating-preview-close">×</button>
@@ -799,6 +780,7 @@
     let topicX = 23; let topicY = 471; let topicSize = 9;
     let isDraggingTopic = false; let topicStartX = 0; topicStartY = 0;
     let selectedSubJobs = [];
+let selectedTopics = [];
 
     const startSelect = document.getElementById('input-time-start');
     const endSelect = document.getElementById('input-time-end');
@@ -983,7 +965,7 @@
         updateMagazineTopics();
     });
 
-    function updateMagazineTopics() {
+   function updateMagazineTopics() {
         container.innerHTML = '';
         const tagsData = {
             'ss':        { label: 'SS撮影' },
@@ -1004,30 +986,51 @@
             'unreal':    { label: '幻' },
             'criterion': { label: '滅' },
         };
-        tagCheckboxes.forEach(cb => {
-            if (cb.checked) {
-                const data = tagsData[cb.dataset.tag];
-                const topicDiv = document.createElement('div');
-                topicDiv.className = 'topic-item';
-                topicDiv.innerHTML = `
-                    <div class="topic-head-row">
-                        <span class="topic-en" style="font-size: ${topicSize}px;">${data.label}</span>
-                    </div>
-                `;
-                container.appendChild(topicDiv);
-            }
+
+        // 選択された順番（selectedTopics）の通りに描画する
+        selectedTopics.forEach(tagKey => {
+            const data = tagsData[tagKey];
+            if (!data) return;
+
+            const topicDiv = document.createElement('div');
+            topicDiv.className = 'topic-item';
+            topicDiv.innerHTML = `
+                <div class="topic-head-row">
+                    <span class="topic-en" style="font-size: ${topicSize}px;">${data.label}</span>
+                </div>
+            `;
+            container.appendChild(topicDiv);
         });
+
+        // 何も選択されていない時のデフォルト表示
         if (container.children.length === 0) {
             container.innerHTML = `<div class="topic-item"><div class="topic-head-row"><span class="topic-en" style="font-size: ${topicSize}px;">Eorzean Days</span></div></div>`;
         }
     }
 
-    // 8つ上限チェック
+    // チェックボックスのクリックイベント（選択順を記録する処理）
     tagCheckboxes.forEach(cb => {
+        // 初期状態でチェックがついているもの（SS撮影、ハウジング等）を最初から配列に入れておく
+        if (cb.checked && !selectedTopics.includes(cb.dataset.tag)) {
+            selectedTopics.push(cb.dataset.tag);
+        }
+
         cb.addEventListener('change', () => {
-            const checked = document.querySelectorAll('.tag-checkbox:checked');
-            if (checked.length > 8) {
-                cb.checked = false;
+            const tagKey = cb.dataset.tag;
+            
+            if (cb.checked) {
+                // 8つ上限チェック
+                if (selectedTopics.length >= 8) {
+                    cb.checked = false;
+                    return;
+                }
+                // チェックされたら配列の最後（一番後ろ）に追加
+                if (!selectedTopics.includes(tagKey)) {
+                    selectedTopics.push(tagKey);
+                }
+            } else {
+                // チェックが外されたら配列から削除
+                selectedTopics = selectedTopics.filter(t => t !== tagKey);
             }
             updateMagazineTopics();
         });
@@ -1057,44 +1060,27 @@
         inputTopicX.value = topicX; inputTopicY.value = topicY;
     }
 
-    container.addEventListener('mousedown', (e) => { e.stopPropagation(); isDraggingTopic = true; topicStartX = e.clientX - topicX; topicStartY = e.clientY - topicY; });
-    container.addEventListener('touchstart', (e) => { e.stopPropagation(); isDraggingTopic = true; topicStartX = e.touches[0].clientX - topicX; topicStartY = e.touches[0].clientY - topicY; }, {passive: true});
+    container.addEventListener('mousedown', (e) => { e.stopPropagation(); });
+    container.addEventListener('touchstart', (e) => { e.stopPropagation(); }, {passive: true});
 
     const card = document.getElementById('character-card');
     card.addEventListener('mousedown', (e) => { if (!document.getElementById('card-image').src) return; isDraggingBg = true; bgStartX = e.clientX - imgX; bgStartY = e.clientY - imgY; });
     card.addEventListener('touchstart', (e) => { if (!document.getElementById('card-image').src) return; isDraggingBg = true; bgStartX = e.touches[0].clientX - imgX; bgStartY = e.touches[0].clientY - imgY; }, {passive: true});
 
     window.addEventListener('mousemove', (e) => {
-        if (isDraggingTopic) {
-            topicX = e.clientX - topicStartX; topicY = e.clientY - topicStartY;
-            topicX = Math.max(0, Math.min(topicX, 300)); topicY = Math.max(50, Math.min(topicY, 520));
-            syncTopicDOMPosition();
-        } else if (isDraggingJob) {
-            jobX = e.clientX - jobStartX; jobY = e.clientY - jobStartY;
-            jobX = Math.max(0, Math.min(jobX, 300)); jobY = Math.max(50, Math.min(jobY, 520));
-            syncJobDOMPosition();
-        } else if (isDraggingBg) {
+        if (isDraggingBg) {
             imgX = e.clientX - bgStartX; imgY = e.clientY - bgStartY; updateImageTransform();
         }
     });
 
     window.addEventListener('touchmove', (e) => {
-        if (isDraggingTopic) {
-            topicX = e.touches[0].clientX - topicStartX; topicY = e.touches[0].clientY - topicStartY;
-            topicX = Math.max(0, Math.min(topicX, 300)); topicY = Math.max(50, Math.min(topicY, 520));
-            syncTopicDOMPosition();
-        } else if (isDraggingJob) {
-            jobX = e.touches[0].clientX - jobStartX; jobY = e.touches[0].clientY - jobStartY;
-            jobX = Math.max(0, Math.min(jobX, 300)); jobY = Math.max(50, Math.min(jobY, 520));
-            syncJobDOMPosition();
-        } else if (isDraggingBg) {
+        if (isDraggingBg) {
             imgX = e.touches[0].clientX - bgStartX; imgY = e.touches[0].clientY - bgStartY; updateImageTransform();
         }
     }, {passive: true});
 
-    window.addEventListener('mouseup', () => { isDraggingBg = false; isDraggingTopic = false; });
-    window.addEventListener('touchend', () => { isDraggingBg = false; isDraggingTopic = false; });
-
+    window.addEventListener('mouseup', () => { isDraggingBg = false; });
+    window.addEventListener('touchend', () => { isDraggingBg = false; });
     document.getElementById('input-text-theme').addEventListener('change', (e) => {
         const themes = {
             'light':  { color: '#FFFFFF', shadow: '0 2px 12px rgba(0,0,0,0.3)' },
@@ -1198,6 +1184,7 @@
         syncTopicDOMPosition();
         updateJobsDisplay();
         syncJobDOMPosition();
+        startPreview();
     });
 
     document.getElementById('download-btn').addEventListener('click', () => {
