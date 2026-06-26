@@ -1064,13 +1064,27 @@ let selectedTopics = [];
     container.addEventListener('touchstart', (e) => { e.stopPropagation(); }, {passive: true});
 
     const card = document.getElementById('character-card');
+    let lastPinchDist = null;
+
+    function getPinchDist(touches) {
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
     card.addEventListener('mousedown', (e) => { if (!document.getElementById('card-image').src) return; isDraggingBg = true; bgStartX = e.clientX - imgX; bgStartY = e.clientY - imgY; });
     card.addEventListener('touchstart', (e) => {
         if (!document.getElementById('card-image').src) return;
         e.preventDefault();
-        isDraggingBg = true;
-        bgStartX = e.touches[0].clientX - imgX;
-        bgStartY = e.touches[0].clientY - imgY;
+        if (e.touches.length === 2) {
+            // ピンチ開始
+            isDraggingBg = false;
+            lastPinchDist = getPinchDist(e.touches);
+        } else {
+            isDraggingBg = true;
+            bgStartX = e.touches[0].clientX - imgX;
+            bgStartY = e.touches[0].clientY - imgY;
+        }
     }, {passive: false});
 
     window.addEventListener('mousemove', (e) => {
@@ -1080,8 +1094,19 @@ let selectedTopics = [];
     });
 
     window.addEventListener('touchmove', (e) => {
-        if (isDraggingBg) {
-            e.preventDefault();
+        if (!document.getElementById('card-image').src) return;
+        e.preventDefault();
+        if (e.touches.length === 2 && lastPinchDist !== null) {
+            // ピンチズーム
+            const newDist = getPinchDist(e.touches);
+            const ratio = newDist / lastPinchDist;
+            imgScale = Math.min(Math.max(0.05, imgScale * ratio), 4.0);
+            lastPinchDist = newDist;
+            const inputScale = document.getElementById('input-scale');
+            inputScale.value = imgScale;
+            document.getElementById('val-scale').innerText = imgScale.toFixed(2);
+            updateImageTransform();
+        } else if (e.touches.length === 1 && isDraggingBg) {
             imgX = e.touches[0].clientX - bgStartX;
             imgY = e.touches[0].clientY - bgStartY;
             updateImageTransform();
