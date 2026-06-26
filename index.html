@@ -475,8 +475,13 @@
     }
 
     /* スクロール時に縮小 */
+    .preview-panel.card-shrunk {
+        padding: 0;
+    }
     #character-card.card-shrunk {
-        max-width: 160px;
+        max-width: 400px;
+        width: 38%;
+        transform: scale(1);
     }
 }
 
@@ -1233,12 +1238,15 @@ let selectedTopics = [];
         if (window.innerWidth > 1000) return;
         const cardEl = document.getElementById('character-card');
         const SHRINK_AT = 80; // このpx以上スクロールしたら縮小
+        const previewEl = document.querySelector('.preview-panel');
         window.addEventListener('scroll', () => {
             if (window.innerWidth > 1000) return;
             if (window.scrollY > SHRINK_AT) {
                 cardEl.classList.add('card-shrunk');
+                previewEl.classList.add('card-shrunk');
             } else {
                 cardEl.classList.remove('card-shrunk');
+                previewEl.classList.remove('card-shrunk');
             }
         }, {passive: true});
     })();
