@@ -211,7 +211,7 @@
             width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: hidden; pointer-events: none;
         }
         #card-image {
-            position: absolute; top: 0; left: 0; display: block; transform-origin: center center; transition: filter 0.3s;
+            position: absolute; top: 50%; left: 50%; display: block; transform-origin: center center; transition: filter 0.3s; transform: translate(-50%, -50%);
         }
 
         /* マガジン装飾用高級オーバーレイ */
@@ -1189,10 +1189,10 @@ let selectedTopics = [];
                 const img = document.getElementById('card-image');
                 img.src = event.target.result;
                 img.onload = function() {
-                    imgX = (400 - img.naturalWidth) / 2; imgY = (550 - img.naturalHeight) / 2;
+                    imgX = 0; imgY = 0;
                     imgScale = 1.0; inputScale.value = 1.0; document.getElementById('val-scale').innerText = "1.00";
-                    document.getElementById('input-img-x').value = imgX; document.getElementById('val-img-x').innerText = imgX + 'px';
-                    document.getElementById('input-img-y').value = imgY; document.getElementById('val-img-y').innerText = imgY + 'px';
+                    document.getElementById('input-img-x').value = 0; document.getElementById('val-img-x').innerText = '0px';
+                    document.getElementById('input-img-y').value = 0; document.getElementById('val-img-y').innerText = '0px';
                     updateImageTransform();
                 };
             }
@@ -1200,7 +1200,7 @@ let selectedTopics = [];
         }
     });
 
-    function updateImageTransform() { const img = document.getElementById('card-image'); if (img.src) { img.style.transform = `translate(${imgX}px, ${imgY}px) scale(${imgScale})`; } }
+    function updateImageTransform() { const img = document.getElementById('card-image'); if (img.src) { img.style.transform = `translate(calc(-50% + ${imgX}px), calc(-50% + ${imgY}px)) scale(${imgScale})`; } }
 
     // フローティングプレビュー
     const floatingPreview = document.getElementById('floating-preview');
