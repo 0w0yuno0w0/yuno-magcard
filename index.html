@@ -448,6 +448,21 @@
                 transition: padding 0.2s;
             }
 
+
+@media screen and (max-width: 1000px) {
+    #magazine-topics-container, #magazine-jobs-container {
+        /* スマホ時は絶対座標を一旦解除し、自動配置に任せる */
+        position: static !important;
+        margin-top: 10px;
+        margin-left: 10px;
+    }
+}
+
+
+
+
+
+
           #character-card {
     width: 200px !important;
 height: 275px !important;       /* ここを小さくするとプレビューも小さくなります */
