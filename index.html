@@ -222,7 +222,7 @@
             border-radius: 4px;
             cursor: default;
             user-select: none;
-            touch-action: none; /* スマホの暴発を防ぐ */
+            touch-action: none;
         }
 
         .bg-image-container {
@@ -455,11 +455,11 @@
                 transition: max-width 0.3s ease;
             }
 
-            /* スクロール時に縮小 */
-            .preview-panel.card-shrunk {
+            /* スクロール時に縮小（撮影用クラス強制上書き追加） */
+            .preview-panel.card-shrunk:not(.force-full-size) {
                 padding: 0;
             }
-            #character-card.card-shrunk {
+            #character-card.card-shrunk:not(.force-full-size) {
                 transform: scale(0.38);
                 transform-origin: top center;
             }
@@ -769,7 +769,7 @@
     let topicX = 23; let topicY = 500; let topicSize = 9;
     let selectedSubJobs = [];
     let selectedTopics = [];
-    let lastPinchDist = null; // 💡 pinch系の変数宣言を追加
+    let lastPinchDist = null;
     let pinchOnCard = false;
 
     const startSelect = document.getElementById('input-time-start');
@@ -1210,8 +1210,8 @@
         const previewEl = document.querySelector('.preview-panel');
         const SCALE = 0.38;
 
-        function updateCardMargin() {
-            if (cardEl.classList.contains('card-shrunk')) {
+        window.updateCardMargin = function() {
+            if (cardEl.classList.contains('card-shrunk') && !previewEl.classList.contains('force-full-size')) {
                 const naturalH = cardEl.offsetHeight;
                 const scaledH = naturalH * SCALE;
                 const diff = naturalH - scaledH;
@@ -1234,7 +1234,7 @@
                     cardEl.classList.remove('card-shrunk');
                     previewEl.classList.remove('card-shrunk');
                 }
-                updateCardMargin();
+                window.updateCardMargin();
             }
         }
 
@@ -1244,17 +1244,28 @@
 
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
-        const wasShrunk = cardEl2.classList.contains('card-shrunk');
-        if (wasShrunk) {
-            cardEl2.classList.remove('card-shrunk');
+        const previewEl2 = document.querySelector('.preview-panel');
+        
+        // 💡 撮影時エラー修正：スマホスクロール縮小モードを強制解除して等倍(400x550)に戻す
+        const hadShrunk = cardEl2.classList.contains('card-shrunk');
+        if (hadShrunk) {
+            previewEl2.classList.add('force-full-size');
             cardEl2.style.marginBottom = '';
         }
-        html2canvas(cardEl2, { scale: 2, useCORS: true, logging: false, backgroundColor: null }).then(canvas => {
-            if (wasShrunk) {
-                cardEl2.classList.add('card-shrunk');
-                const naturalH = cardEl2.offsetHeight;
-                cardEl2.style.marginBottom = `-${naturalH * (1 - 0.38)}px`;
+
+        // 等倍サイズで html2canvas を実行 (scale: 2 で 800 x 1100 px になる)
+        html2canvas(cardEl2, { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false, 
+            backgroundColor: null 
+        }).then(canvas => {
+            // 撮影が終わったらスマホ用の縮小表示スタイルに戻す
+            if (hadShrunk) {
+                previewEl2.classList.remove('force-full-size');
+                if (window.updateCardMargin) window.updateCardMargin();
             }
+
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (isMobile) {
                 const modal = document.getElementById('save-modal');
