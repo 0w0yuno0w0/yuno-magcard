@@ -1301,15 +1301,26 @@ window.scrollTo(0, 0); // ページトップに強制移動
 
         // 3. ブラウザが400x550pxの正しい位置関係で文字やジョブを再配置するのを少し待つ
         setTimeout(() => {
-  html2canvas(cardEl2, {
-    scale: 2, // 解像度を上げる
-    width: 400, // CSSで指定している本来の幅（px）を指定
-    height: 550, // CSSで指定している本来の高さ（px）を指定
-    windowWidth: document.documentElement.offsetWidth,
-    windowHeight: document.documentElement.offsetHeight,
-    scrollX: -window.scrollX, // スクロール位置を補正
-    scrollY: -window.scrollY,
+ html2canvas(cardEl2, {
+    // 【最重要：座標系を強制リセット】
+    scrollX: -window.scrollX, 
+    scrollY: -window.scrollY, 
+    
+    // 【重要：仮想ウィンドウのサイズを固定】
+    // スマホの画面サイズではなく、キャプチャしたい「カードのサイズ」を強制的に指定
+    width: 400,
+    height: 550,
+    windowWidth: 400,
+    windowHeight: 550,
+
+    // 【座標の基点指定】
+    x: 0,
+    y: 0,
+    
+    // その他設定
+    scale: 2,
     useCORS: true,
+    logging: false,
     backgroundColor: null
 }).then(canvas => {
                 
