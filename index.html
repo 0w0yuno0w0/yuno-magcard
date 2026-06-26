@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VISQUE Inspire - Ultimate Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@200;400;500;700&family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Josefin+Sans:wght@200;400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        :root {
+            --text-theme-color: #FFFFFF;
+            --text-shadow-style: 0 2px 12px rgba(0,0,0,0.3);
+            --magazine-accent: #E0B0B0;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 20px;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #E5E5E7;
+            color: #1C1C1E;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 32px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.06);
+            max-width: 1250px;
+            width: 100%;
+            gap: 35px;
+            box-sizing: border-box;
+        }
+
+        /* 左側編集パネル */
+        .editor-panel {
+            flex: 1.1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            background: #F5F5F7;
+            padding: 30px;
+            border-radius: 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            border-bottom: 1px solid #E5E5E7;
+            padding-bottom: 20px;
+        }
+        .panel-section:last-child { border: none; padding-bottom: 0; }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8E8E93;
+            margin-bottom: 4px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1C1C1E;
+        }
+
+        .form-group input[type="text"], .form-group select {
+            padding: 12px 16px;
+            border: 1px solid #D1D1D6;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #FFF;
+            color: #1C1C1E;
+            font-family: inherit;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .form-group input[type="text"]:focus, .form-group select:focus {
+            border-color: #1C1C1E;
+        }
+
+        .time-select-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+        }
+        .time-split { font-size: 13px; font-weight: 600; text-align: center; color: #8E8E93; }
+
+        /* スタイルタグ */
+        .style-tag-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .style-tag-btn {
+            position: relative;
+            cursor: pointer;
+        }
+        .style-tag-btn input {
+            position: absolute;
+            opacity: 0;
+            width: 0; height: 0;
+        }
+        .style-tag-btn .btn-text {
+            display: block;
+            background: #FFF;
+            border: 1px solid #D1D1D6;
+            border-radius: 6px;
+            padding: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            color: #1C1C1E;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+        .style-tag-btn input:checked + .btn-text {
+            background: #1C1C1E;
+            color: #FFF;
+            border-color: #1C1C1E;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* サブジョブ複数選択エリア */
+        .sub-job-wrapper {
+            background: #FFF;
+            border: 1px solid #D1D1D6;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .role-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .role-title { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #8E8E93; }
+        .sub-job-btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+        .job-tag {
+            padding: 6px 12px; background: #F2F2F7; border: 1px solid transparent; border-radius: 20px; font-size: 11px; font-weight: 600; color: #48484A; cursor: pointer; user-select: none; transition: all 0.15s ease;
+        }
+        .job-tag:hover { background: #E5E5EA; }
+        .job-tag.active { background: #1C1C1E; color: #FFF; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+        /* コントロール列 */
+        .control-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        .control-label { font-size: 12px; font-weight: 700; width: 130px; color: #1C1C1E; }
+        .control-row input[type="range"] {
+            flex: 1; accent-color: #1C1C1E; height: 4px; background: #E5E5EA; border-radius: 2px; cursor: pointer;
+        }
+        .value-badge {
+            background: #E5E5EA; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; min-width: 45px; text-align: center;
+        }
+
+        .btn-primary {
+            background: #1C1C1E; color: #fff; padding: 16px; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.2s; margin-top: 10px;
+        }
+        .btn-primary:hover { background: #3A3A3C; transform: translateY(-1px); }
+
+        /* 右側プレビューパネル */
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        #character-card {
+            width: 400px;
+            height: 550px;
+            background-color: #D2D2D7;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+            border-radius: 4px;
+            cursor: grab;
+            user-select: none;
+        }
+        #character-card:active { cursor: grabbing; }
+
+        .bg-image-container {
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: hidden; pointer-events: none;
+        }
+        #card-image {
+            position: absolute; top: 0; left: 0; display: block; transform-origin: center center; transition: filter 0.3s;
+        }
+
+        /* マガジン装飾用高級オーバーレイ */
+        .magazine-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 28px 24px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; color: var(--text-theme-color); text-shadow: var(--text-shadow-style); pointer-events: none;
+        }
+
+        /* 誌名エリア */
+        .magazine-header {
+            text-align: center; 
+            border-bottom: 1px solid var(--magazine-accent);
+            padding-bottom: 10px;
+        }
+        .magazine-title {
+            font-family: 'Cormorant Garamond', serif; 
+            font-size: 58px; 
+            font-weight: 600; 
+            letter-spacing: -1px; 
+            margin: 0; 
+            line-height: 0.85;
+            text-transform: uppercase;
+        }
+
+        /* 移動可能な見出しコンテナ */
+        #magazine-topics-container {
+            position: absolute;
+            top: 140px;
+            left: 24px;
+            display: flex;
+            pointer-events: auto;
+            cursor: move;
+            z-index: 10;
+            box-sizing: border-box;
+            transition: font-size 0.1s, gap 0.1s;
+        }
+        #magazine-topics-container:active { cursor: grabbing; }
+
+        /* 通常の縦並びスタイル */
+        #magazine-topics-container.layout-vertical {
+            flex-direction: column;
+            gap: 14px;
+            max-width: 260px;
+            width: 100%;
+        }
+        #magazine-topics-container.layout-vertical .topic-item {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        #magazine-topics-container.layout-vertical .topic-head-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        #magazine-topics-container.layout-vertical .topic-en {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        #magazine-topics-container.layout-vertical .topic-page {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--magazine-accent);
+        }
+        #magazine-topics-container.layout-vertical .topic-jp {
+            font-size: 9px;
+            font-weight: 400;
+            margin-top: 3px;
+            letter-spacing: 0.5px;
+            opacity: 0.85;
+            line-height: 1.3;
+        }
+
+        /* 【フォント修正】案3：ミニマル1行水平スタイル */
+        #magazine-topics-container.layout-horizontal {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            max-width: 352px;
+            width: auto;
+        }
+        #magazine-topics-container.layout-horizontal .topic-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        #magazine-topics-container.layout-horizontal .topic-head-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        #magazine-topics-container.layout-horizontal .topic-en {
+            font-family: 'Cormorant Garamond', serif; 
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        #magazine-topics-container.layout-horizontal .topic-page {
+            font-size: 9px;
+            font-weight: 400;
+            opacity: 0.7;
+            font-family: 'Montserrat', sans-serif;
+        }
+        #magazine-topics-container.layout-horizontal .topic-jp {
+            display: none;
+        }
+        #magazine-topics-container.layout-horizontal .topic-item:not(:last-child)::after {
+            content: "/";
+            margin-left: 10px;
+            color: var(--magazine-accent);
+            font-weight: 400;
+            opacity: 0.8;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* 移動可能なジョブコンテナ */
+        #magazine-jobs-container {
+            position: absolute;
+            top: 300px;
+            left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: auto;
+            cursor: move;
+            z-index: 10;
+            box-sizing: border-box;
+            max-width: 260px;
+        }
+        #magazine-jobs-container:active { cursor: grabbing; }
+        .job-display-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .job-display-en {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            line-height: 1;
+            color: var(--text-theme-color);
+            text-shadow: var(--text-shadow-style);
+        }
+        .job-display-role {
+            font-size: 9px;
+            font-weight: 400;
+            margin-top: 3px;
+            letter-spacing: 0.5px;
+            opacity: 0.85;
+            line-height: 1.3;
+            color: var(--text-theme-color);
+            text-shadow: var(--text-shadow-style);
+        }
+
+        /* 下部：メインフィーチャーエリア */
+        .magazine-main-feature { margin-top: auto; margin-bottom: 4px; display: flex; flex-direction: column; }
+        
+        .magazine-sub-meta {
+            font-size: 8px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            opacity: 0.85;
+            margin-bottom: 8px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .meta-dot { color: var(--magazine-accent); font-weight: 900; }
+
+        .feature-tag {
+            display: block; 
+            color: var(--magazine-accent); 
+            font-size: 9px; 
+            font-weight: 700; 
+            letter-spacing: 3px; 
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        .main-headline { 
+            font-family: 'Cormorant Garamond', serif; 
+            font-size: 42px; 
+            font-weight: 400; 
+            line-height: 0.95; 
+            letter-spacing: 1px; 
+            margin: 0; 
+            text-transform: uppercase; 
+        }
+
+        /* フッター */
+        .magazine-footer {
+            display: flex; justify-content: space-between; align-items: flex-end; font-size: 8px; font-weight: 700; letter-spacing: 1.5px; border-top: 1px dashed rgba(255,255,255,0.25); padding-top: 10px; margin-top: 10px;
+        }
+        .footer-left { display: flex; flex-direction: column; gap: 3px; }
+        .footer-right { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; font-weight: 700; line-height: 1; text-align: right; }
+        
+        /* 権利表記スタイル */
+        .copyright-notice {
+            font-size: 7px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-align: right;
+            font-family: 'Montserrat', sans-serif;
+            font-style: normal;
+        }
+
+        .hint-text { font-size: 12px; color: #8E8E93; text-align: center; line-height: 1.6; }
+
+        /* フローティングプレビュー小窓 */
+        #floating-preview {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            width: 220px;
+            background: #1C1C1E;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+            z-index: 9999;
+            user-select: none;
+            overflow: hidden;
+        }
+        #floating-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            cursor: move;
+            background: #2C2C2E;
+        }
+        #floating-preview-header span {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: #8E8E93;
+            text-transform: uppercase;
+        }
+        #floating-preview-close {
+            background: none;
+            border: none;
+            color: #8E8E93;
+            font-size: 16px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+        }
+        #floating-preview-close:hover { color: #FFF; }
+        #floating-preview-body {
+            padding: 10px;
+        }
+        #floating-preview-canvas {
+            width: 100%;
+            border-radius: 6px;
+            display: block;
+        }
+        #floating-preview-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1C1C1E;
+            color: #FFF;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            z-index: 9998;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            transition: background 0.2s;
+        }
+        #floating-preview-toggle:hover { background: #3A3A3C; }
+
+
+/* スマホ画面（幅1000px以下）になったらレイアウトを縦に変える */
+@media screen and (max-width: 1000px) {
+    body {
+        padding: 10px;
+        align-items: flex-start; /* 縦長になっても見やすいように */
+    }
+
+    .container {
+        flex-direction: column; /* 左右並びを上下並びに変更 */
+        padding: 15px;
+        gap: 20px;
+    }
+
+    .editor-panel {
+        max-height: none; /* スマホなら全表示させる */
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .preview-panel {
+        width: 100%;
+        order: -1; /* プレビューを一番上に持ってくる */
+    }
+
+    #character-card {
+        width: 100%; /* 横幅いっぱいに広げる */
+        max-width: 400px; /* ただし最大サイズは守る */
+        height: auto;
+        aspect-ratio: 400 / 550; /* 比率を維持して自動伸縮 */
+    }
+}
+
+
+
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="editor-panel">
+        <div class="panel-section">
+            <div class="section-title">Cover Styling</div>
+            <div class="form-group">
+                <label>1. カバー画像を選択</label>
+                <input type="file" id="image-input" accept="image/*">
+            </div>
+            <div class="form-group" style="gap: 12px; margin-top: 4px;">
+                <div class="control-row">
+                    <span class="control-label">Text Color Theme</span>
+                    <select id="input-text-theme">
+                        <option value="light">White Theme (明るいSS向け)</option>
+                        <option value="dark">Dark Theme (暗いSS向け)</option>
+                        <option value="gold">Gold Theme (ゴールド系)</option>
+                        <option value="rose">Rose Theme (ピンク系)</option>
+                        <option value="ice">Ice Blue Theme (青白系)</option>
+                        <option value="smoke">Smoke Theme (半透明グレー)</option>
+                        <option value="shadow">Shadow Theme (暗め半透明)</option>
+                        <option value="dusk">Dusk Theme (夕暮れ系)</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <span class="control-label">Photo Filter</span>
+                    <select id="input-filter">
+                        <option value="none">None (原色)</option>
+                        <option value="sepia(0.15) contrast(1.1) saturate(1.1) hue-rotate(-5deg)">Warm Film (暖色系フィルム)</option>
+                        <option value="contrast(0.95) brightness(1.05) saturate(0.8) hue-rotate(10deg)">Cool Fade (透明感フェード)</option>
+                        <option value="grayscale(1) contrast(1.2)">Dramatic Noir (モノクロ)</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <span class="control-label">Image Scale</span>
+                    <input type="range" id="input-scale" min="0.05" max="3" step="0.01" value="1.0">
+                    <span class="value-badge" id="val-scale">1.00</span>
+                </div>
+                <div class="control-row">
+                    <span class="control-label">Accent Line Color</span>
+                    <select id="input-color">
+                        <option value="#E0B0B0">Rose Rouge (ローズ系)</option>
+                        <option value="#D4AF37">Gold Leaf (ゴールド系)</option>
+                        <option value="#4A7C59">Sage Green (深緑系)</option>
+                        <option value="#2A6F97">Clear Blue (ブルー系)</option>
+                        <option value="#D94E34">Sunset Orange (朱色系)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Profile Identity</div>
+            <div class="form-group">
+                <label>Magazine Title (誌名)</label>
+                <input type="text" id="input-mag-title" value="EORZEA">
+            </div>
+            <div class="control-row">
+                <span class="control-label">誌名サイズ</span>
+                <input type="range" id="input-mag-size" min="20" max="80" value="58">
+                <span class="value-badge" id="val-mag-size">58px</span>
+            </div>
+            <div class="control-row">
+                <span class="control-label">誌名透明度</span>
+                <input type="range" id="input-mag-opacity" min="0" max="100" value="100">
+                <span class="value-badge" id="val-mag-opacity">100%</span>
+            </div>
+            <div class="form-group">
+                <label>誌名フォント</label>
+                <select id="input-mag-font">
+                    <option value="'Cormorant Garamond', serif">Cormorant Garamond（デフォルト）</option>
+                    <option value="'Playfair Display', serif">Playfair Display（Vogue系）</option>
+                    <option value="'Libre Baskerville', serif">Libre Baskerville（クラシック）</option>
+                    <option value="'Josefin Sans', sans-serif">Josefin Sans（モダン細身）</option>
+                    <option value="'Cinzel', serif">Cinzel（彫刻・荘厳）</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Model Name (お名前)</label>
+                <input type="text" id="input-name" value="YOURNAME">
+            </div>
+            <div class="form-group">
+                <label>DC / Server</label>
+                <select id="input-server">
+                    <optgroup label="Elemental"><option value="ELEMENTAL / AEGIS">Aegis</option><option value="ELEMENTAL / ATMOS">Atmos</option><option value="ELEMENTAL / CARBUNCLE">Carbuncle</option><option value="ELEMENTAL / GARUDA">Garuda</option><option value="ELEMENTAL / GUNGNIR">Gungnir</option><option value="ELEMENTAL / KUJATA">Kujata</option><option value="ELEMENTAL / TONBERRY">Tonberry</option><option value="ELEMENTAL / TYPHON">Typhon</option></optgroup>
+                    <optgroup label="Gaia"><option value="GAIA / ALEXANDER">Alexander</option><option value="GAIA / BAHAMUT">Bahamut</option><option value="GAIA / DURANDAL">Durandal</option><option value="GAIA / FENRIR">Fenrir</option><option value="GAIA / IFRIT">Ifrit</option><option value="GAIA / RIDILL">Ridill</option><option value="GAIA / TIAMAT">Tiamat</option><option value="GAIA / ULTIMA">Ultima</option></optgroup>
+                    <optgroup label="Mana"><option value="MANA / ANIMA" selected>Anima</option><option value="MANA / ASURA">Asura</option><option value="MANA / CHOCOBO">Chocobo</option><option value="MANA / HADES">Hades</option><option value="MANA / IXION">Ixion</option><option value="MANA / MASAMUNE">Masamune</option><option value="MANA / PANDAEMONIUM">Pandaemonium</option><option value="MANA / TITAN">Titan</option></optgroup>
+                    <optgroup label="Meteor"><option value="METEOR / BELIAS">Belias</option><option value="METEOR / MANDRAGORA">Mandragora</option><option value="METEOR / RAMUH">Ramuh</option><option value="METEOR / SHINRYU">Shinryu</option><option value="METEOR / UNICORN">Unicorn</option><option value="METEOR / VALEFOR">Valefor</option><option value="METEOR / YOJIMBO">Yojimbo</option><option value="METEOR / ZEROMUS">Zeromus</option></optgroup>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>活動時間帯 (Active Hours)</label>
+                <div class="time-select-row">
+                    <select id="input-time-start"></select>
+                    <span class="time-split">to</span>
+                    <select id="input-time-end"></select>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Main Job</div>
+            <div class="form-group">
+                <select id="input-main-job">
+                    <optgroup label="TANK"><option value="PALADIN">ナイト (Paladin)</option><option value="WARRIOR">戦士 (Warrior)</option><option value="DARK KNIGHT">暗黒騎士 (Dark Knight)</option><option value="GUNBREAKER">ガンブレイカー (Gunbreaker)</option></optgroup>
+                    <optgroup label="HEALER"><option value="WHITE MAGE" selected>白魔道士 (White Mage)</option><option value="SCHOLAR">学者 (Scholar)</option><option value="ASTROLOGIAN">占星術師 (Astrologian)</option><option value="SAGE">賢者 (Sage)</option></optgroup>
+                    <optgroup label="MELEE DPS"><option value="MONK">モンク (Monk)</option><option value="DRAGOON">竜騎士 (Dragoon)</option><option value="NINJA">忍者 (Ninja)</option><option value="SAMURAI">侍 (Samurai)</option><option value="REAPER">リーパー (Reaper)</option><option value="VIPER">ヴァイパー (Viper)</option></optgroup>
+                    <optgroup label="RANGED DPS"><option value="BARD">吟遊詩人 (Bard)</option><option value="MACHINIST">機工士 (Machinist)</option><option value="DANCER">踊り手 (Dancer)</option></optgroup>
+                    <optgroup label="MAGIC DPS"><option value="BLACK MAGE">黒魔道士 (Black Mage)</option><option value="SUMMONER">召喚士 (Summoner)</option><option value="RED MAGE">赤魔道士 (Red Mage)</option><option value="BLUEMAGE">青魔道士 (Blue Mage)</option><option value="PICTOMANCER">ピクトマンサー (Pictomancer)</option></optgroup>
+                </select>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Sub Jobs (Multiple)</div>
+            <div class="sub-job-wrapper">
+                <div class="role-block">
+                    <div class="role-title">TANK</div>
+                    <div class="sub-job-btn-group">
+                        <span class="job-tag" data-job="PLD">ナ</span><span class="job-tag" data-job="WAR">戦</span><span class="job-tag" data-job="DRK">暗</span><span class="job-tag" data-job="GNB">ガン</span>
+                    </div>
+                </div>
+                <div class="role-block">
+                    <div class="role-title">HEALER</div>
+                    <div class="sub-job-btn-group">
+                        <span class="job-tag" data-job="WHM">白</span><span class="job-tag" data-job="SCH">学</span><span class="job-tag" data-job="AST">占</span><span class="job-tag" data-job="SGE">賢</span>
+                    </div>
+                </div>
+                <div class="role-block">
+                    <div class="role-title">DPS</div>
+                    <div class="sub-job-btn-group">
+                        <span class="job-tag" data-job="MNK">モ</span><span class="job-tag" data-job="DRG">竜</span><span class="job-tag" data-job="NIN">忍</span><span class="job-tag" data-job="SAM">侍</span><span class="job-tag" data-job="RPR">リ</span><span class="job-tag" data-job="VPR">ヴァ</span>
+                        <span class="job-tag" data-job="BRD">詩</span><span class="job-tag" data-job="MCH">機</span><span class="job-tag" data-job="DNC">踊</span>
+                        <span class="job-tag" data-job="BLM">黒</span><span class="job-tag" data-job="SMN">召</span><span class="job-tag" data-job="RDM">赤</span><span class="job-tag" data-job="PCT">ピ</span>
+                    </div>
+                </div>
+                <div class="role-block">
+                    <div class="role-title">HAND / LAND</div>
+                    <div class="sub-job-btn-group">
+                        <span class="job-tag" data-job="CRP">木</span><span class="job-tag" data-job="BSM">鍛</span><span class="job-tag" data-job="ARM">板</span><span class="job-tag" data-job="GSM">彫</span><span class="job-tag" data-job="LWR">革</span><span class="job-tag" data-job="WVR">裁</span><span class="job-tag" data-job="ALC">錬</span><span class="job-tag" data-job="CUL">調</span>
+                        <span class="job-tag" data-job="MIN">採</span><span class="job-tag" data-job="BTN">園</span><span class="job-tag" data-job="FSH">漁</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Playstyle & Topic Controls</div>
+            <div style="font-size:12px; font-weight:700; margin-bottom:-4px;">トピックス選択 (8つまで)</div>
+            <div class="style-tag-grid">
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="ss" checked><span class="btn-text">SS撮影</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="house" checked><span class="btn-text">ハウジング</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="rp" checked><span class="btn-text">ロールプレイ</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="raid" checked><span class="btn-text">レイド</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="level"><span class="btn-text">レベリング</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="gather"><span class="btn-text">ギャザラー</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="craft"><span class="btn-text">クラフター</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="pvp"><span class="btn-text">PvP</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="mirapri"><span class="btn-text">ミラプリ</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="mount"><span class="btn-text">マウント収集</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="mobhunt"><span class="btn-text">モブハント</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="map"><span class="btn-text">地図</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="friend"><span class="btn-text">フレンド募集中</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="savage"><span class="btn-text">零式</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="ultimate"><span class="btn-text">絶</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="unreal"><span class="btn-text">幻</span></label>
+                <label class="style-tag-btn"><input type="checkbox" class="tag-checkbox" data-tag="criterion"><span class="btn-text">滅</span></label>
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+                <label>見出しのレイアウト形式</label>
+                <select id="input-topic-layout">
+                    <option value="layout-horizontal" selected>案3：ミニマル横並び (Horizontal)</option>
+                    <option value="layout-vertical">通常：マガジン縦並び (Vertical)</option>
+                </select>
+            </div>
+            <div class="form-group" style="gap: 12px; background: #FFF; padding: 14px; border-radius: 12px; border: 1px solid #D1D1D6;">
+                <label style="font-size: 11px; text-transform: uppercase; color: #8E8E93;">見出しのサイズ・位置調整</label>
+                <div class="control-row">
+                    <span class="control-label" style="width: 70px;">文字サイズ</span>
+                    <input type="range" id="input-topic-size" min="8" max="24" value="9">
+                    <span class="value-badge" id="val-topic-size">9px</span>
+                </div>
+                <div class="control-row">
+                    <span class="control-label" style="width: 70px;">左右位置</span>
+                    <input type="range" id="input-topic-x" min="10" max="250" value="23">
+                    <span class="value-badge" id="val-topic-x">23px</span>
+                </div>
+                <div class="control-row">
+                    <span class="control-label" style="width: 70px;">上下位置</span>
+                    <input type="range" id="input-topic-y" min="60" max="520" value="471">
+                    <span class="value-badge" id="val-topic-y">471px</span>
+                </div>
+            </div>
+            <div class="form-group" style="gap: 12px; background: #FFF; padding: 14px; border-radius: 12px; border: 1px solid #D1D1D6;">
+                <label style="font-size: 11px; text-transform: uppercase; color: #8E8E93;">ジョブエリアのサイズ・位置調整</label>
+                <div class="control-row">
+                    <span class="control-label" style="width: 70px;">文字サイズ</span>
+                    <input type="range" id="input-job-size" min="8" max="24" value="15">
+                    <span class="value-badge" id="val-job-size">15px</span>
+                </div>
+                <div class="control-row">
+                    <span class="control-label" style="width: 70px;">左右位置</span>
+                    <input type="range" id="input-job-x" min="10" max="250" value="23">
+                    <span class="value-badge" id="val-job-x">23px</span>
+                </div>
+                <div class="control-row">
+                    <span class="control-label" style="width: 70px;">上下位置</span>
+                    <input type="range" id="input-job-y" min="60" max="520" value="239">
+                    <span class="value-badge" id="val-job-y">239px</span>
+                </div>
+            </div>
+        </div>
+        <button class="btn-primary" id="download-btn">カバーをダウンロード</button>
+    </div>
+
+    <div class="preview-panel">
+        <div id="character-card">
+            <div class="bg-image-container">
+                <img id="card-image" src="" alt="">
+            </div>
+            <div class="magazine-overlay">
+                <div class="magazine-header">
+                    <h1 class="magazine-title" id="card-mag-title">EORZEA</h1>
+                </div>
+                <div id="magazine-topics-container" class="layout-horizontal" title="ドラッグして好きな場所に移動できます"></div>
+                <div id="magazine-jobs-container" title="ドラッグして好きな場所に移動できます"></div>
+                <div class="magazine-main-feature">
+                    <div class="magazine-sub-meta" id="card-meta-container">
+                        <span id="card-server">MANA / ANIMA</span>
+                        <span class="meta-dot">•</span>
+                        <span id="card-time">ACTIVE // 21:00 - 25:00</span>
+                    </div>
+                    <span class="feature-tag" id="card-feature-tag">COVER MODEL SPECIAL</span>
+                    <h2 class="main-headline" id="card-name">YOURNAME</h2>
+                </div>
+                <div class="magazine-footer">
+                    <div class="footer-left"></div>
+                    <div class="footer-right">
+                        <div>FF14</div>
+                        <div class="copyright-notice">© SQUARE ENIX</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hint-text">
+            ✨ <strong>Complete Restore & Font Unified:</strong><br>
+            時間帯・全ジョブ・サブジョブ選択を完全復元しました。
+        </div>
+    </div>
+</div>
+
+<!-- フローティングプレビュー小窓 -->
+<div id="floating-preview">
+    <div id="floating-preview-header">
+        <span>Preview</span>
+        <button id="floating-preview-close">×</button>
+    </div>
+    <div id="floating-preview-body">
+        <canvas id="floating-preview-canvas"></canvas>
+        <div style="text-align:center; margin-top:8px; font-size:10px; color:#636366; letter-spacing:0.5px;">リアルタイムプレビュー</div>
+    </div>
+</div>
+<button id="floating-preview-toggle">👁 Preview</button>
+
+<script>
+    let imgX = 0; let imgY = 0; let imgScale = 1.0;
+    let isDraggingBg = false; let bgStartX = 0; bgStartY = 0;
+    let topicX = 23; let topicY = 471; let topicSize = 9;
+    let isDraggingTopic = false; let topicStartX = 0; topicStartY = 0;
+    let selectedSubJobs = [];
+
+    const startSelect = document.getElementById('input-time-start');
+    const endSelect = document.getElementById('input-time-end');
+    
+    for(let h=0; h<24; h++) {
+        let hStr = String(h).padStart(2, '0') + ':00';
+        let opt = document.createElement('option'); opt.value = hStr; opt.innerText = hStr;
+        if(h === 21) opt.selected = true;
+        startSelect.appendChild(opt);
+    }
+    for(let h=0; h<=30; h++) {
+        let displayH = h;
+        let suffix = "";
+        if(h >= 24) { displayH = h - 24; suffix = " (翌" + displayH + "時)"; }
+        let hStr = String(h).padStart(2, '0') + ':00';
+        let opt = document.createElement('option'); opt.value = hStr; opt.innerText = String(displayH).padStart(2, '0') + ':00' + suffix;
+        if(h === 25) opt.selected = true;
+        endSelect.appendChild(opt);
+    }
+
+    const cardMagTitle = document.getElementById('card-mag-title');
+    document.getElementById('input-mag-title').addEventListener('input', (e) => { cardMagTitle.innerText = e.target.value; });
+    document.getElementById('input-mag-size').addEventListener('input', (e) => {
+        cardMagTitle.style.fontSize = e.target.value + 'px';
+        document.getElementById('val-mag-size').innerText = e.target.value + 'px';
+    });
+    document.getElementById('input-mag-opacity').addEventListener('input', (e) => {
+        cardMagTitle.style.opacity = e.target.value / 100;
+        document.getElementById('val-mag-opacity').innerText = e.target.value + '%';
+    });
+    document.getElementById('input-mag-font').addEventListener('change', (e) => {
+        cardMagTitle.style.fontFamily = e.target.value;
+    });
+    const cardName = document.getElementById('card-name');
+    document.getElementById('input-name').addEventListener('input', (e) => { cardName.innerText = e.target.value; });
+    const cardServer = document.getElementById('card-server');
+    document.getElementById('input-server').addEventListener('change', (e) => { cardServer.innerText = e.target.value; });
+    const cardMainJob = document.getElementById('card-main-job');
+    document.getElementById('input-main-job').addEventListener('change', (e) => { cardMainJob.innerText = e.target.value; });
+
+    function updateActiveHours() {
+        document.getElementById('card-time').innerText = `ACTIVE // ${startSelect.value} - ${endSelect.value}`;
+    }
+    startSelect.addEventListener('change', updateActiveHours);
+    endSelect.addEventListener('change', updateActiveHours);
+
+    const jobTags = document.querySelectorAll('.job-tag');
+
+    jobTags.forEach(tag => {
+        tag.addEventListener('click', () => {
+            const job = tag.dataset.job;
+            if (tag.classList.contains('active')) {
+                tag.classList.remove('active');
+                selectedSubJobs = selectedSubJobs.filter(j => j !== job);
+            } else {
+                tag.classList.add('active');
+                selectedSubJobs.push(job);
+            }
+            updateJobsDisplay();
+        });
+    });
+
+    // ジョブ表示エリア
+    const jobsContainer = document.getElementById('magazine-jobs-container');
+    let jobX = 23, jobY = 239, jobSize = 15;
+    let isDraggingJob = false, jobStartX = 0, jobStartY = 0;
+
+    const jobRoleMap = {
+        // Tank
+        'PLD': { name: 'Paladin',     role: 'Tank' },
+        'WAR': { name: 'Warrior',     role: 'Tank' },
+        'DRK': { name: 'Dark Knight', role: 'Tank' },
+        'GNB': { name: 'Gunbreaker',  role: 'Tank' },
+        // Healer
+        'WHM': { name: 'White Mage',  role: 'Healer' },
+        'SCH': { name: 'Scholar',     role: 'Healer' },
+        'AST': { name: 'Astrologian', role: 'Healer' },
+        'SGE': { name: 'Sage',        role: 'Healer' },
+        // Melee DPS
+        'MNK': { name: 'Monk',        role: 'DPS' },
+        'DRG': { name: 'Dragoon',     role: 'DPS' },
+        'NIN': { name: 'Ninja',       role: 'DPS' },
+        'SAM': { name: 'Samurai',     role: 'DPS' },
+        'RPR': { name: 'Reaper',      role: 'DPS' },
+        'VPR': { name: 'Viper',       role: 'DPS' },
+        // Ranged DPS
+        'BRD': { name: 'Bard',        role: 'DPS' },
+        'MCH': { name: 'Machinist',   role: 'DPS' },
+        'DNC': { name: 'Dancer',      role: 'DPS' },
+        // Magic DPS
+        'BLM': { name: 'Black Mage',  role: 'DPS' },
+        'SMN': { name: 'Summoner',    role: 'DPS' },
+        'RDM': { name: 'Red Mage',    role: 'DPS' },
+        'PCT': { name: 'Pictomancer', role: 'DPS' },
+        // Hand / Land
+        'CRP': { name: 'Carpenter',   role: 'Crafter' },
+        'BSM': { name: 'Blacksmith',  role: 'Crafter' },
+        'ARM': { name: 'Armorer',     role: 'Crafter' },
+        'GSM': { name: 'Goldsmith',   role: 'Crafter' },
+        'LWR': { name: 'Leatherworker', role: 'Crafter' },
+        'WVR': { name: 'Weaver',      role: 'Crafter' },
+        'ALC': { name: 'Alchemist',   role: 'Crafter' },
+        'CUL': { name: 'Culinarian',  role: 'Crafter' },
+        'MIN': { name: 'Miner',       role: 'Gatherer' },
+        'BTN': { name: 'Botanist',    role: 'Gatherer' },
+        'FSH': { name: 'Fisher',      role: 'Gatherer' },
+    };
+
+    // メインジョブのロールマップ（select valueから引く）
+    const mainJobRoleMap = {
+        'PALADIN': 'Tank', 'WARRIOR': 'Tank', 'DARK KNIGHT': 'Tank', 'GUNBREAKER': 'Tank',
+        'WHITE MAGE': 'Healer', 'SCHOLAR': 'Healer', 'ASTROLOGIAN': 'Healer', 'SAGE': 'Healer',
+        'MONK': 'DPS', 'DRAGOON': 'DPS', 'NINJA': 'DPS', 'SAMURAI': 'DPS', 'REAPER': 'DPS', 'VIPER': 'DPS',
+        'BARD': 'DPS', 'MACHINIST': 'DPS', 'DANCER': 'DPS',
+        'BLACK MAGE': 'DPS', 'SUMMONER': 'DPS', 'RED MAGE': 'DPS', 'BLUEMAGE': 'DPS', 'PICTOMANCER': 'DPS',
+    };
+
+    function updateJobsDisplay() {
+        jobsContainer.innerHTML = '';
+        // メインジョブ
+        const mainJobVal = document.getElementById('input-main-job').value;
+        const mainRole = mainJobRoleMap[mainJobVal] || '';
+        const mainItem = document.createElement('div');
+        mainItem.className = 'job-display-item';
+        mainItem.innerHTML = `
+            <span class="job-display-en" style="font-size:${jobSize}px;">${mainJobVal}</span>
+            <span class="job-display-role">${mainRole}</span>
+        `;
+        jobsContainer.appendChild(mainItem);
+
+        // サブジョブ
+        selectedSubJobs.forEach(abbr => {
+            const data = jobRoleMap[abbr];
+            if (!data) return;
+            const item = document.createElement('div');
+            item.className = 'job-display-item';
+            item.innerHTML = `
+                <span class="job-display-en" style="font-size:${jobSize}px;">${data.name}</span>
+                <span class="job-display-role">${data.role}</span>
+            `;
+            jobsContainer.appendChild(item);
+        });
+    }
+
+    // メインジョブ変更時にジョブエリアも更新
+    document.getElementById('input-main-job').addEventListener('change', () => { updateJobsDisplay(); });
+
+    function syncJobDOMPosition() {
+        jobsContainer.style.left = jobX + 'px';
+        jobsContainer.style.top  = jobY + 'px';
+        document.getElementById('val-job-x').innerText = jobX + 'px';
+        document.getElementById('val-job-y').innerText = jobY + 'px';
+        document.getElementById('input-job-x').value = jobX;
+        document.getElementById('input-job-y').value = jobY;
+    }
+
+    document.getElementById('input-job-size').addEventListener('input', (e) => {
+        jobSize = parseInt(e.target.value);
+        document.getElementById('val-job-size').innerText = jobSize + 'px';
+        jobsContainer.querySelectorAll('.job-display-en').forEach(el => el.style.fontSize = jobSize + 'px');
+    });
+    document.getElementById('input-job-x').addEventListener('input', () => {
+        jobX = parseInt(document.getElementById('input-job-x').value);
+        jobY = parseInt(document.getElementById('input-job-y').value);
+        syncJobDOMPosition();
+    });
+    document.getElementById('input-job-y').addEventListener('input', () => {
+        jobX = parseInt(document.getElementById('input-job-x').value);
+        jobY = parseInt(document.getElementById('input-job-y').value);
+        syncJobDOMPosition();
+    });
+
+    jobsContainer.addEventListener('mousedown', (e) => { e.stopPropagation(); isDraggingJob = true; jobStartX = e.clientX - jobX; jobStartY = e.clientY - jobY; });
+    jobsContainer.addEventListener('touchstart', (e) => { e.stopPropagation(); isDraggingJob = true; jobStartX = e.touches[0].clientX - jobX; jobStartY = e.touches[0].clientY - jobY; }, {passive: true});
+
+    const tagCheckboxes = document.querySelectorAll('.tag-checkbox');
+    const inputLayout = document.getElementById('input-topic-layout');
+    const container = document.getElementById('magazine-topics-container');
+
+    inputLayout.addEventListener('change', () => {
+        container.className = inputLayout.value;
+        updateMagazineTopics();
+    });
+
+    function updateMagazineTopics() {
+        container.innerHTML = '';
+        const tagsData = {
+            'ss':        { label: 'SS撮影' },
+            'house':     { label: 'ハウジング' },
+            'rp':        { label: 'ロールプレイ' },
+            'raid':      { label: 'レイド' },
+            'level':     { label: 'レベリング' },
+            'gather':    { label: 'ギャザラー' },
+            'craft':     { label: 'クラフター' },
+            'pvp':       { label: 'PvP' },
+            'mirapri':   { label: 'ミラプリ' },
+            'mount':     { label: 'マウント収集' },
+            'mobhunt':   { label: 'モブハント' },
+            'map':       { label: '地図' },
+            'friend':    { label: 'フレンド募集中' },
+            'savage':    { label: '零式' },
+            'ultimate':  { label: '絶' },
+            'unreal':    { label: '幻' },
+            'criterion': { label: '滅' },
+        };
+        tagCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                const data = tagsData[cb.dataset.tag];
+                const topicDiv = document.createElement('div');
+                topicDiv.className = 'topic-item';
+                topicDiv.innerHTML = `
+                    <div class="topic-head-row">
+                        <span class="topic-en" style="font-size: ${topicSize}px;">${data.label}</span>
+                    </div>
+                `;
+                container.appendChild(topicDiv);
+            }
+        });
+        if (container.children.length === 0) {
+            container.innerHTML = `<div class="topic-item"><div class="topic-head-row"><span class="topic-en" style="font-size: ${topicSize}px;">Eorzean Days</span></div></div>`;
+        }
+    }
+
+    // 8つ上限チェック
+    tagCheckboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            const checked = document.querySelectorAll('.tag-checkbox:checked');
+            if (checked.length > 8) {
+                cb.checked = false;
+            }
+            updateMagazineTopics();
+        });
+    });
+
+    const inputTopicSize = document.getElementById('input-topic-size');
+    inputTopicSize.addEventListener('input', (e) => {
+        topicSize = parseInt(e.target.value);
+        document.getElementById('val-topic-size').innerText = topicSize + 'px';
+        const elements = container.querySelectorAll('.topic-en');
+        elements.forEach(el => el.style.fontSize = topicSize + 'px');
+    });
+
+    const inputTopicX = document.getElementById('input-topic-x');
+    const inputTopicY = document.getElementById('input-topic-y');
+    function applySliderTopicPos() {
+        topicX = parseInt(inputTopicX.value); topicY = parseInt(inputTopicY.value);
+        syncTopicDOMPosition();
+    }
+    inputTopicX.addEventListener('input', applySliderTopicPos);
+    inputTopicY.addEventListener('input', applySliderTopicPos);
+
+    function syncTopicDOMPosition() {
+        container.style.left = topicX + 'px'; container.style.top = topicY + 'px';
+        document.getElementById('val-topic-x').innerText = topicX + 'px';
+        document.getElementById('val-topic-y').innerText = topicY + 'px';
+        inputTopicX.value = topicX; inputTopicY.value = topicY;
+    }
+
+    container.addEventListener('mousedown', (e) => { e.stopPropagation(); isDraggingTopic = true; topicStartX = e.clientX - topicX; topicStartY = e.clientY - topicY; });
+    container.addEventListener('touchstart', (e) => { e.stopPropagation(); isDraggingTopic = true; topicStartX = e.touches[0].clientX - topicX; topicStartY = e.touches[0].clientY - topicY; }, {passive: true});
+
+    const card = document.getElementById('character-card');
+    card.addEventListener('mousedown', (e) => { if (!document.getElementById('card-image').src) return; isDraggingBg = true; bgStartX = e.clientX - imgX; bgStartY = e.clientY - imgY; });
+    card.addEventListener('touchstart', (e) => { if (!document.getElementById('card-image').src) return; isDraggingBg = true; bgStartX = e.touches[0].clientX - imgX; bgStartY = e.touches[0].clientY - imgY; }, {passive: true});
+
+    window.addEventListener('mousemove', (e) => {
+        if (isDraggingTopic) {
+            topicX = e.clientX - topicStartX; topicY = e.clientY - topicStartY;
+            topicX = Math.max(0, Math.min(topicX, 300)); topicY = Math.max(50, Math.min(topicY, 520));
+            syncTopicDOMPosition();
+        } else if (isDraggingJob) {
+            jobX = e.clientX - jobStartX; jobY = e.clientY - jobStartY;
+            jobX = Math.max(0, Math.min(jobX, 300)); jobY = Math.max(50, Math.min(jobY, 520));
+            syncJobDOMPosition();
+        } else if (isDraggingBg) {
+            imgX = e.clientX - bgStartX; imgY = e.clientY - bgStartY; updateImageTransform();
+        }
+    });
+
+    window.addEventListener('touchmove', (e) => {
+        if (isDraggingTopic) {
+            topicX = e.touches[0].clientX - topicStartX; topicY = e.touches[0].clientY - topicStartY;
+            topicX = Math.max(0, Math.min(topicX, 300)); topicY = Math.max(50, Math.min(topicY, 520));
+            syncTopicDOMPosition();
+        } else if (isDraggingJob) {
+            jobX = e.touches[0].clientX - jobStartX; jobY = e.touches[0].clientY - jobStartY;
+            jobX = Math.max(0, Math.min(jobX, 300)); jobY = Math.max(50, Math.min(jobY, 520));
+            syncJobDOMPosition();
+        } else if (isDraggingBg) {
+            imgX = e.touches[0].clientX - bgStartX; imgY = e.touches[0].clientY - bgStartY; updateImageTransform();
+        }
+    }, {passive: true});
+
+    window.addEventListener('mouseup', () => { isDraggingBg = false; isDraggingTopic = false; });
+    window.addEventListener('touchend', () => { isDraggingBg = false; isDraggingTopic = false; });
+
+    document.getElementById('input-text-theme').addEventListener('change', (e) => {
+        const themes = {
+            'light':  { color: '#FFFFFF', shadow: '0 2px 12px rgba(0,0,0,0.3)' },
+            'dark':   { color: '#1C1C1E', shadow: '0 1px 4px rgba(255,255,255,0.6)' },
+            'gold':   { color: '#D4AF37', shadow: '0 2px 10px rgba(0,0,0,0.4)' },
+            'rose':   { color: '#F4A7B9', shadow: '0 2px 10px rgba(0,0,0,0.3)' },
+            'ice':    { color: '#C8E8F8', shadow: '0 2px 10px rgba(0,0,60,0.3)' },
+            'smoke':  { color: 'rgba(255,255,255,0.6)', shadow: '0 1px 6px rgba(0,0,0,0.2)' },
+            'shadow': { color: 'rgba(20,20,20,0.7)', shadow: '0 1px 4px rgba(255,255,255,0.3)' },
+            'dusk':   { color: '#F5C18A', shadow: '0 2px 10px rgba(80,20,0,0.4)' },
+        };
+        const t = themes[e.target.value] || themes['light'];
+        document.documentElement.style.setProperty('--text-theme-color', t.color);
+        document.documentElement.style.setProperty('--text-shadow-style', t.shadow);
+    });
+    document.getElementById('input-filter').addEventListener('change', (e) => { document.getElementById('card-image').style.filter = e.target.value; });
+    document.getElementById('input-color').addEventListener('change', (e) => { document.documentElement.style.setProperty('--magazine-accent', e.target.value); });
+    
+    const inputScale = document.getElementById('input-scale');
+    inputScale.addEventListener('input', (e) => { imgScale = parseFloat(e.target.value); document.getElementById('val-scale').innerText = imgScale.toFixed(2); updateImageTransform(); });
+    card.addEventListener('wheel', (e) => { if (!document.getElementById('card-image').src) return; e.preventDefault(); if (e.deltaY < 0) imgScale += 0.02; else imgScale -= 0.02; imgScale = Math.min(Math.max(0.05, imgScale), 4.0); inputScale.value = imgScale; document.getElementById('val-scale').innerText = imgScale.toFixed(2); updateImageTransform(); }, { passive: false });
+
+    document.getElementById('image-input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = document.getElementById('card-image');
+                img.src = event.target.result;
+                img.onload = function() {
+                    imgX = (400 - img.naturalWidth) / 2; imgY = (550 - img.naturalHeight) / 2;
+                    imgScale = 1.0; inputScale.value = 1.0; document.getElementById('val-scale').innerText = "1.00";
+                    updateImageTransform();
+                };
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function updateImageTransform() { const img = document.getElementById('card-image'); if (img.src) { img.style.transform = `translate(${imgX}px, ${imgY}px) scale(${imgScale})`; } }
+
+    // フローティングプレビュー
+    const floatingPreview = document.getElementById('floating-preview');
+    const floatingToggle = document.getElementById('floating-preview-toggle');
+    const previewCanvas = document.getElementById('floating-preview-canvas');
+    let fpDragging = false, fpStartX = 0, fpStartY = 0, fpLeft = 0, fpTop = 0;
+    let previewInterval = null;
+
+    function updateFloatingPreview() {
+        html2canvas(document.getElementById('character-card'), {
+            scale: 0.5, useCORS: true, logging: false, backgroundColor: null
+        }).then(canvas => {
+            previewCanvas.width = canvas.width;
+            previewCanvas.height = canvas.height;
+            previewCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        });
+    }
+
+    function startPreview() {
+        floatingPreview.style.display = 'block';
+        floatingToggle.textContent = '× Close';
+        updateFloatingPreview();
+        previewInterval = setInterval(updateFloatingPreview, 1500);
+    }
+
+    function stopPreview() {
+        floatingPreview.style.display = 'none';
+        floatingToggle.textContent = '👁 Preview';
+        clearInterval(previewInterval);
+        previewInterval = null;
+    }
+
+    floatingToggle.addEventListener('click', () => {
+        if (floatingPreview.style.display === 'none' || !floatingPreview.style.display) startPreview();
+        else stopPreview();
+    });
+
+    document.getElementById('floating-preview-close').addEventListener('click', stopPreview);
+
+    // 小窓のドラッグ移動
+    const fpHeader = document.getElementById('floating-preview-header');
+    fpHeader.addEventListener('mousedown', (e) => {
+        fpDragging = true;
+        const rect = floatingPreview.getBoundingClientRect();
+        fpLeft = rect.left; fpTop = rect.top;
+        fpStartX = e.clientX - fpLeft; fpStartY = e.clientY - fpTop;
+        floatingPreview.style.right = 'auto';
+    });
+    window.addEventListener('mousemove', (e) => {
+        if (!fpDragging) return;
+        fpLeft = e.clientX - fpStartX; fpTop = e.clientY - fpStartY;
+        fpLeft = Math.max(0, Math.min(fpLeft, window.innerWidth - floatingPreview.offsetWidth));
+        fpTop  = Math.max(0, Math.min(fpTop,  window.innerHeight - floatingPreview.offsetHeight));
+        floatingPreview.style.left = fpLeft + 'px';
+        floatingPreview.style.top  = fpTop  + 'px';
+    });
+    window.addEventListener('mouseup', () => { fpDragging = false; });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        updateMagazineTopics();
+        syncTopicDOMPosition();
+        updateJobsDisplay();
+        syncJobDOMPosition();
+    });
+
+    document.getElementById('download-btn').addEventListener('click', () => {
+        html2canvas(document.getElementById('character-card'), { scale: 2, useCORS: true, logging: false, backgroundColor: null }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `${document.getElementById('card-name').innerText}_magazine.png`;
+            link.href = canvas.toDataURL('image/png'); link.click();
+        });
+    });
+</script>
+</body>
+</html>
