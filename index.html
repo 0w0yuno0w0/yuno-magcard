@@ -455,20 +455,28 @@
 
     .preview-panel {
         width: 100%;
-        order: -1; /* プレビューを一番上に持ってくる */
+        order: -1;
         position: sticky;
         top: 0;
         z-index: 100;
         background: #ffffff;
-        padding: 10px 0;
-        margin: -10px 0 0 0;
+        padding: 6px 0;
+        display: flex;
+        justify-content: center;
+        transition: padding 0.2s;
     }
 
     #character-card {
-        width: 100%; /* 横幅いっぱいに広げる */
-        max-width: 400px; /* ただし最大サイズは守る */
+        width: 100%;
+        max-width: 400px;
         height: auto;
-        aspect-ratio: 400 / 550; /* 比率を維持して自動伸縮 */
+        aspect-ratio: 400 / 550;
+        transition: max-width 0.3s ease;
+    }
+
+    /* スクロール時に縮小 */
+    #character-card.card-shrunk {
+        max-width: 160px;
     }
 }
 
@@ -1219,6 +1227,21 @@ let selectedTopics = [];
         syncJobDOMPosition();
         startPreview();
     });
+
+    // スマホ時：スクロールでカード縮小
+    (function() {
+        if (window.innerWidth > 1000) return;
+        const cardEl = document.getElementById('character-card');
+        const SHRINK_AT = 80; // このpx以上スクロールしたら縮小
+        window.addEventListener('scroll', () => {
+            if (window.innerWidth > 1000) return;
+            if (window.scrollY > SHRINK_AT) {
+                cardEl.classList.add('card-shrunk');
+            } else {
+                cardEl.classList.remove('card-shrunk');
+            }
+        }, {passive: true});
+    })();
 
     document.getElementById('download-btn').addEventListener('click', () => {
         html2canvas(document.getElementById('character-card'), { scale: 2, useCORS: true, logging: false, backgroundColor: null }).then(canvas => {
