@@ -764,18 +764,18 @@ touch-action: none;
     </div>
 </div>
 
-<div id="save-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; flex-direction:column; align-items:center; justify-content:center; box-sizing:border-box; padding:20px;">
+<div id="save-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; flex-direction:column; align-items:center; justify-content:center; box-sizing:border-box; padding:20px;">
     <div style="width:100%; max-width:380px; position:relative; display:flex; flex-direction:column; align-items:center; gap:12px;">
         
-        <div style="text-align:center; color:#fff;">
+        <div style="text-align:center; color:#fff; user-select:none;">
             <div style="font-size:16px; font-weight:700; margin-bottom:4px;">画像の保存方法</div>
             <div style="font-size:12px; opacity:0.8; line-height:1.4;">画像を長押しして「"写真"に追加」を選んでください</div>
         </div>
 
         <button id="save-modal-close" style="position:absolute; top:-40px; right:0; background:none; border:none; font-size:32px; color:#fff; cursor:pointer; padding:5px; line-height:1;">×</button>
         
-        <div style="width:100%; aspect-ratio:400/550; border-radius:4px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.5); background:#D2D2D7;">
-            <img id="save-modal-img" src="" alt="" style="width:100%; height:100%; object-fit:contain; display:block; user-select:contain; -webkit-user-select:auto;">
+        <div style="width:100%; aspect-ratio:400/550; border-radius:4px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.6); background:#D2D2D7; display:block;">
+            <img id="save-modal-img" src="" alt="Generated Magazine Cover" style="width:100%; height:100%; object-fit:contain; display:block; -webkit-user-select:auto; user-select:auto;">
         </div>
     </div>
 </div>
@@ -1259,11 +1259,12 @@ touch-action: none;
         window.addEventListener('resize', applyScrollState, {passive: true});
     })();
 
-    // 💡 ダウンロード時の出力制御部
+    // 💡 ダウンロード時のレンダリングおよびモーダル同期ロジックの修正
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
         const wasShrunk = cardEl2.classList.contains('card-shrunk');
         
+        // 元のスタイルを完全退避
         const origWidth = cardEl2.style.width;
         const origHeight = cardEl2.style.height;
         const origMargin = cardEl2.style.marginBottom;
@@ -1272,36 +1273,46 @@ touch-action: none;
             cardEl2.classList.remove('card-shrunk');
         }
         
-        // どんな画面サイズであっても撮影時は「横400px・縦550px」の枠に強制固定
+        // 💡 撮影時、確実にプレビューベース(400x550)の等倍プロポーションに固定
         cardEl2.style.setProperty('width', '400px', 'important');
         cardEl2.style.setProperty('height', '550px', 'important');
         cardEl2.style.marginBottom = '0px';
 
-        // html2canvas のスケールを「2」にすることで、確実に 400x2 = 800px、550x2 = 1100px に変換される
-        html2canvas(cardEl2, { scale: 2, useCORS: true, logging: false, backgroundColor: null }).then(canvas => {
-            
-            cardEl2.style.width = origWidth;
-            cardEl2.style.height = origHeight;
-            cardEl2.style.marginBottom = origMargin;
-            
-            if (wasShrunk) {
-                cardEl2.classList.add('card-shrunk');
-                if (updateCardMarginGlobal) updateCardMarginGlobal();
-            }
+        // 💡 レンダリング前に微小な時間差（マージン）を設け、ブラウザの再描画・フォントサイズの同期を完全確定
+        setTimeout(() => {
+            html2canvas(cardEl2, { 
+                scale: 2,               // 400x2 = 800px, 550x2 = 1100px の超高精細データを作成
+                useCORS: true, 
+                logging: false, 
+                backgroundColor: null 
+            }).then(canvas => {
+                
+                // 撮影が終わったらプレビュー画面を元の状態（レスポンシブなど）に安全に戻す
+                cardEl2.style.width = origWidth;
+                cardEl2.style.height = origHeight;
+                cardEl2.style.marginBottom = origMargin;
+                
+                if (wasShrunk) {
+                    cardEl2.classList.add('card-shrunk');
+                    if (updateCardMarginGlobal) updateCardMarginGlobal();
+                }
 
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isMobile) {
-                const modal = document.getElementById('save-modal');
-                // 💡 モーダル用の画像srcに変換した高解像度データ(800x1100)を流し込みます
-                document.getElementById('save-modal-img').src = canvas.toDataURL('image/png');
-                modal.style.display = 'flex';
-            } else {
-                const link = document.createElement('a');
-                link.download = `${document.getElementById('card-name').innerText}_magazine.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            }
-        });
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                if (isMobile) {
+                    const modal = document.getElementById('save-modal');
+                    const modalImg = document.getElementById('save-modal-img');
+                    
+                    // 💡 高解像度化されたキャンバスURL(800x1100相当)をモーダルのsrcに完全にクローン流し込み
+                    modalImg.src = canvas.toDataURL('image/png');
+                    modal.style.display = 'flex';
+                } else {
+                    const link = document.createElement('a');
+                    link.download = `${document.getElementById('card-name').innerText}_magazine.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }
+            });
+        }, 50); // 50msの待機を追加してレイアウト崩れ・被りを完全シャットアウト
     });
 
     document.getElementById('save-modal-close').addEventListener('click', () => {
