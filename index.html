@@ -22,7 +22,7 @@
     /* 追加するFlexbox設定 */
     display: flex;
     flex-direction: column; /* 縦並びにする */
-    align-items: flex-start;    /* 横方向の中央揃え */
+    align-items: center;    /* 横方向の中央揃え */
     justify-content: flex-start; /* 上詰め */
     padding: 20px;          /* 内側の余白 */
     box-sizing: border-box; /* パディングを幅に含める */
@@ -1276,18 +1276,6 @@
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
-
-
-// [A] サイズや透明度の設定をここで「再適用」する
-    // (例：input等の値をHTMLに書き戻す処理)
-    const fontSize = document.getElementById('font-size-input').value;
-    const opacity = document.getElementById('opacity-input').value;
-    
-    document.getElementById('card-name').style.fontSize = fontSize + 'px';
-    document.getElementById('card-name').style.opacity = opacity;
-
-
-
         const wasShrunk = cardEl2.classList.contains('card-shrunk');
         
         // 1. 元のスタイル（レスポンシブ用の縮小など）を退避
@@ -1313,26 +1301,15 @@ window.scrollTo(0, 0); // ページトップに強制移動
 
         // 3. ブラウザが400x550pxの正しい位置関係で文字やジョブを再配置するのを少し待つ
         setTimeout(() => {
- html2canvas(cardEl2, {
-    // 【最重要：座標系を強制リセット】
-    scrollX: -window.scrollX, 
-    scrollY: -window.scrollY, 
-    
-    // 【重要：仮想ウィンドウのサイズを固定】
-    // スマホの画面サイズではなく、キャプチャしたい「カードのサイズ」を強制的に指定
-    width: 400,
-    height: 550,
-    windowWidth: 400,
-    windowHeight: 550,
-
-    // 【座標の基点指定】
-    x: 0,
-    y: 0,
-    
-    // その他設定
-    scale: 2,
+  html2canvas(cardEl2, {
+    scale: 2, // 解像度を上げる
+    width: 400, // CSSで指定している本来の幅（px）を指定
+    height: 550, // CSSで指定している本来の高さ（px）を指定
+    windowWidth: document.documentElement.offsetWidth,
+    windowHeight: document.documentElement.offsetHeight,
+    scrollX: -window.scrollX, // スクロール位置を補正
+    scrollY: -window.scrollY,
     useCORS: true,
-    logging: false,
     backgroundColor: null
 }).then(canvas => {
                 
@@ -1368,7 +1345,7 @@ window.scrollTo(0, 0); // ページトップに強制移動
                 }, 'image/png');
 
             });
-        }, 500); // 300ms待機してフォント読み込みとレイアウトを確実に安定させる
+        }, 300); // 300ms待機してフォント読み込みとレイアウトを確実に安定させる
     });
 </script>
 </body>
