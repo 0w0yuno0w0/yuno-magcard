@@ -10,25 +10,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-
-
-#character-card {
-    position: relative;
-    width: 400px;  /* 基準値を維持 */
-    height: 550px;
-    flex-shrink: 0; /* 縮小させない */
-    overflow: hidden; /* 枠からはみ出るのを防ぐ */
-    
-    /* 追加するFlexbox設定 */
-    display: flex;
-    flex-direction: column; /* 縦並びにする */
-    align-items: flex-start;    /* 横方向の中央揃え */
-    justify-content: flex-start; /* 上詰め */
-    padding: 20px;          /* 内側の余白 */
-    box-sizing: border-box; /* パディングを幅に含める */
-}
-
-
 /* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
 #magazine-jobs-container {
     gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
@@ -274,26 +255,17 @@
         }
 
         /* 移動可能な見出しコンテナ */
-        #magazine-jobs-container {
-    /* 1. 絶対配置を解除 */
-    position: static; 
-    
-    /* 2. 必要な余白を margin で指定 */
-    margin-top: 300px; /* ここで位置を調整 */
-    margin-left: 24px;
-    
-    /* 3. Flexboxの設定はそのまま維持 */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    
-    /* 4. 不要な指定を削除・調整 */
-    pointer-events: none;
-    cursor: default;
-    z-index: 10;
-    box-sizing: border-box;
-    max-width: 260px;
-}
+        #magazine-topics-container {
+            position: absolute;
+            top: 140px;
+            left: 24px;
+            display: flex;
+            pointer-events: none;
+            cursor: default;
+            z-index: 10;
+            box-sizing: border-box;
+            transition: font-size 0.1s, gap 0.1s;
+        }
 
         /* 通常の縦並びスタイル */
         #magazine-topics-container.layout-vertical {
@@ -1224,15 +1196,13 @@
 
     function updateImageTransform() { const img = document.getElementById('card-image'); if (img.src) { img.style.transform = `translate(calc(-50% + ${imgX}px), calc(-50% + ${imgY}px)) scale(${imgScale})`; } }
 
-  window.addEventListener('DOMContentLoaded', () => {
-    // フォントの読み込みを待ってから初期化する
-    document.fonts.ready.then(() => {
+    window.addEventListener('DOMContentLoaded', () => {
         updateMagazineTopics();
         syncTopicDOMPosition();
         updateJobsDisplay();
         syncJobDOMPosition();
     });
-});
+
     let updateCardMarginGlobal = null; 
     (function() {
         const cardEl = document.getElementById('character-card');
@@ -1276,18 +1246,6 @@
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
-
-
-// [A] サイズや透明度の設定をここで「再適用」する
-    // (例：input等の値をHTMLに書き戻す処理)
-    const fontSize = document.getElementById('font-size-input').value;
-    const opacity = document.getElementById('opacity-input').value;
-    
-    document.getElementById('card-name').style.fontSize = fontSize + 'px';
-    document.getElementById('card-name').style.opacity = opacity;
-
-
-
         const wasShrunk = cardEl2.classList.contains('card-shrunk');
         
         // 1. 元のスタイル（レスポンシブ用の縮小など）を退避
@@ -1296,8 +1254,6 @@
         const origMargin = cardEl2.style.marginBottom;
         const origTransform = cardEl2.style.transform;
         const origTransformOrigin = cardEl2.style.transformOrigin;
-
-window.scrollTo(0, 0); // ページトップに強制移動
 
         if (wasShrunk) {
             cardEl2.classList.remove('card-shrunk');
@@ -1313,28 +1269,20 @@ window.scrollTo(0, 0); // ページトップに強制移動
 
         // 3. ブラウザが400x550pxの正しい位置関係で文字やジョブを再配置するのを少し待つ
         setTimeout(() => {
- html2canvas(cardEl2, {
-    // 【最重要：座標系を強制リセット】
-    scrollX: -window.scrollX, 
-    scrollY: -window.scrollY, 
-    
-    // 【重要：仮想ウィンドウのサイズを固定】
-    // スマホの画面サイズではなく、キャプチャしたい「カードのサイズ」を強制的に指定
-    width: 400,
-    height: 550,
-    windowWidth: 400,
-    windowHeight: 550,
-
-    // 【座標の基点指定】
-    x: 0,
-    y: 0,
-    
-    // その他設定
-    scale: 2,
-    useCORS: true,
-    logging: false,
-    backgroundColor: null
-}).then(canvas => {
+            html2canvas(cardEl2, { 
+                scale: 2,               // 400x550 を 2倍（800x1100）の高画質で出力
+                useCORS: true, 
+                logging: false, 
+                backgroundColor: null,
+                width: 400,             // キャプチャ範囲をカードサイズに固定（白背景防止）
+                height: 550,
+                windowWidth: 400,       // html2canvasの仮想ウィンドウ幅をカードに合わせる（位置ズレ防止）
+                windowHeight: 550,
+                x: 0,                   // カード左端からキャプチャ
+                y: 0,
+                scrollX: 0,
+                scrollY: 0
+            }).then(canvas => {
                 
                 // 4. 撮影が終わったら、即座に元のスマホ表示（縮小状態など）に戻す
                 cardEl2.style.width = origWidth;
@@ -1368,7 +1316,7 @@ window.scrollTo(0, 0); // ページトップに強制移動
                 }, 'image/png');
 
             });
-        }, 500); // 300ms待機してフォント読み込みとレイアウトを確実に安定させる
+        }, 300); // 300ms待機してフォント読み込みとレイアウトを確実に安定させる
     });
 </script>
 </body>
