@@ -457,13 +457,13 @@
             }
 
             /* スクロール時に縮小 */
-            .preview-panel.card-shrunk {
+          /*   .preview-panel.card-shrunk {
                 padding: 0;
             }
             #character-card.card-shrunk {
                 transform: scale(0.38);
                 transform-origin: top center;
-            }
+            } */
         }
     </style>
 </head>
@@ -1203,7 +1203,7 @@
         syncJobDOMPosition();
     });
 
-    let updateCardMarginGlobal = null; 
+   /* let updateCardMarginGlobal = null; 
     (function() {
         const cardEl = document.getElementById('character-card');
         const SHRINK_AT = 80;
@@ -1242,7 +1242,7 @@
         window.addEventListener('scroll', applyScrollState, {passive: true});
         window.addEventListener('resize', applyScrollState, {passive: true});
     })();
-
+ */
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
