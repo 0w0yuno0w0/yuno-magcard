@@ -10,6 +10,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
+
+#character-card {
+    /* 撮影中に位置が変わらないよう絶対位置などを安定させる */
+    transform-origin: top left; 
+    box-sizing: border-box;
+}
 /* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
 #magazine-jobs-container {
     gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
@@ -1245,45 +1251,27 @@
 
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
  document.getElementById('download-btn').addEventListener('click', () => {
-        const cardEl = document.getElementById('character-card');
-        
-        // 1. 撮影専用のコンテナを画面外に作成
-        const shotContainer = document.createElement('div');
-        shotContainer.style.position = 'fixed';
-        shotContainer.style.left = '-9999px'; // 画面外へ
-        shotContainer.style.top = '0';
-        document.body.appendChild(shotContainer);
-
-        // 2. カードのクローンを作成してコンテナに入れる
-        const clone = cardEl.cloneNode(true);
-        // スマホ用クラスを強制削除し、スタイルをリセット
-        clone.classList.remove('card-shrunk');
-        clone.style.width = '400px';
-        clone.style.height = '550px';
-        clone.style.transform = 'none';
-        clone.style.margin = '0';
-        shotContainer.appendChild(clone);
-
-        // 3. ブラウザの描画を待ってから撮影
-        requestAnimationFrame(() => {
-            html2canvas(clone, { 
-                scale: 2, 
-                width: 400, 
-                height: 550,
-                backgroundColor: null,
-                useCORS: true
-            }).then(canvas => {
-                // 4. ダウンロード実行
-                const link = document.createElement('a');
-                link.download = `${document.getElementById('card-name').innerText}_magazine.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-
-                // 5. クリーンアップ（クローンを削除）
-                document.body.removeChild(shotContainer);
-            });
-        });
+    const cardEl = document.getElementById('character-card');
+    
+    // 撮影時の設定を「今の状態のまま」行う
+    html2canvas(cardEl, {
+        scale: 2,
+        backgroundColor: null,
+        // ここが重要：画面上のどこからどこまでを切り取るかを指定する
+        // getBoundingClientRect() を使って「現在の正確な位置」を取得します
+        x: cardEl.getBoundingClientRect().left + window.scrollX,
+        y: cardEl.getBoundingClientRect().top + window.scrollY,
+        width: cardEl.offsetWidth,
+        height: cardEl.offsetHeight,
+        useCORS: true
+    }).then(canvas => {
+        // ダウンロード処理
+        const link = document.createElement('a');
+        link.download = `${document.getElementById('card-name').innerText}_magazine.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
     });
+});
 </script>
 </body>
 </html>
