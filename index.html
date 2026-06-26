@@ -17,7 +17,15 @@
     width: 400px;  /* 基準値を維持 */
     height: 550px;
     flex-shrink: 0; /* 縮小させない */
-    /* ... 既存のスタイル ... */
+    overflow: hidden; /* 枠からはみ出るのを防ぐ */
+    
+    /* 追加するFlexbox設定 */
+    display: flex;
+    flex-direction: column; /* 縦並びにする */
+    align-items: center;    /* 横方向の中央揃え */
+    justify-content: flex-start; /* 上詰め */
+    padding: 20px;          /* 内側の余白 */
+    box-sizing: border-box; /* パディングを幅に含める */
 }
 
 
@@ -266,17 +274,26 @@
         }
 
         /* 移動可能な見出しコンテナ */
-        #magazine-topics-container {
-            position: absolute;
-            top: 140px;
-            left: 24px;
-            display: flex;
-            pointer-events: none;
-            cursor: default;
-            z-index: 10;
-            box-sizing: border-box;
-            transition: font-size 0.1s, gap 0.1s;
-        }
+        #magazine-jobs-container {
+    /* 1. 絶対配置を解除 */
+    position: static; 
+    
+    /* 2. 必要な余白を margin で指定 */
+    margin-top: 300px; /* ここで位置を調整 */
+    margin-left: 24px;
+    
+    /* 3. Flexboxの設定はそのまま維持 */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    
+    /* 4. 不要な指定を削除・調整 */
+    pointer-events: none;
+    cursor: default;
+    z-index: 10;
+    box-sizing: border-box;
+    max-width: 260px;
+}
 
         /* 通常の縦並びスタイル */
         #magazine-topics-container.layout-vertical {
