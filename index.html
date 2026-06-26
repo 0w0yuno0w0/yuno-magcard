@@ -10,6 +10,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
+/* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
+#magazine-jobs-container {
+    gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
+}
+
+/* ジョブ名自体の上下の余白をリセット */
+#magazine-jobs-container .job-display-item {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* ロール名（DPS、Healer等）の余白をMAIN JOBと同じ条件にリセット */
+#magazine-jobs-container .role-title {
+    margin-top: 4px !important;    /* 前の項目との間隔をほんの少しだけあける */
+    margin-bottom: 0px !important; /* 下のジョブ名との間隔をゼロに */
+    line-height: 1.2 !important;
+}
+
+
         :root {
             --text-theme-color: #FFFFFF;
             --text-shadow-style: 0 2px 12px rgba(0,0,0,0.3);
@@ -205,7 +224,6 @@
             cursor: default;
             user-select: none;
         }
-        #character-card:active { cursor: default; }
 
         .bg-image-container {
             width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: hidden; pointer-events: none;
@@ -272,21 +290,8 @@
             text-transform: uppercase;
             line-height: 1;
         }
-        #magazine-topics-container.layout-vertical .topic-page {
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--magazine-accent);
-        }
-        #magazine-topics-container.layout-vertical .topic-jp {
-            font-size: 9px;
-            font-weight: 400;
-            margin-top: 3px;
-            letter-spacing: 0.5px;
-            opacity: 0.85;
-            line-height: 1.3;
-        }
 
-        /* 【フォント修正】案3：ミニマル1行水平スタイル */
+        /* ミニマル1行水平スタイル */
         #magazine-topics-container.layout-horizontal {
             flex-direction: row;
             flex-wrap: wrap;
@@ -311,15 +316,6 @@
             letter-spacing: 0.5px;
             text-transform: uppercase;
             line-height: 1;
-        }
-        #magazine-topics-container.layout-horizontal .topic-page {
-            font-size: 9px;
-            font-weight: 400;
-            opacity: 0.7;
-            font-family: 'Montserrat', sans-serif;
-        }
-        #magazine-topics-container.layout-horizontal .topic-jp {
-            display: none;
         }
         #magazine-topics-container.layout-horizontal .topic-item:not(:last-child)::after {
             content: "/";
@@ -370,7 +366,7 @@
         }
 
         /* 下部：メインフィーチャーエリア */
-        .magazine-main-feature { margin-top: auto; margin-bottom: 4px; display: flex; flex-direction: column; }
+        .magazine-main-feature { margin-top: auto; margin-bottom: 25px; display: flex; flex-direction: column; }
         
         .magazine-sub-meta {
             font-size: 8px;
@@ -400,15 +396,12 @@
             line-height: 0.95; 
             letter-spacing: 1px; 
             margin: 0; 
-            
         }
 
         /* フッター */
         .magazine-footer {
-    display: flex; justify-content: space-between; align-items: flex-end; font-size: 8px; font-weight: 700; letter-spacing: 1.5px; padding-top: 10px; margin-top: 10px;
-}
-        .footer-left { display: flex; flex-direction: column; gap: 3px; }
-        .footer-right { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; font-weight: 700; line-height: 1; text-align: right; }
+            display: flex; justify-content: space-between; align-items: flex-end; font-size: 8px; font-weight: 700; letter-spacing: 1.5px; padding-top: 10px; margin-top: 10px;
+        }
         
         /* 権利表記スタイル */
         .copyright-notice {
@@ -422,68 +415,55 @@
             font-style: normal;
         }
 
-        .hint-text { font-size: 12px; color: #8E8E93; text-align: center; line-height: 1.6; }
-/* 💡 ここから追加 */
+        /* スマホ画面（幅1000px以下） */
+        @media screen and (max-width: 1000px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+            }
 
-        /* 💡 ここまで追加 */
-        /* フローティングプレビュー小窓 — 無効化 */
-        #floating-preview {
-            display: none !important;
+            .container {
+                flex-direction: column;
+                padding: 15px;
+                gap: 20px;
+            }
+
+            .editor-panel {
+                max-height: none;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .preview-panel {
+                width: 100%;
+                order: -1;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: #ffffff;
+                padding: 6px 0;
+                display: flex;
+                justify-content: center;
+                transition: padding 0.2s;
+            }
+
+            #character-card {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+                aspect-ratio: 400 / 550;
+                transition: max-width 0.3s ease;
+            }
+
+            /* スクロール時に縮小 */
+            .preview-panel.card-shrunk {
+                padding: 0;
+            }
+            #character-card.card-shrunk {
+                transform: scale(0.38);
+                transform-origin: top center;
+            }
         }
-        #floating-preview-toggle {
-            display: none !important;
-        }
-
-/* スマホ画面（幅1000px以下）になったらレイアウトを縦に変える */
-@media screen and (max-width: 1000px) {
-    body {
-        padding: 10px;
-        align-items: flex-start; /* 縦長になっても見やすいように */
-    }
-
-    .container {
-        flex-direction: column; /* 左右並びを上下並びに変更 */
-        padding: 15px;
-        gap: 20px;
-    }
-
-    .editor-panel {
-        max-height: none; /* スマホなら全表示させる */
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .preview-panel {
-        width: 100%;
-        order: -1;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        background: #ffffff;
-        padding: 6px 0;
-        display: flex;
-        justify-content: center;
-        transition: padding 0.2s;
-    }
-
-    #character-card {
-        width: 100%;
-        max-width: 400px;
-        height: auto;
-        aspect-ratio: 400 / 550;
-        transition: max-width 0.3s ease;
-    }
-
-    /* スクロール時に縮小 */
-    .preview-panel.card-shrunk {
-        padding: 0;
-    }
-    #character-card.card-shrunk {
-        transform: scale(0.38);
-        transform-origin: top center;
-    }
-}
-
     </style>
 </head>
 <body>
@@ -580,49 +560,48 @@
             <div class="form-group">
                 <label>DC / Server</label>
                 <select id="input-server">
-    <option value="" disabled selected>サーバーを選んでください</option>
-
-    <optgroup label="Elemental">
-        <option value="ELEMENTAL / AEGIS">Aegis</option>
-        <option value="ELEMENTAL / ATMOS">Atmos</option>
-        <option value="ELEMENTAL / CARBUNCLE">Carbuncle</option>
-        <option value="ELEMENTAL / GARUDA">Garuda</option>
-        <option value="ELEMENTAL / GUNGNIR">Gungnir</option>
-        <option value="ELEMENTAL / KUJATA">Kujata</option>
-        <option value="ELEMENTAL / TONBERRY">Tonberry</option>
-        <option value="ELEMENTAL / TYPHON">Typhon</option>
-    </optgroup>
-    <optgroup label="Gaia">
-        <option value="GAIA / ALEXANDER">Alexander</option>
-        <option value="GAIA / BAHAMUT">Bahamut</option>
-        <option value="GAIA / DURANDAL">Durandal</option>
-        <option value="GAIA / FENRIR">Fenrir</option>
-        <option value="GAIA / IFRIT">Ifrit</option>
-        <option value="GAIA / RIDILL">Ridill</option>
-        <option value="GAIA / TIAMAT">Tiamat</option>
-        <option value="GAIA / ULTIMA">Ultima</option>
-    </optgroup>
-    <optgroup label="Mana">
-        <option value="MANA / ANIMA">Anima</option>
-        <option value="MANA / ASURA">Asura</option>
-        <option value="MANA / CHOCOBO">Chocobo</option>
-        <option value="MANA / HADES">Hades</option>
-        <option value="MANA / IXION">Ixion</option>
-        <option value="MANA / MASAMUNE">Masamune</option>
-        <option value="MANA / PANDAEMONIUM">Pandaemonium</option>
-        <option value="MANA / TITAN">Titan</option>
-    </optgroup>
-    <optgroup label="Meteor">
-        <option value="METEOR / BELIAS">Belias</option>
-        <option value="METEOR / MANDRAGORA">Mandragora</option>
-        <option value="METEOR / RAMUH">Ramuh</option>
-        <option value="METEOR / SHINRYU">Shinryu</option>
-        <option value="METEOR / UNICORN">Unicorn</option>
-        <option value="METEOR / VALEFOR">Valefor</option>
-        <option value="METEOR / YOJIMBO">Yojimbo</option>
-        <option value="METEOR / ZEROMUS">Zeromus</option>
-    </optgroup>
-</select>
+                    <option value="" disabled selected>サーバーを選んでください</option>
+                    <optgroup label="Elemental">
+                        <option value="ELEMENTAL / AEGIS">Aegis</option>
+                        <option value="ELEMENTAL / ATMOS">Atmos</option>
+                        <option value="ELEMENTAL / CARBUNCLE">Carbuncle</option>
+                        <option value="ELEMENTAL / GARUDA">Garuda</option>
+                        <option value="ELEMENTAL / GUNGNIR">Gungnir</option>
+                        <option value="ELEMENTAL / KUJATA">Kujata</option>
+                        <option value="ELEMENTAL / TONBERRY">Tonberry</option>
+                        <option value="ELEMENTAL / TYPHON">Typhon</option>
+                    </optgroup>
+                    <optgroup label="Gaia">
+                        <option value="GAIA / ALEXANDER">Alexander</option>
+                        <option value="GAIA / BAHAMUT">Bahamut</option>
+                        <option value="GAIA / DURANDAL">Durandal</option>
+                        <option value="GAIA / FENRIR">Fenrir</option>
+                        <option value="GAIA / IFRIT">Ifrit</option>
+                        <option value="GAIA / RIDILL">Ridill</option>
+                        <option value="GAIA / TIAMAT">Tiamat</option>
+                        <option value="GAIA / ULTIMA">Ultima</option>
+                    </optgroup>
+                    <optgroup label="Mana">
+                        <option value="MANA / ANIMA">Anima</option>
+                        <option value="MANA / ASURA">Asura</option>
+                        <option value="MANA / CHOCOBO">Chocobo</option>
+                        <option value="MANA / HADES">Hades</option>
+                        <option value="MANA / IXION">Ixion</option>
+                        <option value="MANA / MASAMUNE">Masamune</option>
+                        <option value="MANA / PANDAEMONIUM">Pandaemonium</option>
+                        <option value="MANA / TITAN">Titan</option>
+                    </optgroup>
+                    <optgroup label="Meteor">
+                        <option value="METEOR / BELIAS">Belias</option>
+                        <option value="METEOR / MANDRAGORA">Mandragora</option>
+                        <option value="METEOR / RAMUH">Ramuh</option>
+                        <option value="METEOR / SHINRYU">Shinryu</option>
+                        <option value="METEOR / UNICORN">Unicorn</option>
+                        <option value="METEOR / VALEFOR">Valefor</option>
+                        <option value="METEOR / YOJIMBO">Yojimbo</option>
+                        <option value="METEOR / ZEROMUS">Zeromus</option>
+                    </optgroup>
+                </select>
             </div>
             <div class="form-group">
                 <label>活動時間帯 (Active Hours)</label>
@@ -760,7 +739,13 @@
                     <h1 class="magazine-title" id="card-mag-title">EORZEA</h1>
                 </div>
                 <div id="magazine-topics-container" class="layout-horizontal"></div>
-                <div id="magazine-jobs-container"></div>
+                
+                <div id="magazine-jobs-container">
+                    <div class="job-display-item">
+                        <span class="job-display-en" id="card-main-job" style="font-size:15px;"></span>
+                    </div>
+                </div>
+
                 <div class="magazine-main-feature">
                     <div class="magazine-sub-meta" id="card-meta-container">
                         <span id="card-server">MANA / ANIMA</span>
@@ -770,30 +755,20 @@
                     <span class="feature-tag" id="card-feature-tag">COVER MODEL SPECIAL</span>
                     <h2 class="main-headline" id="card-name">NAME</h2>
                 </div>
-                <div class="magazine-footer">
-                    <div class="footer-left"></div>
-                    <div class="footer-right"></div>
-                </div>
             </div>
-            <!-- FF14権利表記：非表示にしたい場合は div を comment で囲む -->
             <div style="position:absolute; bottom:10px; right:10px; text-align:right; font-family:'Cormorant Garamond',serif; font-size:16px; font-style:italic; font-weight:700; line-height:1; color:inherit; pointer-events:none; z-index:5;">
-               
                 <div class="copyright-notice">© SQUARE ENIX</div>
             </div>
         </div>
-
     </div>
 </div>
 
-
-
 <script>
     let imgX = 0; let imgY = 0; let imgScale = 1.0;
-    let isDraggingBg = false; let bgStartX = 0; bgStartY = 0;
+    let isDraggingBg = false; let bgStartX = 0; let bgStartY = 0;
     let topicX = 23; let topicY = 500; let topicSize = 9;
-    let isDraggingTopic = false; let topicStartX = 0; topicStartY = 0;
     let selectedSubJobs = [];
-let selectedTopics = [];
+    let selectedTopics = [];
 
     const startSelect = document.getElementById('input-time-start');
     const endSelect = document.getElementById('input-time-end');
@@ -831,8 +806,6 @@ let selectedTopics = [];
     document.getElementById('input-name').addEventListener('input', (e) => { cardName.innerText = e.target.value; });
     const cardServer = document.getElementById('card-server');
     document.getElementById('input-server').addEventListener('change', (e) => { cardServer.innerText = e.target.value; });
-    const cardMainJob = document.getElementById('card-main-job');
-    document.getElementById('input-main-job').addEventListener('change', (e) => { cardMainJob.innerText = e.target.value; });
 
     function updateActiveHours() {
         document.getElementById('card-time').innerText = `ACTIVE // ${startSelect.value} - ${endSelect.value}`;
@@ -856,39 +829,31 @@ let selectedTopics = [];
         });
     });
 
-    // ジョブ表示エリア
     const jobsContainer = document.getElementById('magazine-jobs-container');
     let jobX = 23, jobY = 239, jobSize = 15;
-    let isDraggingJob = false, jobStartX = 0, jobStartY = 0;
 
     const jobRoleMap = {
-        // Tank
         'PLD': { name: 'Paladin',     role: 'Tank' },
         'WAR': { name: 'Warrior',     role: 'Tank' },
         'DRK': { name: 'Dark Knight', role: 'Tank' },
         'GNB': { name: 'Gunbreaker',  role: 'Tank' },
-        // Healer
         'WHM': { name: 'White Mage',  role: 'Healer' },
         'SCH': { name: 'Scholar',     role: 'Healer' },
         'AST': { name: 'Astrologian', role: 'Healer' },
         'SGE': { name: 'Sage',        role: 'Healer' },
-        // Melee DPS
         'MNK': { name: 'Monk',        role: 'DPS' },
         'DRG': { name: 'Dragoon',     role: 'DPS' },
         'NIN': { name: 'Ninja',       role: 'DPS' },
         'SAM': { name: 'Samurai',     role: 'DPS' },
         'RPR': { name: 'Reaper',      role: 'DPS' },
         'VPR': { name: 'Viper',       role: 'DPS' },
-        // Ranged DPS
         'BRD': { name: 'Bard',        role: 'DPS' },
         'MCH': { name: 'Machinist',   role: 'DPS' },
         'DNC': { name: 'Dancer',      role: 'DPS' },
-        // Magic DPS
         'BLM': { name: 'Black Mage',  role: 'DPS' },
         'SMN': { name: 'Summoner',    role: 'DPS' },
         'RDM': { name: 'Red Mage',    role: 'DPS' },
         'PCT': { name: 'Pictomancer', role: 'DPS' },
-        // Hand / Land
         'CRP': { name: 'Carpenter',   role: 'Crafter' },
         'BSM': { name: 'Blacksmith',  role: 'Crafter' },
         'ARM': { name: 'Armorer',     role: 'Crafter' },
@@ -902,10 +867,9 @@ let selectedTopics = [];
         'FSH': { name: 'Fisher',      role: 'Gatherer' },
     };
 
-    // メインジョブのロールマップ（select valueから引く）
     const mainJobRoleMap = {
         'PALADIN': 'Tank', 'WARRIOR': 'Tank', 'DARK KNIGHT': 'Tank', 'GUNBREAKER': 'Tank',
-        'WHITE MAGE': 'Healer', 'SCHOLAR': 'Healer', 'ASTROLOGIAN': 'Healer', 'SAGE': 'Healer',
+        'WHITE MAGE': 'Healer', 'SCHOLAR': 'Healer', 'ASTROLOGIAN': 'Healer', 'SGE': 'Healer',
         'MONK': 'DPS', 'DRAGOON': 'DPS', 'NINJA': 'DPS', 'SAMURAI': 'DPS', 'REAPER': 'DPS', 'VIPER': 'DPS',
         'BARD': 'DPS', 'MACHINIST': 'DPS', 'DANCER': 'DPS',
         'BLACK MAGE': 'DPS', 'SUMMONER': 'DPS', 'RED MAGE': 'DPS', 'BLUEMAGE': 'DPS', 'PICTOMANCER': 'DPS',
@@ -914,22 +878,24 @@ let selectedTopics = [];
     function updateJobsDisplay() {
         jobsContainer.innerHTML = '';
         const roleSize = Math.round(jobSize * 0.667);
+        const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--magazine-accent').trim();
 
-        // メインジョブ
+        // 1. メインジョブの処理
         const mainJobVal = document.getElementById('input-main-job').value;
-        const mainRole = mainJobRoleMap[mainJobVal] || '';
         if (mainJobVal) {
             const mainItem = document.createElement('div');
             mainItem.className = 'job-display-item';
+            
+            // MAIN JOBの見出しとジョブ名
             mainItem.innerHTML = `
-                <span class="job-display-en" style="font-size:${jobSize}px;">${mainJobVal}</span>
-                <span class="job-display-role" style="font-size:${roleSize}px;">${mainRole}</span>
+                <span class="role-title" style="font-size:${roleSize}px; color:${accentColor}; margin-bottom: 0px; display: block; line-height: 1.2;">MAIN JOB</span>
+                <span class="job-display-en" style="font-size:${jobSize}px; display: block; line-height: 1.1;">${mainJobVal}</span>
             `;
             jobsContainer.appendChild(mainItem);
         }
 
-        // サブジョブをロールごとにグループ化
-        const groups = {}; // { role: [name, ...] }
+        // 2. サブジョブの処理（ロールごとグループ化）
+        const groups = {}; 
         selectedSubJobs.forEach(abbr => {
             const data = jobRoleMap[abbr];
             if (!data) return;
@@ -938,26 +904,29 @@ let selectedTopics = [];
         });
 
         Object.entries(groups).forEach(([role, names]) => {
-            // ロール見出し（Accent Colorで表示）
-            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--magazine-accent').trim();
+            // サブジョブのロール見出し (MAIN JOBと同じライン高さ・マージン条件にします)
             const roleEl = document.createElement('div');
             roleEl.className = 'role-title';
             roleEl.style.fontSize = roleSize + 'px';
             roleEl.style.color = accentColor;
+            roleEl.style.marginTop = '4px';      /* 次のグループとの間のわずかな隙間 */
+            roleEl.style.marginBottom = '0px';
+            roleEl.style.display = 'block';
+            roleEl.style.lineHeight = '1.2';
             roleEl.textContent = role;
             jobsContainer.appendChild(roleEl);
 
-            // そのロールのジョブ名（role表記なし）
+            // そのロールに属するジョブ名たち
             names.forEach(name => {
                 const item = document.createElement('div');
                 item.className = 'job-display-item';
-                item.innerHTML = `<span class="job-display-en" style="font-size:${jobSize}px;">${name}</span>`;
+                item.style.margin = '0';
+                item.innerHTML = `<span class="job-display-en" style="font-size:${jobSize}px; display: block; line-height: 1.1;">${name}</span>`;
                 jobsContainer.appendChild(item);
             });
         });
     }
 
-    // メインジョブ変更時にジョブエリアも更新
     document.getElementById('input-main-job').addEventListener('change', () => { updateJobsDisplay(); });
 
     function syncJobDOMPosition() {
@@ -973,7 +942,6 @@ let selectedTopics = [];
         jobSize = parseInt(e.target.value);
         document.getElementById('val-job-size').innerText = jobSize + 'px';
         jobsContainer.querySelectorAll('.job-display-en').forEach(el => el.style.fontSize = jobSize + 'px');
-        // role-title (TANK/DPS等) も同比率で変化 (基準: jobSize=15の時10px → 比率0.667)
         const roleSize = Math.round(jobSize * 0.667);
         jobsContainer.querySelectorAll('.role-title').forEach(el => el.style.fontSize = roleSize + 'px');
     });
@@ -988,9 +956,6 @@ let selectedTopics = [];
         syncJobDOMPosition();
     });
 
-    jobsContainer.addEventListener('mousedown', (e) => { e.stopPropagation(); isDraggingJob = true; jobStartX = e.clientX - jobX; jobStartY = e.clientY - jobY; });
-    jobsContainer.addEventListener('touchstart', (e) => { e.stopPropagation(); isDraggingJob = true; jobStartX = e.touches[0].clientX - jobX; jobStartY = e.touches[0].clientY - jobY; }, {passive: true});
-
     const tagCheckboxes = document.querySelectorAll('.tag-checkbox');
     const inputLayout = document.getElementById('input-topic-layout');
     const container = document.getElementById('magazine-topics-container');
@@ -1000,7 +965,7 @@ let selectedTopics = [];
         updateMagazineTopics();
     });
 
-   function updateMagazineTopics() {
+    function updateMagazineTopics() {
         container.innerHTML = '';
         const tagsData = {
             'ss':        { label: 'SS撮影' },
@@ -1022,7 +987,6 @@ let selectedTopics = [];
             'criterion': { label: '滅' },
         };
 
-        // 選択された順番（selectedTopics）の通りに描画する
         selectedTopics.forEach(tagKey => {
             const data = tagsData[tagKey];
             if (!data) return;
@@ -1037,34 +1001,27 @@ let selectedTopics = [];
             container.appendChild(topicDiv);
         });
 
-        // 何も選択されていない時のデフォルト表示
         if (container.children.length === 0) {
             container.innerHTML = `<div class="topic-item"><div class="topic-head-row"><span class="topic-en" style="font-size: ${topicSize}px;">Eorzean Days</span></div></div>`;
         }
     }
 
-    // チェックボックスのクリックイベント（選択順を記録する処理）
     tagCheckboxes.forEach(cb => {
-        // 初期状態でチェックがついているもの（SS撮影、ハウジング等）を最初から配列に入れておく
         if (cb.checked && !selectedTopics.includes(cb.dataset.tag)) {
             selectedTopics.push(cb.dataset.tag);
         }
 
         cb.addEventListener('change', () => {
             const tagKey = cb.dataset.tag;
-            
             if (cb.checked) {
-                // 8つ上限チェック
                 if (selectedTopics.length >= 8) {
                     cb.checked = false;
                     return;
                 }
-                // チェックされたら配列の最後（一番後ろ）に追加
                 if (!selectedTopics.includes(tagKey)) {
                     selectedTopics.push(tagKey);
                 }
             } else {
-                // チェックが外されたら配列から削除
                 selectedTopics = selectedTopics.filter(t => t !== tagKey);
             }
             updateMagazineTopics();
@@ -1095,9 +1052,6 @@ let selectedTopics = [];
         inputTopicX.value = topicX; inputTopicY.value = topicY;
     }
 
-    container.addEventListener('mousedown', (e) => { e.stopPropagation(); });
-    container.addEventListener('touchstart', (e) => { e.stopPropagation(); }, {passive: true});
-
     const card = document.getElementById('character-card');
     let lastPinchDist = null;
     let pinchOnCard = false;
@@ -1111,7 +1065,6 @@ let selectedTopics = [];
     card.addEventListener('mousedown', (e) => { if (!document.getElementById('card-image').src) return; isDraggingBg = true; bgStartX = e.clientX - imgX; bgStartY = e.clientY - imgY; });
     card.addEventListener('touchstart', (e) => {
         if (!document.getElementById('card-image').src) return;
-        e.preventDefault();
         if (e.touches.length === 2) {
             isDraggingBg = false;
             lastPinchDist = getPinchDist(e.touches);
@@ -1121,7 +1074,7 @@ let selectedTopics = [];
             bgStartX = e.touches[0].clientX - imgX;
             bgStartY = e.touches[0].clientY - imgY;
         }
-    }, {passive: false});
+    }, {passive: true});
 
     window.addEventListener('mousemove', (e) => {
         if (isDraggingBg) {
@@ -1131,7 +1084,6 @@ let selectedTopics = [];
 
     window.addEventListener('touchmove', (e) => {
         if (e.touches.length === 2 && lastPinchDist !== null && pinchOnCard) {
-            e.preventDefault();
             const newDist = getPinchDist(e.touches);
             const ratio = newDist / lastPinchDist;
             imgScale = Math.min(Math.max(0.05, imgScale * ratio), 4.0);
@@ -1141,15 +1093,15 @@ let selectedTopics = [];
             document.getElementById('val-scale').innerText = imgScale.toFixed(2);
             updateImageTransform();
         } else if (e.touches.length === 1 && isDraggingBg) {
-            e.preventDefault();
             imgX = e.touches[0].clientX - bgStartX;
             imgY = e.touches[0].clientY - bgStartY;
             updateImageTransform();
         }
-    }, {passive: false});
+    }, {passive: true});
 
     window.addEventListener('mouseup', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; });
     window.addEventListener('touchend', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; lastPinchDist = null; pinchOnCard = false; });
+    
     document.getElementById('input-text-theme').addEventListener('change', (e) => {
         const themes = {
             'light':  { color: '#FFFFFF', shadow: '0 2px 12px rgba(0,0,0,0.3)' },
@@ -1165,19 +1117,27 @@ let selectedTopics = [];
         document.documentElement.style.setProperty('--text-theme-color', t.color);
         document.documentElement.style.setProperty('--text-shadow-style', t.shadow);
     });
+    
     document.getElementById('input-filter').addEventListener('change', (e) => { document.getElementById('card-image').style.filter = e.target.value; });
     document.getElementById('input-color').addEventListener('change', (e) => {
         const color = e.target.value;
         document.documentElement.style.setProperty('--magazine-accent', color);
-        // ロール表記の色も同期
         jobsContainer.querySelectorAll('.role-title').forEach(el => el.style.color = color);
     });
     
     const inputScale = document.getElementById('input-scale');
     inputScale.addEventListener('input', (e) => { imgScale = parseFloat(e.target.value); document.getElementById('val-scale').innerText = imgScale.toFixed(2); updateImageTransform(); });
-    card.addEventListener('wheel', (e) => { if (!document.getElementById('card-image').src) return; e.preventDefault(); if (e.deltaY < 0) imgScale += 0.02; else imgScale -= 0.02; imgScale = Math.min(Math.max(0.05, imgScale), 4.0); inputScale.value = imgScale; document.getElementById('val-scale').innerText = imgScale.toFixed(2); updateImageTransform(); }, { passive: false });
+    
+    card.addEventListener('wheel', (e) => { 
+        if (!document.getElementById('card-image').src) return; 
+        e.preventDefault(); 
+        if (e.deltaY < 0) imgScale += 0.02; else imgScale -= 0.02; 
+        imgScale = Math.min(Math.max(0.05, imgScale), 4.0); 
+        inputScale.value = imgScale; 
+        document.getElementById('val-scale').innerText = imgScale.toFixed(2); 
+        updateImageTransform(); 
+    }, { passive: false });
 
-    // 左右・上下スライダー
     document.getElementById('input-img-x').addEventListener('input', (e) => {
         imgX = parseInt(e.target.value);
         document.getElementById('val-img-x').innerText = imgX + 'px';
@@ -1189,7 +1149,6 @@ let selectedTopics = [];
         updateImageTransform();
     });
 
-    // ドラッグ後にスライダーの値を同期する
     function syncPositionSliders() {
         const sx = document.getElementById('input-img-x');
         const sy = document.getElementById('input-img-y');
@@ -1220,82 +1179,22 @@ let selectedTopics = [];
 
     function updateImageTransform() { const img = document.getElementById('card-image'); if (img.src) { img.style.transform = `translate(calc(-50% + ${imgX}px), calc(-50% + ${imgY}px)) scale(${imgScale})`; } }
 
-    // フローティングプレビュー
-    const floatingPreview = document.getElementById('floating-preview');
-    const floatingToggle = document.getElementById('floating-preview-toggle');
-    const previewCanvas = document.getElementById('floating-preview-canvas');
-    let fpDragging = false, fpStartX = 0, fpStartY = 0, fpLeft = 0, fpTop = 0;
-    let previewInterval = null;
-
-    function updateFloatingPreview() {
-        html2canvas(document.getElementById('character-card'), {
-            scale: 0.5, useCORS: true, logging: false, backgroundColor: null
-        }).then(canvas => {
-            previewCanvas.width = canvas.width;
-            previewCanvas.height = canvas.height;
-            previewCanvas.getContext('2d').drawImage(canvas, 0, 0);
-        });
-    }
-
-    function startPreview() {
-        floatingPreview.style.display = 'block';
-        floatingToggle.textContent = '× Close';
-        updateFloatingPreview();
-        previewInterval = setInterval(updateFloatingPreview, 1500);
-    }
-
-    function stopPreview() {
-        floatingPreview.style.display = 'none';
-        floatingToggle.textContent = '👁 Preview';
-        clearInterval(previewInterval);
-        previewInterval = null;
-    }
-
-    floatingToggle.addEventListener('click', () => {
-        if (floatingPreview.style.display === 'none' || !floatingPreview.style.display) startPreview();
-        else stopPreview();
-    });
-
-    document.getElementById('floating-preview-close').addEventListener('click', stopPreview);
-
-    // 小窓のドラッグ移動
-    const fpHeader = document.getElementById('floating-preview-header');
-    fpHeader.addEventListener('mousedown', (e) => {
-        fpDragging = true;
-        const rect = floatingPreview.getBoundingClientRect();
-        fpLeft = rect.left; fpTop = rect.top;
-        fpStartX = e.clientX - fpLeft; fpStartY = e.clientY - fpTop;
-        floatingPreview.style.right = 'auto';
-    });
-    window.addEventListener('mousemove', (e) => {
-        if (!fpDragging) return;
-        fpLeft = e.clientX - fpStartX; fpTop = e.clientY - fpStartY;
-        fpLeft = Math.max(0, Math.min(fpLeft, window.innerWidth - floatingPreview.offsetWidth));
-        fpTop  = Math.max(0, Math.min(fpTop,  window.innerHeight - floatingPreview.offsetHeight));
-        floatingPreview.style.left = fpLeft + 'px';
-        floatingPreview.style.top  = fpTop  + 'px';
-    });
-    window.addEventListener('mouseup', () => { fpDragging = false; });
-
     window.addEventListener('DOMContentLoaded', () => {
         updateMagazineTopics();
         syncTopicDOMPosition();
         updateJobsDisplay();
         syncJobDOMPosition();
-        startPreview();
     });
 
     // スマホ時：スクロールでカード縮小
     (function() {
         const cardEl = document.getElementById('character-card');
-        const SHRINK_AT = 80; // このpx以上スクロールしたら縮小
+        const SHRINK_AT = 80;
         const previewEl = document.querySelector('.preview-panel');
         const SCALE = 0.38;
 
         function updateCardMargin() {
             if (cardEl.classList.contains('card-shrunk')) {
-                // getBoundingClientRectはscale後の見た目サイズを返す
-                // offsetHeightはscale前の実寸を返す
                 const naturalH = cardEl.offsetHeight;
                 const scaledH = naturalH * SCALE;
                 const diff = naturalH - scaledH;
@@ -1307,7 +1206,6 @@ let selectedTopics = [];
 
         function applyScrollState() {
             if (window.innerWidth > 1000) {
-                // PC幅になったらすべてリセット
                 cardEl.classList.remove('card-shrunk');
                 previewEl.classList.remove('card-shrunk');
                 cardEl.style.marginBottom = '';
@@ -1342,12 +1240,10 @@ let selectedTopics = [];
             }
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (isMobile) {
-                // スマホ：モーダルで画像表示→長押し保存
                 const modal = document.getElementById('save-modal');
                 document.getElementById('save-modal-img').src = canvas.toDataURL('image/png');
                 modal.style.display = 'flex';
             } else {
-                // PC：直接ダウンロード
                 const link = document.createElement('a');
                 link.download = `${document.getElementById('card-name').innerText}_magazine.png`;
                 link.href = canvas.toDataURL('image/png');
@@ -1364,7 +1260,7 @@ let selectedTopics = [];
             document.getElementById('save-modal').style.display = 'none';
     });
 </script>
-<!-- 画像保存モーダル（スマホ用） -->
+
 <div id="save-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:16px; padding:24px 20px; max-width:320px; width:90%; text-align:center; position:relative;">
         <button id="save-modal-close" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:22px; cursor:pointer; color:#333;">×</button>
@@ -1373,3 +1269,5 @@ let selectedTopics = [];
         <img id="save-modal-img" src="" alt="" style="width:100%; border-radius:8px; display:block;">
     </div>
 </div>
+</body>
+</html>
