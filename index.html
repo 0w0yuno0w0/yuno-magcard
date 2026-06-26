@@ -1065,7 +1065,13 @@ let selectedTopics = [];
 
     const card = document.getElementById('character-card');
     card.addEventListener('mousedown', (e) => { if (!document.getElementById('card-image').src) return; isDraggingBg = true; bgStartX = e.clientX - imgX; bgStartY = e.clientY - imgY; });
-    card.addEventListener('touchstart', (e) => { if (!document.getElementById('card-image').src) return; isDraggingBg = true; bgStartX = e.touches[0].clientX - imgX; bgStartY = e.touches[0].clientY - imgY; }, {passive: true});
+    card.addEventListener('touchstart', (e) => {
+        if (!document.getElementById('card-image').src) return;
+        e.preventDefault();
+        isDraggingBg = true;
+        bgStartX = e.touches[0].clientX - imgX;
+        bgStartY = e.touches[0].clientY - imgY;
+    }, {passive: false});
 
     window.addEventListener('mousemove', (e) => {
         if (isDraggingBg) {
@@ -1075,9 +1081,12 @@ let selectedTopics = [];
 
     window.addEventListener('touchmove', (e) => {
         if (isDraggingBg) {
-            imgX = e.touches[0].clientX - bgStartX; imgY = e.touches[0].clientY - bgStartY; updateImageTransform();
+            e.preventDefault();
+            imgX = e.touches[0].clientX - bgStartX;
+            imgY = e.touches[0].clientY - bgStartY;
+            updateImageTransform();
         }
-    }, {passive: true});
+    }, {passive: false});
 
     window.addEventListener('mouseup', () => { isDraggingBg = false; });
     window.addEventListener('touchend', () => { isDraggingBg = false; });
