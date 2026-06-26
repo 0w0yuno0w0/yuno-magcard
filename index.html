@@ -1364,7 +1364,7 @@
 
         setTimeout(() => {
             html2canvas(cardEl2, { 
-                scale: 2.5, // 縦横2.5倍の高精細データ（1000px×1375px）で生成
+                scale: 2.0, // 💡 ここを2.0倍にすることで「800px × 1100px」のジャストサイズに戻します
                 useCORS: true, 
                 logging: false, 
                 backgroundColor: null 
@@ -1382,14 +1382,14 @@
 
                 const dataUrl = canvas.toDataURL('image/png');
 
-                // 💡 デバイスによる挙動の分岐
+                // デバイスによる挙動の分岐
                 if (isMobile) {
                     // スマホ環境：長押し保存用モーダルを起動
                     modalImage.src = dataUrl;
                     modalOverlay.style.display = 'flex';
                     document.body.classList.add('modal-open'); // 後ろの画面スクロールを禁止
                 } else {
-                    // PC環境：ブラウザによる直接保存（快適性重視）
+                    // PC環境：ブラウザによる直接ダウンロード
                     const link = document.createElement('a');
                     link.download = `${document.getElementById('card-name').innerText}_magazine.png`;
                     link.href = dataUrl;
