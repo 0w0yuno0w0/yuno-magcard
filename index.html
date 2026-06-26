@@ -10,6 +10,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
+
+
+#character-card {
+    position: relative;
+    width: 400px;  /* 基準値を維持 */
+    height: 550px;
+    flex-shrink: 0; /* 縮小させない */
+    /* ... 既存のスタイル ... */
+}
+
+
 /* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
 #magazine-jobs-container {
     gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
@@ -1196,13 +1207,15 @@
 
     function updateImageTransform() { const img = document.getElementById('card-image'); if (img.src) { img.style.transform = `translate(calc(-50% + ${imgX}px), calc(-50% + ${imgY}px)) scale(${imgScale})`; } }
 
-    window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', () => {
+    // フォントの読み込みを待ってから初期化する
+    document.fonts.ready.then(() => {
         updateMagazineTopics();
         syncTopicDOMPosition();
         updateJobsDisplay();
         syncJobDOMPosition();
     });
-
+});
     let updateCardMarginGlobal = null; 
     (function() {
         const cardEl = document.getElementById('character-card');
@@ -1254,6 +1267,8 @@
         const origMargin = cardEl2.style.marginBottom;
         const origTransform = cardEl2.style.transform;
         const origTransformOrigin = cardEl2.style.transformOrigin;
+
+window.scrollTo(0, 0); // ページトップに強制移動
 
         if (wasShrunk) {
             cardEl2.classList.remove('card-shrunk');
