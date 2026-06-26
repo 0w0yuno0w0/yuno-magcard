@@ -448,14 +448,12 @@
                 transition: padding 0.2s;
             }
 
-            #character-card {
-                width: 100%;
-                max-width: 400px;
-                height: auto;
-                aspect-ratio: 400 / 550;
-                transition: max-width 0.3s ease;
-            }
-
+           #character-card {
+    position: relative !important; /* 他の記述を上書きするために !important を推奨 */
+    min-height: 550px !important;
+    height: auto !important;
+    overflow: visible; /* 内容がはみ出るのを防ぐため */
+}
             /* スクロール時に縮小 */
           /*   .preview-panel.card-shrunk {
                 padding: 0;
