@@ -10,12 +10,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-
-#character-card {
-    /* 撮影中に位置が変わらないよう絶対位置などを安定させる */
-    transform-origin: top left; 
-    box-sizing: border-box;
-}
 /* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
 #magazine-jobs-container {
     gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
@@ -1250,28 +1244,80 @@
     })();
 
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
- document.getElementById('download-btn').addEventListener('click', () => {
-    const cardEl = document.getElementById('character-card');
-    
-    // 撮影時の設定を「今の状態のまま」行う
-    html2canvas(cardEl, {
-        scale: 2,
-        backgroundColor: null,
-        // ここが重要：画面上のどこからどこまでを切り取るかを指定する
-        // getBoundingClientRect() を使って「現在の正確な位置」を取得します
-        x: cardEl.getBoundingClientRect().left + window.scrollX,
-        y: cardEl.getBoundingClientRect().top + window.scrollY,
-        width: cardEl.offsetWidth,
-        height: cardEl.offsetHeight,
-        useCORS: true
-    }).then(canvas => {
-        // ダウンロード処理
-        const link = document.createElement('a');
-        link.download = `${document.getElementById('card-name').innerText}_magazine.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+    document.getElementById('download-btn').addEventListener('click', () => {
+        const cardEl2 = document.getElementById('character-card');
+        const wasShrunk = cardEl2.classList.contains('card-shrunk');
+        
+        // 1. 元のスタイル（レスポンシブ用の縮小など）を退避
+        const origWidth = cardEl2.style.width;
+        const origHeight = cardEl2.style.height;
+        const origMargin = cardEl2.style.marginBottom;
+        const origTransform = cardEl2.style.transform;
+        const origTransformOrigin = cardEl2.style.transformOrigin;
+
+        if (wasShrunk) {
+            cardEl2.classList.remove('card-shrunk');
+        }
+        
+        // 2. 本物のカードを、一時的に「レスポンシブの影響を受けない絶対的な400x550px」に固定
+        // transformをnoneにすることで、スマホ画面での縮小表示を一時的に解除します
+        cardEl2.style.setProperty('width', '400px', 'important');
+        cardEl2.style.setProperty('height', '550px', 'important');
+        cardEl2.style.marginBottom = '0px';
+        cardEl2.style.transform = 'none';
+        cardEl2.style.transformOrigin = 'unset';
+
+        // 3. ブラウザが400x550pxの正しい位置関係で文字やジョブを再配置するのを少し待つ
+        setTimeout(() => {
+            html2canvas(cardEl2, { 
+                scale: 2,               // 400x550 を 2倍（800x1100）の高画質で出力
+                useCORS: true, 
+                logging: false, 
+                backgroundColor: null,
+                width: 400,             // キャプチャ範囲をカードサイズに固定（白背景防止）
+                height: 550,
+                windowWidth: 400,       // html2canvasの仮想ウィンドウ幅をカードに合わせる（位置ズレ防止）
+                windowHeight: 550,
+                x: 0,                   // カード左端からキャプチャ
+                y: 0,
+                scrollX: 0,
+                scrollY: 0
+            }).then(canvas => {
+                
+                // 4. 撮影が終わったら、即座に元のスマホ表示（縮小状態など）に戻す
+                cardEl2.style.width = origWidth;
+                cardEl2.style.height = origHeight;
+                cardEl2.style.marginBottom = origMargin;
+                cardEl2.style.transform = origTransform;
+                cardEl2.style.transformOrigin = origTransformOrigin;
+                
+                if (wasShrunk) {
+                    cardEl2.classList.add('card-shrunk');
+                    if (updateCardMarginGlobal) updateCardMarginGlobal();
+                }
+
+                // 5. Blobに変換して直接ダウンロードを実行
+                canvas.toBlob((blob) => {
+                    if (!blob) return;
+                    
+                    // ファイル名に現在のカード名（タイトル）を反映
+                    const fileName = `${document.getElementById('card-name').innerText}_magazine.png`;
+                    const fileUrl = URL.createObjectURL(blob);
+                    
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = fileUrl;
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(fileUrl);
+                }, 'image/png');
+
+            });
+        }, 300); // 300ms待機してフォント読み込みとレイアウトを確実に安定させる
     });
-});
 </script>
 </body>
 </html>
