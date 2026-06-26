@@ -520,6 +520,16 @@
                     </select>
                 </div>
                 <div class="control-row">
+                    <span class="control-label">左右位置</span>
+                    <input type="range" id="input-img-x" min="-500" max="500" step="1" value="0">
+                    <span class="value-badge" id="val-img-x">0px</span>
+                </div>
+                <div class="control-row">
+                    <span class="control-label">上下位置</span>
+                    <input type="range" id="input-img-y" min="-500" max="500" step="1" value="0">
+                    <span class="value-badge" id="val-img-y">0px</span>
+                </div>
+                <div class="control-row">
                     <span class="control-label">Image Scale</span>
                     <input type="range" id="input-scale" min="0.05" max="3" step="0.01" value="1.0">
                     <span class="value-badge" id="val-scale">1.00</span>
@@ -1077,6 +1087,7 @@ let selectedTopics = [];
 
     const card = document.getElementById('character-card');
     let lastPinchDist = null;
+    let pinchOnCard = false;
 
     function getPinchDist(touches) {
         const dx = touches[0].clientX - touches[1].clientX;
@@ -1089,9 +1100,9 @@ let selectedTopics = [];
         if (!document.getElementById('card-image').src) return;
         e.preventDefault();
         if (e.touches.length === 2) {
-            // ピンチ開始
             isDraggingBg = false;
             lastPinchDist = getPinchDist(e.touches);
+            pinchOnCard = true;
         } else {
             isDraggingBg = true;
             bgStartX = e.touches[0].clientX - imgX;
@@ -1106,7 +1117,7 @@ let selectedTopics = [];
     });
 
     window.addEventListener('touchmove', (e) => {
-        if (e.touches.length === 2 && lastPinchDist !== null) {
+        if (e.touches.length === 2 && lastPinchDist !== null && pinchOnCard) {
             e.preventDefault();
             const newDist = getPinchDist(e.touches);
             const ratio = newDist / lastPinchDist;
@@ -1124,8 +1135,8 @@ let selectedTopics = [];
         }
     }, {passive: false});
 
-    window.addEventListener('mouseup', () => { isDraggingBg = false; });
-    window.addEventListener('touchend', () => { isDraggingBg = false; });
+    window.addEventListener('mouseup', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; });
+    window.addEventListener('touchend', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; lastPinchDist = null; pinchOnCard = false; });
     document.getElementById('input-text-theme').addEventListener('change', (e) => {
         const themes = {
             'light':  { color: '#FFFFFF', shadow: '0 2px 12px rgba(0,0,0,0.3)' },
@@ -1148,6 +1159,28 @@ let selectedTopics = [];
     inputScale.addEventListener('input', (e) => { imgScale = parseFloat(e.target.value); document.getElementById('val-scale').innerText = imgScale.toFixed(2); updateImageTransform(); });
     card.addEventListener('wheel', (e) => { if (!document.getElementById('card-image').src) return; e.preventDefault(); if (e.deltaY < 0) imgScale += 0.02; else imgScale -= 0.02; imgScale = Math.min(Math.max(0.05, imgScale), 4.0); inputScale.value = imgScale; document.getElementById('val-scale').innerText = imgScale.toFixed(2); updateImageTransform(); }, { passive: false });
 
+    // 左右・上下スライダー
+    document.getElementById('input-img-x').addEventListener('input', (e) => {
+        imgX = parseInt(e.target.value);
+        document.getElementById('val-img-x').innerText = imgX + 'px';
+        updateImageTransform();
+    });
+    document.getElementById('input-img-y').addEventListener('input', (e) => {
+        imgY = parseInt(e.target.value);
+        document.getElementById('val-img-y').innerText = imgY + 'px';
+        updateImageTransform();
+    });
+
+    // ドラッグ後にスライダーの値を同期する
+    function syncPositionSliders() {
+        const sx = document.getElementById('input-img-x');
+        const sy = document.getElementById('input-img-y');
+        imgX = Math.min(Math.max(parseInt(sx.min), imgX), parseInt(sx.max));
+        imgY = Math.min(Math.max(parseInt(sy.min), imgY), parseInt(sy.max));
+        sx.value = imgX; document.getElementById('val-img-x').innerText = imgX + 'px';
+        sy.value = imgY; document.getElementById('val-img-y').innerText = imgY + 'px';
+    }
+
     document.getElementById('image-input').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -1158,6 +1191,8 @@ let selectedTopics = [];
                 img.onload = function() {
                     imgX = (400 - img.naturalWidth) / 2; imgY = (550 - img.naturalHeight) / 2;
                     imgScale = 1.0; inputScale.value = 1.0; document.getElementById('val-scale').innerText = "1.00";
+                    document.getElementById('input-img-x').value = imgX; document.getElementById('val-img-x').innerText = imgX + 'px';
+                    document.getElementById('input-img-y').value = imgY; document.getElementById('val-img-y').innerText = imgY + 'px';
                     updateImageTransform();
                 };
             }
