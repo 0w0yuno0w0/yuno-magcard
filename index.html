@@ -448,11 +448,11 @@
                 transition: padding 0.2s;
             }
 
-           #character-card {
-    position: relative !important; /* 他の記述を上書きするために !important を推奨 */
-    min-height: 550px !important;
-    height: auto !important;
-    overflow: visible; /* 内容がはみ出るのを防ぐため */
+          #character-card {
+    width: 280px !important;       /* ここを小さくするとプレビューも小さくなります */
+    aspect-ratio: 400 / 550;
+    transform: none !important;    /* 縮小の影響を受けないようにする */
+    margin: 0 auto;
 }
             /* スクロール時に縮小 */
           /*   .preview-panel.card-shrunk {
