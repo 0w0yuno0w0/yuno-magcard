@@ -10,23 +10,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        /* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
-        #magazine-jobs-container {
-            gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
-        }
+/* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
+#magazine-jobs-container {
+    gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
+}
 
-        /* ジョブ名自体の上下の余白をリセット */
-        #magazine-jobs-container .job-display-item {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
+/* ジョブ名自体の上下の余白をリセット */
+#magazine-jobs-container .job-display-item {
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
-        /* ロール名（DPS、Healer等）の余白をMAIN JOBと同じ条件にリセット */
-        #magazine-jobs-container .role-title {
-            margin-top: 4px !important;    /* 前の項目との間隔をほんの少しだけあける */
-            margin-bottom: 0px !important; /* 下のジョブ名との間隔をゼロに */
-            line-height: 1.2 !important;
-        }
+/* ロール名（DPS、Healer等）の余白をMAIN JOBと同じ条件にリセット */
+#magazine-jobs-container .role-title {
+    margin-top: 4px !important;    /* 前の項目との間隔をほんの少しだけあける */
+    margin-bottom: 0px !important; /* 下のジョブ名との間隔をゼロに */
+    line-height: 1.2 !important;
+}
+
 
         :root {
             --text-theme-color: #FFFFFF;
@@ -222,7 +223,7 @@
             border-radius: 4px;
             cursor: default;
             user-select: none;
-            touch-action: none;
+touch-action: none;
         }
 
         .bg-image-container {
@@ -455,11 +456,11 @@
                 transition: max-width 0.3s ease;
             }
 
-            /* スクロール時に縮小（撮影用クラス強制上書き追加） */
-            .preview-panel.card-shrunk:not(.force-full-size) {
+            /* スクロール時に縮小 */
+            .preview-panel.card-shrunk {
                 padding: 0;
             }
-            #character-card.card-shrunk:not(.force-full-size) {
+            #character-card.card-shrunk {
                 transform: scale(0.38);
                 transform-origin: top center;
             }
@@ -763,14 +764,21 @@
     </div>
 </div>
 
+<div id="save-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:24px 20px; max-width:320px; width:90%; text-align:center; position:relative;">
+        <button id="save-modal-close" style="position:absolute; top:8px; right:12px; background:none; border:none; font-size:28px; padding:10px; cursor:pointer; color:#333; line-height:1;">×</button>
+        <div style="font-size:16px; font-weight:700; margin-bottom:8px; margin-top:10px;">画像の保存方法</div>
+        <div style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.6;">画像を長押しして「"写真"に追加」を選択してください。</div>
+        <img id="save-modal-img" src="" alt="" style="width:100%; border-radius:8px; display:block;">
+    </div>
+</div>
+
 <script>
     let imgX = 0; let imgY = 0; let imgScale = 1.0;
     let isDraggingBg = false; let bgStartX = 0; let bgStartY = 0;
     let topicX = 23; let topicY = 500; let topicSize = 9;
     let selectedSubJobs = [];
     let selectedTopics = [];
-    let lastPinchDist = null;
-    let pinchOnCard = false;
 
     const startSelect = document.getElementById('input-time-start');
     const endSelect = document.getElementById('input-time-end');
@@ -869,15 +877,26 @@
         'FSH': { name: 'Fisher',      role: 'Gatherer' },
     };
 
+    const mainJobRoleMap = {
+        'PALADIN': 'Tank', 'WARRIOR': 'Tank', 'DARK KNIGHT': 'Tank', 'GUNBREAKER': 'Tank',
+        'WHITE MAGE': 'Healer', 'SCHOLAR': 'Healer', 'ASTROLOGIAN': 'Healer', 'SGE': 'Healer',
+        'MONK': 'DPS', 'DRAGOON': 'DPS', 'NINJA': 'DPS', 'SAMURAI': 'DPS', 'REAPER': 'DPS', 'VIPER': 'DPS',
+        'BARD': 'DPS', 'MACHINIST': 'DPS', 'DANCER': 'DPS',
+        'BLACK MAGE': 'DPS', 'SUMMONER': 'DPS', 'RED MAGE': 'DPS', 'BLUEMAGE': 'DPS', 'PICTOMANCER': 'DPS',
+    };
+
     function updateJobsDisplay() {
         jobsContainer.innerHTML = '';
         const roleSize = Math.round(jobSize * 0.667);
         const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--magazine-accent').trim();
 
+        // 1. メインジョブの処理
         const mainJobVal = document.getElementById('input-main-job').value;
         if (mainJobVal) {
             const mainItem = document.createElement('div');
             mainItem.className = 'job-display-item';
+            
+            // MAIN JOBの見出しとジョブ名
             mainItem.innerHTML = `
                 <span class="role-title" style="font-size:${roleSize}px; color:${accentColor}; margin-bottom: 0px; display: block; line-height: 1.2;">MAIN JOB</span>
                 <span class="job-display-en" style="font-size:${jobSize}px; display: block; line-height: 1.1;">${mainJobVal}</span>
@@ -885,6 +904,7 @@
             jobsContainer.appendChild(mainItem);
         }
 
+        // 2. サブジョブの処理（ロールごとグループ化）
         const groups = {}; 
         selectedSubJobs.forEach(abbr => {
             const data = jobRoleMap[abbr];
@@ -894,17 +914,19 @@
         });
 
         Object.entries(groups).forEach(([role, names]) => {
+            // サブジョブのロール見出し (MAIN JOBと同じライン高さ・マージン条件にします)
             const roleEl = document.createElement('div');
             roleEl.className = 'role-title';
             roleEl.style.fontSize = roleSize + 'px';
             roleEl.style.color = accentColor;
-            roleEl.style.marginTop = '4px';
+            roleEl.style.marginTop = '4px';      /* 次のグループとの間のわずかな隙間 */
             roleEl.style.marginBottom = '0px';
             roleEl.style.display = 'block';
             roleEl.style.lineHeight = '1.2';
             roleEl.textContent = role;
             jobsContainer.appendChild(roleEl);
 
+            // そのロールに属するジョブ名たち
             names.forEach(name => {
                 const item = document.createElement('div');
                 item.className = 'job-display-item';
@@ -1041,6 +1063,8 @@
     }
 
     const card = document.getElementById('character-card');
+    let lastPinchDist = null;
+    let pinchOnCard = false;
 
     function getPinchDist(touches) {
         const dx = touches[0].clientX - touches[1].clientX;
@@ -1100,10 +1124,7 @@
     }, { passive: false });
 
     window.addEventListener('mouseup', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; });
-    window.addEventListener('touchend', () => { 
-        if (isDraggingBg || pinchOnCard) syncPositionSliders(); 
-        isDraggingBg = false; lastPinchDist = null; pinchOnCard = false; 
-    });
+    window.addEventListener('touchend', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; lastPinchDist = null; pinchOnCard = false; });
     
     document.getElementById('input-text-theme').addEventListener('change', (e) => {
         const themes = {
@@ -1152,30 +1173,31 @@
         updateImageTransform();
     });
 
-    function syncPositionSliders() {
-        const sx = document.getElementById('input-img-x');
-        const sy = document.getElementById('input-img-y');
-        const ss = document.getElementById('input-scale');
+   function syncPositionSliders() {
+    const sx = document.getElementById('input-img-x');
+    const sy = document.getElementById('input-img-y');
+    const ss = document.getElementById('input-scale');
 
-        imgX = Math.round(imgX);
-        imgY = Math.round(imgY);
+    imgX = Math.round(imgX);
+    imgY = Math.round(imgY);
 
-        imgX = Math.min(Math.max(parseInt(sx.min), imgX), parseInt(sx.max));
-        imgY = Math.min(Math.max(parseInt(sy.min), imgY), parseInt(sy.max));
+    imgX = Math.min(Math.max(parseInt(sx.min), imgX), parseInt(sx.max));
+    imgY = Math.min(Math.max(parseInt(sy.min), imgY), parseInt(sy.max));
 
-        imgScale = Math.round(imgScale * 100) / 100;
-        imgScale = Math.min(Math.max(parseFloat(ss.min), imgScale), parseFloat(ss.max));
+    imgScale = Math.round(imgScale * 100) / 100;
+    imgScale = Math.min(Math.max(parseFloat(ss.min), imgScale), parseFloat(ss.max));
 
-        sx.value = imgX; 
-        document.getElementById('val-img-x').innerText = imgX + 'px';
-        sy.value = imgY; 
-        document.getElementById('val-img-y').innerText = imgY + 'px';
-        ss.value = imgScale;
-        document.getElementById('val-scale').innerText = imgScale.toFixed(2);
+    sx.value = imgX; 
+    document.getElementById('val-img-x').innerText = imgX + 'px';
+    
+    sy.value = imgY; 
+    document.getElementById('val-img-y').innerText = imgY + 'px';
+    
+    ss.value = imgScale;
+    document.getElementById('val-scale').innerText = imgScale.toFixed(2);
 
-        updateImageTransform();
-    }
-
+    updateImageTransform();
+}
     document.getElementById('image-input').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -1204,14 +1226,16 @@
         syncJobDOMPosition();
     });
 
+    // スマホ時：スクロールでカード縮小
+    let updateCardMarginGlobal = null; // スコープ用
     (function() {
         const cardEl = document.getElementById('character-card');
         const SHRINK_AT = 80;
         const previewEl = document.querySelector('.preview-panel');
         const SCALE = 0.38;
 
-        window.updateCardMargin = function() {
-            if (cardEl.classList.contains('card-shrunk') && !previewEl.classList.contains('force-full-size')) {
+        function updateCardMargin() {
+            if (cardEl.classList.contains('card-shrunk')) {
                 const naturalH = cardEl.offsetHeight;
                 const scaledH = naturalH * SCALE;
                 const diff = naturalH - scaledH;
@@ -1220,6 +1244,7 @@
                 cardEl.style.marginBottom = '';
             }
         }
+        updateCardMarginGlobal = updateCardMargin;
 
         function applyScrollState() {
             if (window.innerWidth > 1000) {
@@ -1234,7 +1259,7 @@
                     cardEl.classList.remove('card-shrunk');
                     previewEl.classList.remove('card-shrunk');
                 }
-                window.updateCardMargin();
+                updateCardMargin();
             }
         }
 
@@ -1242,28 +1267,37 @@
         window.addEventListener('resize', applyScrollState, {passive: true});
     })();
 
+    // 💡 修正点②：ダウンロード処理
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
-        const previewEl2 = document.querySelector('.preview-panel');
+        const wasShrunk = cardEl2.classList.contains('card-shrunk');
         
-        // 💡 撮影時エラー修正：スマホスクロール縮小モードを強制解除して等倍(400x550)に戻す
-        const hadShrunk = cardEl2.classList.contains('card-shrunk');
-        if (hadShrunk) {
-            previewEl2.classList.add('force-full-size');
-            cardEl2.style.marginBottom = '';
-        }
+        // 元のスタイル設定をバックアップ
+        const origWidth = cardEl2.style.width;
+        const origHeight = cardEl2.style.height;
+        const origMargin = cardEl2.style.marginBottom;
 
-        // 等倍サイズで html2canvas を実行 (scale: 2 で 800 x 1100 px になる)
-        html2canvas(cardEl2, { 
-            scale: 2, 
-            useCORS: true, 
-            logging: false, 
-            backgroundColor: null 
-        }).then(canvas => {
-            // 撮影が終わったらスマホ用の縮小表示スタイルに戻す
-            if (hadShrunk) {
-                previewEl2.classList.remove('force-full-size');
-                if (window.updateCardMargin) window.updateCardMargin();
+        // 1. 一時的にスクロール縮小モードを完全解除
+        if (wasShrunk) {
+            cardEl2.classList.remove('card-shrunk');
+        }
+        
+        // 2. スマホの「width: 100%」を上書きし、本来の「400px × 550px」に強制固定する
+        cardEl2.style.setProperty('width', '400px', 'important');
+        cardEl2.style.setProperty('height', '550px', 'important');
+        cardEl2.style.marginBottom = '0px';
+
+        // 400x550の状態にscale:2をかけることで、どんな端末でも必ず「800×1100 px」になる
+        html2canvas(cardEl2, { scale: 2, useCORS: true, logging: false, backgroundColor: null }).then(canvas => {
+            
+            // 3. 撮影が終わったら全てのスタイル・クラスを元の状態に完全復元
+            cardEl2.style.width = origWidth;
+            cardEl2.style.height = origHeight;
+            cardEl2.style.marginBottom = origMargin;
+            
+            if (wasShrunk) {
+                cardEl2.classList.add('card-shrunk');
+                if (updateCardMarginGlobal) updateCardMarginGlobal();
             }
 
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -1289,14 +1323,5 @@
             document.getElementById('save-modal').style.display = 'none';
     });
 </script>
-
-<div id="save-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:16px; padding:24px 20px; max-width:320px; width:90%; text-align:center; position:relative;">
-        <button id="save-modal-close" style="position:absolute; top:8px; right:12px; background:none; border:none; font-size:28px; padding:10px; cursor:pointer; color:#333; line-height:1;">×</button>
-        <div style="font-size:16px; font-weight:700; margin-bottom:8px; margin-top:10px;">画像の保存方法</div>
-        <div style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.6;">画像を長押しして「"写真"に追加」を選択してください。</div>
-        <img id="save-modal-img" src="" alt="" style="width:100%; border-radius:8px; display:block;">
-    </div>
-</div>
 </body>
 </html>
