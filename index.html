@@ -1246,42 +1246,36 @@
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
-        const wasShrunk = cardEl2.classList.contains('card-shrunk');
         
-        // 元のスタイルを完全退避
-        const origWidth = cardEl2.style.width;
-        const origHeight = cardEl2.style.height;
-        const origMargin = cardEl2.style.marginBottom;
-
-        if (wasShrunk) {
-            cardEl2.classList.remove('card-shrunk');
-        }
+        // 1. 現在のカードをそのまま「クローン（複製）」する
+        const cloneCard = cardEl2.cloneNode(true);
         
-        // 撮影時、確実にプレビューベース(400x550)の等倍プロポーションに固定
-        cardEl2.style.setProperty('width', '400px', 'important');
-        cardEl2.style.setProperty('height', '550px', 'important');
-        cardEl2.style.marginBottom = '0px';
+        // 2. スマホの縮小用クラスや余白を完全に除去し、PC基準の400x550に強制固定
+        cloneCard.classList.remove('card-shrunk');
+        cloneCard.style.position = 'fixed';
+        cloneCard.style.top = '-9999px'; // 画面外に飛ばしてユーザーに見えないようにする
+        cloneCard.style.left = '-9999px';
+        cloneCard.style.width = '400px';
+        cloneCard.style.height = '550px';
+        cloneCard.style.margin = '0';
+        cloneCard.style.transform = 'none';
 
-        // レンダリング前に微小な時間差（マージン）を設け、ブラウザの再描画・フォントサイズの同期を完全確定
+        // 3. 一時的にDOM（画面の裏側）に追加
+        document.body.appendChild(cloneCard);
+
+        // 4. 少し待ってフォントやスタイルの中身が完全に確定してから撮影
         setTimeout(() => {
-            html2canvas(cardEl2, { 
-                scale: 2,               // 400x2 = 800px, 550x2 = 1100px の超高精細データを作成
+            html2canvas(cloneCard, { 
+                scale: 2,               // 400x550 を 2倍（800x1100）の高画質で出力
                 useCORS: true, 
                 logging: false, 
                 backgroundColor: null 
             }).then(canvas => {
                 
-                // 撮影が終わったらプレビュー画面を元の状態（レスポンシブなど）に安全に戻す
-                cardEl2.style.width = origWidth;
-                cardEl2.style.height = origHeight;
-                cardEl2.style.marginBottom = origMargin;
-                
-                if (wasShrunk) {
-                    cardEl2.classList.add('card-shrunk');
-                    if (updateCardMarginGlobal) updateCardMarginGlobal();
-                }
+                // 撮影が終わったら裏側のクローンは即座に削除
+                document.body.removeChild(cloneCard);
 
-                // 🌟 【ここから変更】Blobオブジェクトに変換して、より強力なダウンロードリンクを生成
+                // Blobに変換して直接ダウンロードをキック
                 canvas.toBlob((blob) => {
                     if (!blob) return;
                     
@@ -1292,17 +1286,15 @@
                     link.download = fileName;
                     link.href = fileUrl;
                     
-                    // iOS SafariやAndroidの特定ブラウザでの発火率を上げるため、DOMに一瞬追加してクリック
                     document.body.appendChild(link);
                     link.click();
                     
-                    // 使用後にメモリを解放
                     document.body.removeChild(link);
                     URL.revokeObjectURL(fileUrl);
                 }, 'image/png');
 
             });
-        }, 50); // 50msの待機を追加してレイアウト崩れ・被りを完全シャットアウト
+        }, 50); // 50msの待機でレイアウト計算を安全に確定
     });
 </script>
 </body>
