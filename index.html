@@ -724,8 +724,8 @@
                 </div>
                 <div class="control-row">
                     <span class="control-label" style="width: 70px;">上下位置</span>
-                    <input type="range" id="input-topic-y" min="60" max="520" value="471">
-                    <span class="value-badge" id="val-topic-y">471px</span>
+                    <input type="range" id="input-topic-y" min="60" max="520" value="500">
+                    <span class="value-badge" id="val-topic-y">500px</span>
                 </div>
             </div>
             <div class="form-group" style="gap: 12px; background: #FFF; padding: 14px; border-radius: 12px; border: 1px solid #D1D1D6;">
@@ -772,11 +772,13 @@
                 </div>
                 <div class="magazine-footer">
                     <div class="footer-left"></div>
-                    <div class="footer-right">
-                        <div>FF14</div>
-                        <div class="copyright-notice">© SQUARE ENIX</div>
-                    </div>
+                    <div class="footer-right"></div>
                 </div>
+            </div>
+            <!-- FF14権利表記：非表示にしたい場合は div を comment で囲む -->
+            <div style="position:absolute; bottom:10px; right:10px; text-align:right; font-family:'Cormorant Garamond',serif; font-size:16px; font-style:italic; font-weight:700; line-height:1; color:inherit; pointer-events:none; z-index:5;">
+             
+                <div class="copyright-notice">© SQUARE ENIX</div>
             </div>
         </div>
 
@@ -799,7 +801,7 @@
 <script>
     let imgX = 0; let imgY = 0; let imgScale = 1.0;
     let isDraggingBg = false; let bgStartX = 0; bgStartY = 0;
-    let topicX = 23; let topicY = 471; let topicSize = 9;
+    let topicX = 23; let topicY = 500; let topicSize = 9;
     let isDraggingTopic = false; let topicStartX = 0; topicStartY = 0;
     let selectedSubJobs = [];
 let selectedTopics = [];
@@ -922,28 +924,47 @@ let selectedTopics = [];
 
     function updateJobsDisplay() {
         jobsContainer.innerHTML = '';
+        const roleSize = Math.round(jobSize * 0.667);
+
         // メインジョブ
         const mainJobVal = document.getElementById('input-main-job').value;
         const mainRole = mainJobRoleMap[mainJobVal] || '';
-        const mainItem = document.createElement('div');
-        mainItem.className = 'job-display-item';
-        mainItem.innerHTML = `
-            <span class="job-display-en" style="font-size:${jobSize}px;">${mainJobVal}</span>
-            <span class="job-display-role">${mainRole}</span>
-        `;
-        jobsContainer.appendChild(mainItem);
+        if (mainJobVal) {
+            const mainItem = document.createElement('div');
+            mainItem.className = 'job-display-item';
+            mainItem.innerHTML = `
+                <span class="job-display-en" style="font-size:${jobSize}px;">${mainJobVal}</span>
+                <span class="job-display-role" style="font-size:${roleSize}px;">${mainRole}</span>
+            `;
+            jobsContainer.appendChild(mainItem);
+        }
 
-        // サブジョブ
+        // サブジョブをロールごとにグループ化
+        const groups = {}; // { role: [name, ...] }
         selectedSubJobs.forEach(abbr => {
             const data = jobRoleMap[abbr];
             if (!data) return;
-            const item = document.createElement('div');
-            item.className = 'job-display-item';
-            item.innerHTML = `
-                <span class="job-display-en" style="font-size:${jobSize}px;">${data.name}</span>
-                <span class="job-display-role">${data.role}</span>
-            `;
-            jobsContainer.appendChild(item);
+            if (!groups[data.role]) groups[data.role] = [];
+            groups[data.role].push(data.name);
+        });
+
+        Object.entries(groups).forEach(([role, names]) => {
+            // ロール見出し（Accent Colorで表示）
+            const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--magazine-accent').trim();
+            const roleEl = document.createElement('div');
+            roleEl.className = 'role-title';
+            roleEl.style.fontSize = roleSize + 'px';
+            roleEl.style.color = accentColor;
+            roleEl.textContent = role;
+            jobsContainer.appendChild(roleEl);
+
+            // そのロールのジョブ名（role表記なし）
+            names.forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'job-display-item';
+                item.innerHTML = `<span class="job-display-en" style="font-size:${jobSize}px;">${name}</span>`;
+                jobsContainer.appendChild(item);
+            });
         });
     }
 
@@ -963,6 +984,9 @@ let selectedTopics = [];
         jobSize = parseInt(e.target.value);
         document.getElementById('val-job-size').innerText = jobSize + 'px';
         jobsContainer.querySelectorAll('.job-display-en').forEach(el => el.style.fontSize = jobSize + 'px');
+        // role-title (TANK/DPS等) も同比率で変化 (基準: jobSize=15の時10px → 比率0.667)
+        const roleSize = Math.round(jobSize * 0.667);
+        jobsContainer.querySelectorAll('.role-title').forEach(el => el.style.fontSize = roleSize + 'px');
     });
     document.getElementById('input-job-x').addEventListener('input', () => {
         jobX = parseInt(document.getElementById('input-job-x').value);
@@ -1153,7 +1177,12 @@ let selectedTopics = [];
         document.documentElement.style.setProperty('--text-shadow-style', t.shadow);
     });
     document.getElementById('input-filter').addEventListener('change', (e) => { document.getElementById('card-image').style.filter = e.target.value; });
-    document.getElementById('input-color').addEventListener('change', (e) => { document.documentElement.style.setProperty('--magazine-accent', e.target.value); });
+    document.getElementById('input-color').addEventListener('change', (e) => {
+        const color = e.target.value;
+        document.documentElement.style.setProperty('--magazine-accent', color);
+        // ロール表記の色も同期
+        jobsContainer.querySelectorAll('.role-title').forEach(el => el.style.color = color);
+    });
     
     const inputScale = document.getElementById('input-scale');
     inputScale.addEventListener('input', (e) => { imgScale = parseFloat(e.target.value); document.getElementById('val-scale').innerText = imgScale.toFixed(2); updateImageTransform(); });
