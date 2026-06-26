@@ -10,24 +10,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-/* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
-#magazine-jobs-container {
-    gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
-}
+        /* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
+        #magazine-jobs-container {
+            gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
+        }
 
-/* ジョブ名自体の上下の余白をリセット */
-#magazine-jobs-container .job-display-item {
-    margin: 0 !important;
-    padding: 0 !important;
-}
+        /* ジョブ名自体の上下の余白をリセット */
+        #magazine-jobs-container .job-display-item {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
 
-/* ロール名（DPS、Healer等）の余白をMAIN JOBと同じ条件にリセット */
-#magazine-jobs-container .role-title {
-    margin-top: 4px !important;    /* 前の項目との間隔をほんの少しだけあける */
-    margin-bottom: 0px !important; /* 下のジョブ名との間隔をゼロに */
-    line-height: 1.2 !important;
-}
-
+        /* ロール名（DPS、Healer等）の余白をMAIN JOBと同じ条件にリセット */
+        #magazine-jobs-container .role-title {
+            margin-top: 4px !important;    /* 前の項目との間隔をほんの少しだけあける */
+            margin-bottom: 0px !important; /* 下のジョブ名との間隔をゼロに */
+            line-height: 1.2 !important;
+        }
 
         :root {
             --text-theme-color: #FFFFFF;
@@ -223,7 +222,7 @@
             border-radius: 4px;
             cursor: default;
             user-select: none;
-touch-action: none;
+            touch-action: none; /* スマホの暴発を防ぐ */
         }
 
         .bg-image-container {
@@ -770,6 +769,8 @@ touch-action: none;
     let topicX = 23; let topicY = 500; let topicSize = 9;
     let selectedSubJobs = [];
     let selectedTopics = [];
+    let lastPinchDist = null; // 💡 pinch系の変数宣言を追加
+    let pinchOnCard = false;
 
     const startSelect = document.getElementById('input-time-start');
     const endSelect = document.getElementById('input-time-end');
@@ -868,26 +869,15 @@ touch-action: none;
         'FSH': { name: 'Fisher',      role: 'Gatherer' },
     };
 
-    const mainJobRoleMap = {
-        'PALADIN': 'Tank', 'WARRIOR': 'Tank', 'DARK KNIGHT': 'Tank', 'GUNBREAKER': 'Tank',
-        'WHITE MAGE': 'Healer', 'SCHOLAR': 'Healer', 'ASTROLOGIAN': 'Healer', 'SGE': 'Healer',
-        'MONK': 'DPS', 'DRAGOON': 'DPS', 'NINJA': 'DPS', 'SAMURAI': 'DPS', 'REAPER': 'DPS', 'VIPER': 'DPS',
-        'BARD': 'DPS', 'MACHINIST': 'DPS', 'DANCER': 'DPS',
-        'BLACK MAGE': 'DPS', 'SUMMONER': 'DPS', 'RED MAGE': 'DPS', 'BLUEMAGE': 'DPS', 'PICTOMANCER': 'DPS',
-    };
-
     function updateJobsDisplay() {
         jobsContainer.innerHTML = '';
         const roleSize = Math.round(jobSize * 0.667);
         const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--magazine-accent').trim();
 
-        // 1. メインジョブの処理
         const mainJobVal = document.getElementById('input-main-job').value;
         if (mainJobVal) {
             const mainItem = document.createElement('div');
             mainItem.className = 'job-display-item';
-            
-            // MAIN JOBの見出しとジョブ名
             mainItem.innerHTML = `
                 <span class="role-title" style="font-size:${roleSize}px; color:${accentColor}; margin-bottom: 0px; display: block; line-height: 1.2;">MAIN JOB</span>
                 <span class="job-display-en" style="font-size:${jobSize}px; display: block; line-height: 1.1;">${mainJobVal}</span>
@@ -895,7 +885,6 @@ touch-action: none;
             jobsContainer.appendChild(mainItem);
         }
 
-        // 2. サブジョブの処理（ロールごとグループ化）
         const groups = {}; 
         selectedSubJobs.forEach(abbr => {
             const data = jobRoleMap[abbr];
@@ -905,19 +894,17 @@ touch-action: none;
         });
 
         Object.entries(groups).forEach(([role, names]) => {
-            // サブジョブのロール見出し (MAIN JOBと同じライン高さ・マージン条件にします)
             const roleEl = document.createElement('div');
             roleEl.className = 'role-title';
             roleEl.style.fontSize = roleSize + 'px';
             roleEl.style.color = accentColor;
-            roleEl.style.marginTop = '4px';      /* 次のグループとの間のわずかな隙間 */
+            roleEl.style.marginTop = '4px';
             roleEl.style.marginBottom = '0px';
             roleEl.style.display = 'block';
             roleEl.style.lineHeight = '1.2';
             roleEl.textContent = role;
             jobsContainer.appendChild(roleEl);
 
-            // そのロールに属するジョブ名たち
             names.forEach(name => {
                 const item = document.createElement('div');
                 item.className = 'job-display-item';
@@ -1054,16 +1041,12 @@ touch-action: none;
     }
 
     const card = document.getElementById('character-card');
-    let lastPinchDist = null;
-    let pinchOnCard = false;
 
     function getPinchDist(touches) {
         const dx = touches[0].clientX - touches[1].clientX;
         const dy = touches[0].clientY - touches[1].clientY;
         return Math.sqrt(dx * dx + dy * dy);
     }
-
-    // --- タッチ操作による画像移動・ピンチズームのバグ修正版 ---
     
     card.addEventListener('mousedown', (e) => { 
         if (!document.getElementById('card-image').src) return; 
@@ -1072,7 +1055,6 @@ touch-action: none;
         bgStartY = e.clientY - imgY; 
     });
 
-    // touchstart 時の処理 (passive: false にしてブラウザの挙動を制御できるようにする)
     card.addEventListener('touchstart', (e) => {
         if (!document.getElementById('card-image').src) return;
         
@@ -1095,11 +1077,8 @@ touch-action: none;
         }
     });
 
-    // 💡 重要：touchmove 内で e.preventDefault() を実行し、Safariの画面スクロールやアプリ切り替えジェスチャーを防止する
     window.addEventListener('touchmove', (e) => {
-        // カードの上で操作している場合のみ制限をかける
         if (isDraggingBg || pinchOnCard) {
-            // これにより、設定画面が一緒に動いたり、Safariが浮き上がったりするのを防ぎます
             if (e.cancelable) e.preventDefault(); 
         }
 
@@ -1118,10 +1097,13 @@ touch-action: none;
             imgY = e.touches[0].clientY - bgStartY;
             updateImageTransform();
         }
-    }, { passive: false }); // 💡 passive: false に変更して preventDefault を有効化
+    }, { passive: false });
 
     window.addEventListener('mouseup', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; });
-    window.addEventListener('touchend', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; lastPinchDist = null; pinchOnCard = false; });
+    window.addEventListener('touchend', () => { 
+        if (isDraggingBg || pinchOnCard) syncPositionSliders(); 
+        isDraggingBg = false; lastPinchDist = null; pinchOnCard = false; 
+    });
     
     document.getElementById('input-text-theme').addEventListener('change', (e) => {
         const themes = {
@@ -1170,36 +1152,30 @@ touch-action: none;
         updateImageTransform();
     });
 
-   function syncPositionSliders() {
-    const sx = document.getElementById('input-img-x');
-    const sy = document.getElementById('input-img-y');
-    const ss = document.getElementById('input-scale'); // 拡大率スライダーも取得
+    function syncPositionSliders() {
+        const sx = document.getElementById('input-img-x');
+        const sy = document.getElementById('input-img-y');
+        const ss = document.getElementById('input-scale');
 
-    // 左右・上下位置を整数に四捨五入
-    imgX = Math.round(imgX);
-    imgY = Math.round(imgY);
+        imgX = Math.round(imgX);
+        imgY = Math.round(imgY);
 
-    // 最小値・最大値の範囲内に収める
-    imgX = Math.min(Math.max(parseInt(sx.min), imgX), parseInt(sx.max));
-    imgY = Math.min(Math.max(parseInt(sy.min), imgY), parseInt(sy.max));
+        imgX = Math.min(Math.max(parseInt(sx.min), imgX), parseInt(sx.max));
+        imgY = Math.min(Math.max(parseInt(sy.min), imgY), parseInt(sy.max));
 
-    // 拡大率（Scale）を小数点第2位で四捨五入
-    imgScale = Math.round(imgScale * 100) / 100;
-    imgScale = Math.min(Math.max(parseFloat(ss.min), imgScale), parseFloat(ss.max));
+        imgScale = Math.round(imgScale * 100) / 100;
+        imgScale = Math.min(Math.max(parseFloat(ss.min), imgScale), parseFloat(ss.max));
 
-    // 画面の各数値表示（スライダーとテキスト）を更新
-    sx.value = imgX; 
-    document.getElementById('val-img-x').innerText = imgX + 'px';
-    
-    sy.value = imgY; 
-    document.getElementById('val-img-y').innerText = imgY + 'px';
-    
-    ss.value = imgScale;
-    document.getElementById('val-scale').innerText = imgScale.toFixed(2);
+        sx.value = imgX; 
+        document.getElementById('val-img-x').innerText = imgX + 'px';
+        sy.value = imgY; 
+        document.getElementById('val-img-y').innerText = imgY + 'px';
+        ss.value = imgScale;
+        document.getElementById('val-scale').innerText = imgScale.toFixed(2);
 
-    // 綺麗にした数値で画像を再描画
-    updateImageTransform();
-}
+        updateImageTransform();
+    }
+
     document.getElementById('image-input').addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -1228,7 +1204,6 @@ touch-action: none;
         syncJobDOMPosition();
     });
 
-    // スマホ時：スクロールでカード縮小
     (function() {
         const cardEl = document.getElementById('character-card');
         const SHRINK_AT = 80;
@@ -1294,6 +1269,7 @@ touch-action: none;
         });
     });
 
+    // モーダルを閉じる処理
     document.getElementById('save-modal-close').addEventListener('click', () => {
         document.getElementById('save-modal').style.display = 'none';
     });
@@ -1305,9 +1281,7 @@ touch-action: none;
 
 <div id="save-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
     <div style="background:#fff; border-radius:16px; padding:24px 20px; max-width:320px; width:90%; text-align:center; position:relative;">
-        
         <button id="save-modal-close" style="position:absolute; top:8px; right:12px; background:none; border:none; font-size:28px; padding:10px; cursor:pointer; color:#333; line-height:1;">×</button>
-        
         <div style="font-size:16px; font-weight:700; margin-bottom:8px; margin-top:10px;">画像の保存方法</div>
         <div style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.6;">画像を長押しして「"写真"に追加」を選択してください。</div>
         <img id="save-modal-img" src="" alt="" style="width:100%; border-radius:8px; display:block;">
