@@ -1062,9 +1062,19 @@
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    card.addEventListener('mousedown', (e) => { if (!document.getElementById('card-image').src) return; isDraggingBg = true; bgStartX = e.clientX - imgX; bgStartY = e.clientY - imgY; });
+    // --- タッチ操作による画像移動・ピンチズームのバグ修正版 ---
+    
+    card.addEventListener('mousedown', (e) => { 
+        if (!document.getElementById('card-image').src) return; 
+        isDraggingBg = true; 
+        bgStartX = e.clientX - imgX; 
+        bgStartY = e.clientY - imgY; 
+    });
+
+    // touchstart 時の処理 (passive: false にしてブラウザの挙動を制御できるようにする)
     card.addEventListener('touchstart', (e) => {
         if (!document.getElementById('card-image').src) return;
+        
         if (e.touches.length === 2) {
             isDraggingBg = false;
             lastPinchDist = getPinchDist(e.touches);
@@ -1074,20 +1084,30 @@
             bgStartX = e.touches[0].clientX - imgX;
             bgStartY = e.touches[0].clientY - imgY;
         }
-    }, {passive: true});
+    }, { passive: false });
 
     window.addEventListener('mousemove', (e) => {
         if (isDraggingBg) {
-            imgX = e.clientX - bgStartX; imgY = e.clientY - bgStartY; updateImageTransform();
+            imgX = e.clientX - bgStartX; 
+            imgY = e.clientY - bgStartY; 
+            updateImageTransform();
         }
     });
 
+    // 💡 重要：touchmove 内で e.preventDefault() を実行し、Safariの画面スクロールやアプリ切り替えジェスチャーを防止する
     window.addEventListener('touchmove', (e) => {
+        // カードの上で操作している場合のみ制限をかける
+        if (isDraggingBg || pinchOnCard) {
+            // これにより、設定画面が一緒に動いたり、Safariが浮き上がったりするのを防ぎます
+            if (e.cancelable) e.preventDefault(); 
+        }
+
         if (e.touches.length === 2 && lastPinchDist !== null && pinchOnCard) {
             const newDist = getPinchDist(e.touches);
             const ratio = newDist / lastPinchDist;
             imgScale = Math.min(Math.max(0.05, imgScale * ratio), 4.0);
             lastPinchDist = newDist;
+            
             const inputScale = document.getElementById('input-scale');
             inputScale.value = imgScale;
             document.getElementById('val-scale').innerText = imgScale.toFixed(2);
@@ -1097,7 +1117,7 @@
             imgY = e.touches[0].clientY - bgStartY;
             updateImageTransform();
         }
-    }, {passive: true});
+    }, { passive: false }); // 💡 passive: false に変更して preventDefault を有効化
 
     window.addEventListener('mouseup', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; });
     window.addEventListener('touchend', () => { if (isDraggingBg) syncPositionSliders(); isDraggingBg = false; lastPinchDist = null; pinchOnCard = false; });
