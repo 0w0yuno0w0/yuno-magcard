@@ -479,9 +479,8 @@
         padding: 0;
     }
     #character-card.card-shrunk {
-        max-width: 400px;
-        width: 38%;
-        transform: scale(1);
+        transform: scale(0.38);
+        transform-origin: top center;
     }
 }
 
@@ -1235,20 +1234,44 @@ let selectedTopics = [];
 
     // スマホ時：スクロールでカード縮小
     (function() {
-        if (window.innerWidth > 1000) return;
         const cardEl = document.getElementById('character-card');
         const SHRINK_AT = 80; // このpx以上スクロールしたら縮小
         const previewEl = document.querySelector('.preview-panel');
-        window.addEventListener('scroll', () => {
-            if (window.innerWidth > 1000) return;
-            if (window.scrollY > SHRINK_AT) {
-                cardEl.classList.add('card-shrunk');
-                previewEl.classList.add('card-shrunk');
+        const SCALE = 0.38;
+
+        function updateCardMargin() {
+            if (cardEl.classList.contains('card-shrunk')) {
+                // getBoundingClientRectはscale後の見た目サイズを返す
+                // offsetHeightはscale前の実寸を返す
+                const naturalH = cardEl.offsetHeight;
+                const scaledH = naturalH * SCALE;
+                const diff = naturalH - scaledH;
+                cardEl.style.marginBottom = `-${diff}px`;
             } else {
+                cardEl.style.marginBottom = '';
+            }
+        }
+
+        function applyScrollState() {
+            if (window.innerWidth > 1000) {
+                // PC幅になったらすべてリセット
                 cardEl.classList.remove('card-shrunk');
                 previewEl.classList.remove('card-shrunk');
+                cardEl.style.marginBottom = '';
+            } else {
+                if (window.scrollY > SHRINK_AT) {
+                    cardEl.classList.add('card-shrunk');
+                    previewEl.classList.add('card-shrunk');
+                } else {
+                    cardEl.classList.remove('card-shrunk');
+                    previewEl.classList.remove('card-shrunk');
+                }
+                updateCardMargin();
             }
-        }, {passive: true});
+        }
+
+        window.addEventListener('scroll', applyScrollState, {passive: true});
+        window.addEventListener('resize', applyScrollState, {passive: true});
     })();
 
     document.getElementById('download-btn').addEventListener('click', () => {
