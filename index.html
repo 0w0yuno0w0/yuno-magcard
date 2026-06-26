@@ -764,12 +764,19 @@ touch-action: none;
     </div>
 </div>
 
-<div id="save-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; flex-direction:column; align-items:center; justify-content:center;">
-    <div style="background:#fff; border-radius:16px; padding:24px 20px; max-width:320px; width:90%; text-align:center; position:relative;">
-        <button id="save-modal-close" style="position:absolute; top:8px; right:12px; background:none; border:none; font-size:28px; padding:10px; cursor:pointer; color:#333; line-height:1;">×</button>
-        <div style="font-size:16px; font-weight:700; margin-bottom:8px; margin-top:10px;">画像の保存方法</div>
-        <div style="font-size:13px; color:#555; margin-bottom:16px; line-height:1.6;">画像を長押しして「"写真"に追加」を選択してください。</div>
-        <img id="save-modal-img" src="" alt="" style="width:100%; border-radius:8px; display:block;">
+<div id="save-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9999; flex-direction:column; align-items:center; justify-content:center; box-sizing:border-box; padding:20px;">
+    <div style="width:100%; max-width:380px; position:relative; display:flex; flex-direction:column; align-items:center; gap:12px;">
+        
+        <div style="text-align:center; color:#fff;">
+            <div style="font-size:16px; font-weight:700; margin-bottom:4px;">画像の保存方法</div>
+            <div style="font-size:12px; opacity:0.8; line-height:1.4;">画像を長押しして「"写真"に追加」を選んでください</div>
+        </div>
+
+        <button id="save-modal-close" style="position:absolute; top:-40px; right:0; background:none; border:none; font-size:32px; color:#fff; cursor:pointer; padding:5px; line-height:1;">×</button>
+        
+        <div style="width:100%; aspect-ratio:400/550; border-radius:4px; overflow:hidden; box-shadow:0 25px 60px rgba(0,0,0,0.5); background:#D2D2D7;">
+            <img id="save-modal-img" src="" alt="" style="width:100%; height:100%; object-fit:contain; display:block; user-select:contain; -webkit-user-select:auto;">
+        </div>
     </div>
 </div>
 
@@ -877,26 +884,15 @@ touch-action: none;
         'FSH': { name: 'Fisher',      role: 'Gatherer' },
     };
 
-    const mainJobRoleMap = {
-        'PALADIN': 'Tank', 'WARRIOR': 'Tank', 'DARK KNIGHT': 'Tank', 'GUNBREAKER': 'Tank',
-        'WHITE MAGE': 'Healer', 'SCHOLAR': 'Healer', 'ASTROLOGIAN': 'Healer', 'SGE': 'Healer',
-        'MONK': 'DPS', 'DRAGOON': 'DPS', 'NINJA': 'DPS', 'SAMURAI': 'DPS', 'REAPER': 'DPS', 'VIPER': 'DPS',
-        'BARD': 'DPS', 'MACHINIST': 'DPS', 'DANCER': 'DPS',
-        'BLACK MAGE': 'DPS', 'SUMMONER': 'DPS', 'RED MAGE': 'DPS', 'BLUEMAGE': 'DPS', 'PICTOMANCER': 'DPS',
-    };
-
     function updateJobsDisplay() {
         jobsContainer.innerHTML = '';
         const roleSize = Math.round(jobSize * 0.667);
         const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--magazine-accent').trim();
 
-        // 1. メインジョブの処理
         const mainJobVal = document.getElementById('input-main-job').value;
         if (mainJobVal) {
             const mainItem = document.createElement('div');
             mainItem.className = 'job-display-item';
-            
-            // MAIN JOBの見出しとジョブ名
             mainItem.innerHTML = `
                 <span class="role-title" style="font-size:${roleSize}px; color:${accentColor}; margin-bottom: 0px; display: block; line-height: 1.2;">MAIN JOB</span>
                 <span class="job-display-en" style="font-size:${jobSize}px; display: block; line-height: 1.1;">${mainJobVal}</span>
@@ -904,7 +900,6 @@ touch-action: none;
             jobsContainer.appendChild(mainItem);
         }
 
-        // 2. サブジョブの処理（ロールごとグループ化）
         const groups = {}; 
         selectedSubJobs.forEach(abbr => {
             const data = jobRoleMap[abbr];
@@ -914,19 +909,17 @@ touch-action: none;
         });
 
         Object.entries(groups).forEach(([role, names]) => {
-            // サブジョブのロール見出し (MAIN JOBと同じライン高さ・マージン条件にします)
             const roleEl = document.createElement('div');
             roleEl.className = 'role-title';
             roleEl.style.fontSize = roleSize + 'px';
             roleEl.style.color = accentColor;
-            roleEl.style.marginTop = '4px';      /* 次のグループとの間のわずかな隙間 */
+            roleEl.style.marginTop = '4px';
             roleEl.style.marginBottom = '0px';
             roleEl.style.display = 'block';
             roleEl.style.lineHeight = '1.2';
             roleEl.textContent = role;
             jobsContainer.appendChild(roleEl);
 
-            // そのロールに属するジョブ名たち
             names.forEach(name => {
                 const item = document.createElement('div');
                 item.className = 'job-display-item';
@@ -1226,8 +1219,7 @@ touch-action: none;
         syncJobDOMPosition();
     });
 
-    // スマホ時：スクロールでカード縮小
-    let updateCardMarginGlobal = null; // スコープ用
+    let updateCardMarginGlobal = null; 
     (function() {
         const cardEl = document.getElementById('character-card');
         const SHRINK_AT = 80;
@@ -1267,30 +1259,27 @@ touch-action: none;
         window.addEventListener('resize', applyScrollState, {passive: true});
     })();
 
-    // 💡 修正点②：ダウンロード処理
+    // 💡 ダウンロード時の出力制御部
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
         const wasShrunk = cardEl2.classList.contains('card-shrunk');
         
-        // 元のスタイル設定をバックアップ
         const origWidth = cardEl2.style.width;
         const origHeight = cardEl2.style.height;
         const origMargin = cardEl2.style.marginBottom;
 
-        // 1. 一時的にスクロール縮小モードを完全解除
         if (wasShrunk) {
             cardEl2.classList.remove('card-shrunk');
         }
         
-        // 2. スマホの「width: 100%」を上書きし、本来の「400px × 550px」に強制固定する
+        // どんな画面サイズであっても撮影時は「横400px・縦550px」の枠に強制固定
         cardEl2.style.setProperty('width', '400px', 'important');
         cardEl2.style.setProperty('height', '550px', 'important');
         cardEl2.style.marginBottom = '0px';
 
-        // 400x550の状態にscale:2をかけることで、どんな端末でも必ず「800×1100 px」になる
+        // html2canvas のスケールを「2」にすることで、確実に 400x2 = 800px、550x2 = 1100px に変換される
         html2canvas(cardEl2, { scale: 2, useCORS: true, logging: false, backgroundColor: null }).then(canvas => {
             
-            // 3. 撮影が終わったら全てのスタイル・クラスを元の状態に完全復元
             cardEl2.style.width = origWidth;
             cardEl2.style.height = origHeight;
             cardEl2.style.marginBottom = origMargin;
@@ -1303,6 +1292,7 @@ touch-action: none;
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             if (isMobile) {
                 const modal = document.getElementById('save-modal');
+                // 💡 モーダル用の画像srcに変換した高解像度データ(800x1100)を流し込みます
                 document.getElementById('save-modal-img').src = canvas.toDataURL('image/png');
                 modal.style.display = 'flex';
             } else {
@@ -1314,7 +1304,6 @@ touch-action: none;
         });
     });
 
-    // モーダルを閉じる処理
     document.getElementById('save-modal-close').addEventListener('click', () => {
         document.getElementById('save-modal').style.display = 'none';
     });
