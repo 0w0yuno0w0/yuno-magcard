@@ -1246,39 +1246,53 @@
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
+        const wasShrunk = cardEl2.classList.contains('card-shrunk');
         
-        // 1. 現在のカードをそのまま「クローン（複製）」する
-        const cloneCard = cardEl2.cloneNode(true);
+        // 1. 元のスタイル（レスポンシブ用の縮小など）を退避
+        const origWidth = cardEl2.style.width;
+        const origHeight = cardEl2.style.height;
+        const origMargin = cardEl2.style.marginBottom;
+        const origTransform = cardEl2.style.transform;
+        const origTransformOrigin = cardEl2.style.transformOrigin;
+
+        if (wasShrunk) {
+            cardEl2.classList.remove('card-shrunk');
+        }
         
-        // 2. スマホの縮小用クラスや余白を完全に除去し、PC基準の400x550に強制固定
-        cloneCard.classList.remove('card-shrunk');
-        cloneCard.style.position = 'fixed';
-        cloneCard.style.top = '-9999px'; // 画面外に飛ばしてユーザーに見えないようにする
-        cloneCard.style.left = '-9999px';
-        cloneCard.style.width = '400px';
-        cloneCard.style.height = '550px';
-        cloneCard.style.margin = '0';
-        cloneCard.style.transform = 'none';
+        // 2. 本物のカードを、一時的に「レスポンシブの影響を受けない絶対的な400x550px」に固定
+        // transformをnoneにすることで、スマホ画面での縮小表示を一時的に解除します
+        cardEl2.style.setProperty('width', '400px', 'important');
+        cardEl2.style.setProperty('height', '550px', 'important');
+        cardEl2.style.marginBottom = '0px';
+        cardEl2.style.transform = 'none';
+        cardEl2.style.transformOrigin = 'unset';
 
-        // 3. 一時的にDOM（画面の裏側）に追加
-        document.body.appendChild(cloneCard);
-
-        // 4. 少し待ってフォントやスタイルの中身が完全に確定してから撮影
+        // 3. ブラウザが400x550pxの正しい位置関係で文字やジョブを再配置するのを少し待つ
         setTimeout(() => {
-            html2canvas(cloneCard, { 
+            html2canvas(cardEl2, { 
                 scale: 2,               // 400x550 を 2倍（800x1100）の高画質で出力
                 useCORS: true, 
                 logging: false, 
                 backgroundColor: null 
             }).then(canvas => {
                 
-                // 撮影が終わったら裏側のクローンは即座に削除
-                document.body.removeChild(cloneCard);
+                // 4. 撮影が終わったら、即座に元のスマホ表示（縮小状態など）に戻す
+                cardEl2.style.width = origWidth;
+                cardEl2.style.height = origHeight;
+                cardEl2.style.marginBottom = origMargin;
+                cardEl2.style.transform = origTransform;
+                cardEl2.style.transformOrigin = origTransformOrigin;
+                
+                if (wasShrunk) {
+                    cardEl2.classList.add('card-shrunk');
+                    if (updateCardMarginGlobal) updateCardMarginGlobal();
+                }
 
-                // Blobに変換して直接ダウンロードをキック
+                // 5. Blobに変換して直接ダウンロードを実行
                 canvas.toBlob((blob) => {
                     if (!blob) return;
                     
+                    // ファイル名に現在のカード名（タイトル）を反映
                     const fileName = `${document.getElementById('card-name').innerText}_magazine.png`;
                     const fileUrl = URL.createObjectURL(blob);
                     
@@ -1294,7 +1308,7 @@
                 }, 'image/png');
 
             });
-        }, 50); // 50msの待機でレイアウト計算を安全に確定
+        }, 100); // 100ms待機してレイアウトを完全に落ち着かせる
     });
 </script>
 </body>
