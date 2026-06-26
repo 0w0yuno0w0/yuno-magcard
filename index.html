@@ -1276,6 +1276,18 @@
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
+
+
+// [A] サイズや透明度の設定をここで「再適用」する
+    // (例：input等の値をHTMLに書き戻す処理)
+    const fontSize = document.getElementById('font-size-input').value;
+    const opacity = document.getElementById('opacity-input').value;
+    
+    document.getElementById('card-name').style.fontSize = fontSize + 'px';
+    document.getElementById('card-name').style.opacity = opacity;
+
+
+
         const wasShrunk = cardEl2.classList.contains('card-shrunk');
         
         // 1. 元のスタイル（レスポンシブ用の縮小など）を退避
@@ -1356,7 +1368,7 @@ window.scrollTo(0, 0); // ページトップに強制移動
                 }, 'image/png');
 
             });
-        }, 300); // 300ms待機してフォント読み込みとレイアウトを確実に安定させる
+        }, 500); // 300ms待機してフォント読み込みとレイアウトを確実に安定させる
     });
 </script>
 </body>
