@@ -27,13 +27,7 @@
     margin-bottom: 0px !important; /* 下のジョブ名との間隔をゼロに */
     line-height: 1.2 !important;
 }
-#character-card {
-    /* ...既存のスタイル... */
-    box-sizing: border-box; /* 重要: パディングやボーダーを含めて400x550にする */
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-}
+
 
         :root {
             --text-theme-color: #FFFFFF;
@@ -1289,46 +1283,79 @@ height: 275px !important;       /* ここを小さくするとプレビューも
  */
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
     document.getElementById('download-btn').addEventListener('click', () => {
-    const cardEl = document.getElementById('character-card');
-    
-    // 撮影用のクローン作成（元の画面への影響を最小限にするため）
-    const clone = cardEl.cloneNode(true);
-    clone.style.position = 'fixed';
-    clone.style.top = '-9999px'; // 画面外に隠す
-    clone.style.left = '-9999px';
-    clone.style.width = '400px';
-    clone.style.height = '550px';
-    clone.style.transform = 'none'; // ズレの原因を無効化
-    clone.style.margin = '0';
-    clone.style.padding = '0';
-    document.body.appendChild(clone);
+        const cardEl2 = document.getElementById('character-card');
+        const wasShrunk = cardEl2.classList.contains('card-shrunk');
+        
+        // 1. 元のスタイル（レスポンシブ用の縮小など）を退避
+        const origWidth = cardEl2.style.width;
+        const origHeight = cardEl2.style.height;
+        const origMargin = cardEl2.style.marginBottom;
+        const origTransform = cardEl2.style.transform;
+        const origTransformOrigin = cardEl2.style.transformOrigin;
 
-    html2canvas(clone, { 
-        scale: 2,
-        useCORS: true, 
-        logging: false, 
-backgroundColor: null, // 透明背景にする
-        width: 400,
-        height: 550,
-        windowWidth: 400,
-        windowHeight: 550,
-   x: 0,                  // 描画開始位置を左端0に固定
-    y: 0,                  // 描画開始位置を上端0に固定
-    }).then(canvas => {
-        document.body.removeChild(clone); // クローンを削除
+        if (wasShrunk) {
+            cardEl2.classList.remove('card-shrunk');
+        }
+        
+        // 2. 本物のカードを、一時的に「レスポンシブの影響を受けない絶対的な400x550px」に固定
+        // transformをnoneにすることで、スマホ画面での縮小表示を一時的に解除します
+        cardEl2.style.setProperty('width', '400px', 'important');
+        cardEl2.style.setProperty('height', '550px', 'important');
+        cardEl2.style.marginBottom = '0px';
+        cardEl2.style.transform = 'none';
+        cardEl2.style.transformOrigin = 'unset';
 
-        canvas.toBlob((blob) => {
-            if (!blob) return;
-            const fileName = `${document.getElementById('card-name').innerText}_magazine.png`;
-            const fileUrl = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.download = fileName;
-            link.href = fileUrl;
-            link.click();
-            URL.revokeObjectURL(fileUrl);
-        }, 'image/png');
+        // 3. ブラウザが400x550pxの正しい位置関係で文字やジョブを再配置するのを少し待つ
+        setTimeout(() => {
+            html2canvas(cardEl2, { 
+                scale: 2,               // 400x550 を 2倍（800x1100）の高画質で出力
+                useCORS: true, 
+                logging: false, 
+                backgroundColor: null,
+                width: 400,             // キャプチャ範囲をカードサイズに固定（白背景防止）
+                height: 550,
+                windowWidth: 400,       // html2canvasの仮想ウィンドウ幅をカードに合わせる（位置ズレ防止）
+                windowHeight: 550,
+                x: 0,                   // カード左端からキャプチャ
+                y: 0,
+                scrollX: 0,
+                scrollY: 0
+            }).then(canvas => {
+                
+                // 4. 撮影が終わったら、即座に元のスマホ表示（縮小状態など）に戻す
+                cardEl2.style.width = origWidth;
+                cardEl2.style.height = origHeight;
+                cardEl2.style.marginBottom = origMargin;
+                cardEl2.style.transform = origTransform;
+                cardEl2.style.transformOrigin = origTransformOrigin;
+                
+                if (wasShrunk) {
+                    cardEl2.classList.add('card-shrunk');
+                    if (updateCardMarginGlobal) updateCardMarginGlobal();
+                }
+
+                // 5. Blobに変換して直接ダウンロードを実行
+                canvas.toBlob((blob) => {
+                    if (!blob) return;
+                    
+                    // ファイル名に現在のカード名（タイトル）を反映
+                    const fileName = `${document.getElementById('card-name').innerText}_magazine.png`;
+                    const fileUrl = URL.createObjectURL(blob);
+                    
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = fileUrl;
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(fileUrl);
+                }, 'image/png');
+
+            });
+        }, 300); // 300ms待機してフォント読み込みとレイアウトを確実に安定させる
     });
-});
 </script>
 </body>
 </html>
