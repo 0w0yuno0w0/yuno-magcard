@@ -37,6 +37,7 @@
             --text-theme-color: #FFFFFF;
             --text-shadow-style: 0 2px 12px rgba(0,0,0,0.3);
             --magazine-accent: #E0B0B0;
+            --card-bg-color: #D2D2D7;
         }
 
         body {
@@ -220,7 +221,7 @@
         #character-card {
             width: 400px;
             height: 550px;
-            background-color: #D2D2D7;
+            background-color: var(--card-bg-color);
             position: relative;
             overflow: hidden;
             box-shadow: 0 25px 60px rgba(0,0,0,0.15);
@@ -568,6 +569,23 @@
                         <option value="#4A7C59">Sage Green (深緑系)</option>
                         <option value="#2A6F97">Clear Blue (ブルー系)</option>
                         <option value="#D94E34">Sunset Orange (朱色系)</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <span class="control-label">Background (背景色)</span>
+                    <select id="input-card-bg">
+                        <option value="#D2D2D7" selected>Default (初期値)</option>
+                        <option value="#F5F5F7">Light (明るいグレー)</option>
+                        <option value="#1C1C1E">Dark (ダーク)</option>
+                        <option value="#4A3B14">Gold (ゴールド系)</option>
+                        <option value="#50303B">Rose (ピンク系)</option>
+                        <option value="#243F50">Ice (青系)</option>
+                        <option value="#555555">Smoke (グレー)</option>
+                        <option value="#D7D7D7">Shadow (シャドウ)</option>
+                        <option value="#5C3A1E">Dusk (夕暮れ系)</option>
+                        <option value="#FFFFFF">White (白)</option>
+                        <option value="#000000">Black (黒)</option>
+                        <option value="transparent">Transparent (透明)</option>
                     </select>
                 </div>
             </div>
@@ -1460,6 +1478,10 @@
         const color = e.target.value;
         document.documentElement.style.setProperty('--magazine-accent', color);
         jobsContainer.querySelectorAll('.role-title').forEach(el => el.style.color = color);
+    });
+
+    document.getElementById('input-card-bg').addEventListener('change', (e) => {
+        document.documentElement.style.setProperty('--card-bg-color', e.target.value);
     });
 
     document.getElementById('input-copyright-color').addEventListener('change', (e) => {
