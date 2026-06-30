@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VISQUE Inspire - Ultimate Edition</title>
+    <title>Magazine Character Card Generator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@200;400;500;700&family=Playfair+Display:wght@400;700&family=Libre+Baskerville:wght@400;700&family=Josefin+Sans:wght@200;400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
+
+.value-badge {
+    display: none !important;
+}
 /* ジョブ表示コンテナ内の要素間の隙間を極限まで詰める */
 #magazine-jobs-container {
     gap: 2px !important; /* コンテナ全体のアイテム間の基本の隙間を狭く */
@@ -458,11 +462,15 @@
 
 
           #character-card {
-    width: 200px !important;
-height: 275px !important;       /* ここを小さくするとプレビューも小さくなります */
-    aspect-ratio: 400 / 550;
-    transform: none !important;    /* 縮小の影響を受けないようにする */
-    margin: 0 auto;
+    /* transform: scale(0.5) でカードを縮小し、座標系を 400x550 のまま維持する。
+       これにより left/top px 値がプレビューとキャプチャで完全一致する。 */
+    width: 400px !important;
+    height: 550px !important;
+    transform: scale(0.5) !important;
+    transform-origin: top center !important;
+    margin-bottom: -275px !important; /* scale後の見かけ上の高さ(275px)の差分を詰める */
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
             /* スクロール時に縮小 */
           /*   .preview-panel.card-shrunk {
@@ -476,15 +484,13 @@ height: 275px !important;       /* ここを小さくするとプレビューも
 
 @media screen and (max-width: 450px) {
     #character-card {
-        width: 90vw !important; /* 画面幅の90%に強制的に収める */
-        height: auto !important;
-        margin: 0 auto !important;
-        transform: none !important; /* ズレの原因となる変換を解除 */
-    }
-    
-    /* プレビュー内の文字や要素も追従して少し縮小させる */
-    #character-card {
-        font-size: 0.9em;
+        /* 画面幅に応じてスケールを動的に調整 */
+        transform: scale(calc(90vw / 400px)) !important;
+        /* ↑ CSSの calc では vw/px の混在はできないため JS で対応済み。
+           ここでは 0.45 を目安値として上書き */
+        transform: scale(0.45) !important;
+        transform-origin: top center !important;
+        margin-bottom: calc(-550px * 0.55) !important;
     }
 }
 
@@ -676,8 +682,8 @@ height: 275px !important;       /* ここを小さくするとプレビューも
                         <option value="DYNAMIS / KRAKEN">Kraken</option>
                         <option value="DYNAMIS / MADUIN">Maduin</option>
                         <option value="DYNAMIS / MARILITH">Marilith</option>
+                        <option value="DYNAMIS / RAFFLESIA">Rafflesia</option>
                         <option value="DYNAMIS / SERAPH">Seraph</option>
-                        <option value="DYNAMIS / SOPHIA">Sophia</option>
                     </optgroup>
                     <optgroup label="Primal">
                         <option value="PRIMAL / BEHEMOTH">Behemoth</option>
@@ -710,12 +716,6 @@ height: 275px !important;       /* ここを小さくするとプレビューも
                         <option value="LIGHT / TWINTANIA">Twintania</option>
                         <option value="LIGHT / ZODIARK">Zodiark</option>
                     </optgroup>
-                    <optgroup label="Shadow">
-                        <option value="SHADOW / INNOCENCE">Innocence</option>
-                        <option value="SHADOW / PIXIE">Pixie</option>
-                        <option value="SHADOW / TITANIA">Titania</option>
-                        <option value="SHADOW / TYCOON">Tycoon</option>
-                    </optgroup>
                     <optgroup label="── Oceania ──" disabled></optgroup>
                     <optgroup label="Materia">
                         <option value="MATERIA / BISMARCK">Bismarck</option>
@@ -734,43 +734,50 @@ height: 275px !important;       /* ここを小さくするとプレビューも
                     </optgroup>
                     <optgroup label="── China ──" disabled></optgroup>
                     <optgroup label="陆行鸟 (Chocobo)">
-                        <option value="陆行鸟 / 红玉海">红玉海 (Hongyu Hai)</option>
-                        <option value="陆行鸟 / 神意之地">神意之地 (Shényi zhī Dì)</option>
-                        <option value="陆行鸟 / 拉诺西亚">拉诺西亚 (Lā nuò xī yà)</option>
-                        <option value="陆行鸟 / 幻影群岛">幻影群岛 (Huànyǐng Qúndǎo)</option>
-                        <option value="陆行鸟 / 萌芽池">萌芽池 (Méng yá Chí)</option>
-                        <option value="陆行鸟 / 宇宙和音">宇宙和音 (Yǔzhòu Héyīn)</option>
-                        <option value="陆行鸟 / 沃仙曦染">沃仙曦染 (Wò xiān Xī Rǎn)</option>
-                        <option value="陆行鸟 / 海猫茶屋">海猫茶屋 (Hǎi māo Cháwū)</option>
+                        <option value="CHINA / 拉诺西亚">La Noscea</option>
+                        <option value="CHINA / 幻影群岛">Phantom Islands</option>
+                        <option value="CHINA / 神意之地">God's Revel</option>
+                        <option value="CHINA / 萌芽池">Spriggan</option>
+                        <option value="CHINA / 红玉海">Ruby Sea</option>
+                        <option value="CHINA / 宇宙和音">Cosmo Acoustic</option>
+                        <option value="CHINA / 沃仙曦染">Wolf Wolf</option>
+                        <option value="CHINA / 晨曦王座">Dawn Throne</option>
                     </optgroup>
                     <optgroup label="莫古力 (Moogle)">
-                        <option value="莫古力 / 水晶塔">水晶塔 (Shuǐjīng Tǎ)</option>
-                        <option value="莫古力 / 银泪湖">银泪湖 (Yín lèi Hú)</option>
-                        <option value="莫古力 / 太阳海岸">太阳海岸 (Tàiyáng Hǎiàn)</option>
-                        <option value="莫古力 / 图书馆">图书馆 (Túshūguǎn)</option>
-                        <option value="莫古力 / 黄金港">黄金港 (Huángjīn Gǎng)</option>
-                        <option value="莫古力 / 伊修加德">伊修加德 (Yī xiū jiā dé)</option>
-                        <option value="莫古力 / 柔风海湾">柔风海湾 (Róufēng Hǎiwān)</option>
-                        <option value="莫古力 / 琥珀原">琥珀原 (Hǔpò Yuán)</option>
+                        <option value="CHINA / 潮风亭">Typhoon</option>
+                        <option value="CHINA / 神拳痕">Shenquanhen</option>
+                        <option value="CHINA / 白银乡">Shirogane</option>
+                        <option value="CHINA / 白金幻象">Platinum Mirage</option>
+                        <option value="CHINA / 旅人栈桥">Traveler Bridge</option>
+                        <option value="CHINA / 拂晓之间">Dawn</option>
+                        <option value="CHINA / 龙巢神殿">Dragon Nest</option>
+                        <option value="CHINA / 梦羽宝境">Dream Feather</option>
                     </optgroup>
                     <optgroup label="猫小胖 (Fat Cat)">
-                        <option value="猫小胖 / 延夏">延夏 (Yán Xià)</option>
-                        <option value="猫小胖 / 静语庄园">静语庄园 (Jìngyǔ Zhuāngyuán)</option>
-                        <option value="猫小胖 / 摩杜纳">摩杜纳 (Mó dù nà)</option>
-                        <option value="猫小胖 / 海湾都市">海湾都市 (Hǎiwān Dūshì)</option>
-                        <option value="猫小胖 / 旅人栈桥">旅人栈桥 (Lǚrén Zhànqiáo)</option>
-                        <option value="猫小胖 / 白银乡">白银乡 (Báiyín Xiāng)</option>
-                        <option value="猫小胖 / 梦羽宝境">梦羽宝境 (Mèng yǔ Bǎojìng)</option>
-                        <option value="猫小胖 / 神拳痕">神拳痕 (Shén quán Hén)</option>
+                        <option value="CHINA / 紫水栈桥">Zishui</option>
+                        <option value="CHINA / 延夏">Yanxia</option>
+                        <option value="CHINA / 静语庄园">Haukke Manor</option>
+                        <option value="CHINA / 摩杜纳">Mor Dhona</option>
+                        <option value="CHINA / 海猫茶屋">Sea Cat</option>
+                        <option value="CHINA / 柔风海湾">Soft Wind</option>
+                        <option value="CHINA / 琥珀原">Amber</option>
                     </optgroup>
                     <optgroup label="豆豆柴 (Shiba)">
-                        <option value="豆豆柴 / 拂晓之间">拂晓之间 (Fǔ xiǎo zhī jiān)</option>
-                        <option value="豆豆柴 / 龙巢神殿">龙巢神殿 (Lóngcháo Shéndiàn)</option>
-                        <option value="豆豆柴 / 月牙湾">月牙湾 (Yuèyá Wān)</option>
-                        <option value="豆豆柴 / 天空之城">天空之城 (Tiānkōng zhī Chéng)</option>
-                        <option value="豆豆柴 / 大泽地">大泽地 (Dà zé dì)</option>
-                        <option value="豆豆柴 / 风车西岭">风车西岭 (Fēngchē Xīlǐng)</option>
-                        <option value="豆豆柴 / 红茶川">红茶川 (Hóng chá Chuān)</option>
+                        <option value="CHINA / 水晶塔">Crystal Tower</option>
+                        <option value="CHINA / 银泪湖">Silver Tear</option>
+                        <option value="CHINA / 太阳海岸">Costa del Sol</option>
+                        <option value="CHINA / 伊修加德">Ishgard</option>
+                        <option value="CHINA / 红茶川">Red Tea River</option>
+                    </optgroup>
+                    <optgroup label="── 繁體中文版 ──" disabled></optgroup>
+                    <optgroup label="繁體中文版 (Global)">
+                        <option value="Global / 伊弗利特">Ifrit</option>
+                        <option value="Global / 利維坦">Leviathan</option>
+                        <option value="Global / 迦樓羅">Garuda</option>
+                        <option value="Global / 泰坦">Titan</option>
+                        <option value="Global / 巴哈姆特">Bahamut</option>
+                        <option value="Global / 鳳凰">Phoenix</option>
+                        <option value="Global / 奧丁">Odin</option>
                     </optgroup>
                 </select>
             </div>
@@ -999,8 +1006,17 @@ height: 275px !important;       /* ここを小さくするとプレビューも
         document.getElementById('val-mag-size').innerText = e.target.value + 'px';
     });
     document.getElementById('input-mag-opacity').addEventListener('input', (e) => {
-        cardMagTitle.style.opacity = e.target.value / 100;
+        const alpha = e.target.value / 100;
         document.getElementById('val-mag-opacity').innerText = e.target.value + '%';
+        const baseColor = getComputedStyle(document.documentElement).getPropertyValue('--text-theme-color').trim();
+        let r = 255, g = 255, b2 = 255;
+        const hexM = baseColor.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+        const rgbM = baseColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        if (hexM) { r = parseInt(hexM[1],16); g = parseInt(hexM[2],16); b2 = parseInt(hexM[3],16); }
+        else if (rgbM) { r = parseInt(rgbM[1]); g = parseInt(rgbM[2]); b2 = parseInt(rgbM[3]); }
+        cardMagTitle.style.color = 'rgba(' + r + ',' + g + ',' + b2 + ',' + alpha + ')';
+        cardMagTitle.style.opacity = '';
+        cardMagTitle.dataset.opacityAlpha = alpha;
     });
     document.getElementById('input-mag-font').addEventListener('change', (e) => {
         cardMagTitle.style.fontFamily = e.target.value;
@@ -1426,6 +1442,17 @@ height: 275px !important;       /* ここを小さくするとプレビューも
         const t = themes[e.target.value] || themes['light'];
         document.documentElement.style.setProperty('--text-theme-color', t.color);
         document.documentElement.style.setProperty('--text-shadow-style', t.shadow);
+        const savedAlpha = parseFloat(cardMagTitle.dataset.opacityAlpha);
+        if (!isNaN(savedAlpha) && savedAlpha < 1) {
+            const hexM2 = t.color.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+            const rgbM2 = t.color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            let r2=255,g2=255,b3=255;
+            if (hexM2){r2=parseInt(hexM2[1],16);g2=parseInt(hexM2[2],16);b3=parseInt(hexM2[3],16);}
+            else if (rgbM2){r2=parseInt(rgbM2[1]);g2=parseInt(rgbM2[2]);b3=parseInt(rgbM2[3]);}
+            cardMagTitle.style.color = 'rgba(' + r2 + ',' + g2 + ',' + b3 + ',' + savedAlpha + ')';
+        } else {
+            cardMagTitle.style.color = '';
+        }
     });
     
     document.getElementById('input-filter').addEventListener('change', (e) => { document.getElementById('card-image').style.filter = e.target.value; });
@@ -1559,77 +1586,79 @@ height: 275px !important;       /* ここを小さくするとプレビューも
     // 💡 プランA：すべてのデバイスにおいて、ブラウザ標準のダウンロードダウンロード処理を強制起動させる
     document.getElementById('download-btn').addEventListener('click', () => {
         const cardEl2 = document.getElementById('character-card');
-        const wasShrunk = cardEl2.classList.contains('card-shrunk');
-        
-        // 1. 元のスタイル（レスポンシブ用の縮小など）を退避
-        const origWidth = cardEl2.style.width;
-        const origHeight = cardEl2.style.height;
-        const origMargin = cardEl2.style.marginBottom;
-        const origTransform = cardEl2.style.transform;
-        const origTransformOrigin = cardEl2.style.transformOrigin;
 
-        if (wasShrunk) {
-            cardEl2.classList.remove('card-shrunk');
-        }
-        
-        // 2. 本物のカードを、一時的に「レスポンシブの影響を受けない絶対的な400x550px」に固定
-        // transformをnoneにすることで、スマホ画面での縮小表示を一時的に解除します
-        cardEl2.style.setProperty('width', '400px', 'important');
-        cardEl2.style.setProperty('height', '550px', 'important');
-        cardEl2.style.marginBottom = '0px';
-        cardEl2.style.transform = 'none';
-        cardEl2.style.transformOrigin = 'unset';
+        // 1. 現在のインラインスタイルをすべて退避
+        const origStyleCssText = cardEl2.style.cssText;
+        const origTitleColor = cardMagTitle.style.color;
 
-        // 3. ブラウザが400x550pxの正しい位置関係で文字やジョブを再配置するのを少し待つ
+        // 2. カードを 400x550 の素の状態に強制リセット
+        //    transform / scale などをすべて解除してキャプチャに備える
+        cardEl2.style.cssText = [
+            'width: 400px !important',
+            'height: 550px !important',
+            'transform: none !important',
+            'transform-origin: unset !important',
+            'margin: 0 !important',
+            'position: relative !important',
+        ].join('; ');
+
+        // 2.5 EORZEAタイトルの透明度(rgba)を html2canvas のクローン処理直前に再適用する。
+        //     html2canvas は DOM を複製してからレンダリングするため、複製前後で
+        //     computed style のタイミングがずれ、rgba() のアルファ値が失われることがある。
+        const titleColorBeforeCapture = getComputedStyle(cardMagTitle).color;
+        cardMagTitle.style.color = titleColorBeforeCapture;
+
+        // 3. ブラウザがレイアウトを確定するまで少し待つ
         setTimeout(() => {
-            html2canvas(cardEl2, { 
-                scale: 2,               // 400x550 を 2倍（800x1100）の高画質で出力
-                useCORS: true, 
-                logging: false, 
+            html2canvas(cardEl2, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
                 backgroundColor: null,
-                width: 400,             // キャプチャ範囲をカードサイズに固定（白背景防止）
+                width: 400,
                 height: 550,
-                windowWidth: 400,       // html2canvasの仮想ウィンドウ幅をカードに合わせる（位置ズレ防止）
-                windowHeight: 550,
-                x: 0,                   // カード左端からキャプチャ
+                windowWidth: 1280,   // ページ全体の幅を通常のデスクトップ幅に設定（スマホ幅だとメディアクエリが再適用されてズレる）
+                windowHeight: 900,
+                x: 0,
                 y: 0,
                 scrollX: 0,
-                scrollY: 0
+                scrollY: 0,
+                letterRendering: true, // 文字を1文字ずつ正確に描画し、半透明テキストの濃淡誤差を軽減する
+                ignoreElements: (el) => false,
+                onclone: (clonedDoc) => {
+                    // クローンされたドキュメント内のタイトル要素にも同じ rgba() を強制適用する。
+                    // html2canvas はクローン後の DOM のスタイルを参照するため、ここで
+                    // 直接インラインスタイルを設定することで透明度の取りこぼしを防ぐ。
+                    const clonedTitle = clonedDoc.getElementById('card-mag-title');
+                    if (clonedTitle) {
+                        clonedTitle.style.setProperty('color', titleColorBeforeCapture, 'important');
+                        // text-shadow も明示的に固定し、影の重なりによる見た目の濃淡差を防ぐ
+                        const shadowBeforeCapture = getComputedStyle(cardMagTitle).textShadow;
+                        clonedTitle.style.setProperty('text-shadow', shadowBeforeCapture, 'important');
+                    }
+                },
             }).then(canvas => {
-                
-                // 4. 撮影が終わったら、即座に元のスマホ表示（縮小状態など）に戻す
-                cardEl2.style.width = origWidth;
-                cardEl2.style.height = origHeight;
-                cardEl2.style.marginBottom = origMargin;
-                cardEl2.style.transform = origTransform;
-                cardEl2.style.transformOrigin = origTransformOrigin;
-                
-                if (wasShrunk) {
-                    cardEl2.classList.add('card-shrunk');
-                    if (updateCardMarginGlobal) updateCardMarginGlobal();
-                }
 
-                // 5. Blobに変換して直接ダウンロードを実行
+                // 4. 撮影完了後、元のスタイルに戻す
+                cardEl2.style.cssText = origStyleCssText;
+                cardMagTitle.style.color = origTitleColor;
+
+                // 5. Blobに変換してダウンロード
                 canvas.toBlob((blob) => {
                     if (!blob) return;
-                    
-                    // ファイル名に現在のカード名（タイトル）を反映
                     const fileName = `${document.getElementById('card-name').innerText}_magazine.png`;
                     const fileUrl = URL.createObjectURL(blob);
-                    
                     const link = document.createElement('a');
                     link.download = fileName;
                     link.href = fileUrl;
-                    
                     document.body.appendChild(link);
                     link.click();
-                    
                     document.body.removeChild(link);
                     URL.revokeObjectURL(fileUrl);
                 }, 'image/png');
 
             });
-        }, 300); // 300ms待機してフォント読み込みとレイアウトを確実に安定させる
+        }, 300);
     });
 </script>
 </body>
