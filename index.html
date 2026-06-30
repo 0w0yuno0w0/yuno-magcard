@@ -21,15 +21,17 @@
         .card p { font-size: 0.95rem; color: #636366; line-height: 1.6; }
         
         .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        /* 共通のボタンデザイン */
         .btn { display: block; padding: 10px; text-align: center; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: bold; transition: 0.2s; }
-        /* 日本語版: 色付き・有効 */
         .btn.jp { background: var(--accent); color: white; }
-        /* その他: 薄いグレー・無効化 */
         .btn.disabled { background: #f5f5f5; color: #b0b0b0; pointer-events: none; }
 
         .footer-notice { width: 100%; max-width: 800px; margin-top: 30px; padding: 16px 20px; background: #fff3f3; border-left: 4px solid var(--accent); border-radius: 8px; font-size: 0.85rem; color: #636366; line-height: 1.7; }
         .footer-notice strong { color: var(--accent); }
+
+        /* 規約ボタンとエリア */
+        .terms-btn { background: #fff; border: 1px solid var(--accent); color: var(--accent); padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 20px; font-weight: bold; transition: 0.3s; }
+        .terms-btn:hover { background: var(--accent); color: white; }
+        #terms-content { display: none; width: 100%; max-width: 800px; margin-top: 20px; text-align: left; }
     </style>
 </head>
 <body>
@@ -46,7 +48,7 @@
         <ul id="notice-list">
             <li>現在、各言語版へのローカライズを順次進めています。そのため、現在は日本語版に集約しています。</li>
             <li>ローカライズには時間がかかりそうなので、気長に待っててね。</li>
-            <li>スマホ版は現在修正中です。PCでの操作を推奨しています。</li>
+            <li>スマホ版の位置ズレが修正されました。環境によっては位置ズレがあるかもしれません。PCでの操作を推奨しています。</li>
             <li>Photo Filter機能は現在修正中のため使用できません。</li>
         </ul>
     </div>
@@ -78,6 +80,15 @@
         </div>
     </div>
 
+    <button class="terms-btn" onclick="toggleTerms()">利用規約・セキュリティ・免責事項 / Terms of Use</button>
+
+    <div id="terms-content" class="footer-notice">
+        <p style="font-weight: 700;">■ 利用規約 / Terms of Use</p>
+        <p style="margin: 5px 0;">本ツールは非営利のファン制作ツールです。作成したカードは個人のSNS共有等で自由にご利用ください。当ツールは個人情報を収集せず、データはすべてご利用のブラウザ内（ローカル環境）で処理され、外部への送信は一切ありません。公序良俗に反する入力はご遠慮ください。本ツールの利用により生じたトラブルに一切の責任を負いかねます。</p>
+        <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+        <p style="font-style: italic;">This is a non-commercial fan-made tool. You may use it freely for personal sharing. This tool does not collect personal information; all data is processed locally within your browser and is not sent to external servers. Please refrain from entering inappropriate content. The creator assumes no responsibility for any issues arising from the use of this tool.</p>
+    </div>
+
     <div class="footer-notice">
         <strong>⚠ ご利用に関するお願い</strong><br>
         このツールで作成したカードは、<strong>FINAL FANTASY XIV のキャラクター</strong>を対象としています。それ以外の作品・版権キャラクターへのご使用はお控えください。
@@ -85,10 +96,10 @@
 
     <script>
         const translations = {
-            jp: { title: "Yunoᒼᑋªⁿからのお知らせ", notice: ["現在、各言語版へのローカライズを順次進めています。そのため、現在は日本語版に集約しています。", "ローカライズには時間がかかりそうなので、気長に待っててね。", "スマホ版は現在修正中です。PCでの操作を推奨しています。", "Photo Filter機能は現在修正中のため使用できません。"], mag: "マガジン風のキャラクターカードを作成します。", prof: "シンプルで見やすいキャラクターカードを作成します。" },
-            en: { title: "Notice from Yunoᒼᑋªⁿ", notice: ["We are working on localization for each language version, so we have consolidated them into the Japanese version for now.", "Localization might take a while, so please be patient and wait for it.", "The mobile version is currently under maintenance. We recommend using a PC.", "The Photo Filter feature is currently under maintenance and is unavailable."], mag: "Create a magazine-style character card.", prof: "Create a simple and easy-to-read character card." },
-            kr: { title: "Yunoᒼᑋªⁿ 공지사항", notice: ["현재 각 언어별 현지화 작업을 순차적으로 진행 중입니다. 따라서 현재는 일본어 버전으로 통합되어 있습니다.", "현지화 작업에 시간이 조금 걸릴 것 같으니, 느긋하게 기다려주세요.", "모바일 버전은 수정 중입니다. PC 사용을 권장합니다.", "Photo Filter 기능은 현재 수정 중으로 사용할 수 없습니다."], mag: "잡지 스타일의 캐릭터 카드를 만듭니다.", prof: "심플하고 보기 편한 캐릭터 카드를 만듭니다." },
-            cn: { title: "来自 Yunoᒼᑋªⁿ 的公告", notice: ["目前正在陆续推进各语言版本的本地化适配，因此目前整合为日语版本。", "本地化工作可能需要一些时间，请耐心等待哦。", "手机版正在修复中，建议使用电脑操作。", "Photo Filter 功能目前正在修复中，暂时无法使用。"], mag: "制作杂志风格的角色卡。", prof: "制作简洁易读的角色卡。" }
+            jp: { title: "Yunoᒼᑋªⁿからのお知らせ", notice: ["現在、各言語版へのローカライズを順次進めています。そのため、現在は日本語版に集約しています。", "ローカライズには時間がかかりそうなので、気長に待っててね。", "スマホ版の位置ズレが修正されました。環境によっては位置ズレがあるかもしれません。PCでの操作を推奨しています。", "Photo Filter機能は現在修正中のため使用できません。"], mag: "マガジン風のキャラクターカードを作成します。", prof: "シンプルで見やすいキャラクターカードを作成します。" },
+            en: { title: "Notice from Yunoᒼᑋªⁿ", notice: ["We are working on localization for each language version, so we have consolidated them into the Japanese version for now.", "Localization might take a while, so please be patient and wait for it.", "Mobile alignment issues have been fixed. Please note that depending on your environment, some issues may still occur. We recommend using a PC.", "The Photo Filter feature is currently under maintenance and is unavailable."], mag: "Create a magazine-style character card.", prof: "Create a simple and easy-to-read character card." },
+            kr: { title: "Yunoᒼᑋªⁿ 공지사항", notice: ["현재 각 언어별 현지화 작업을 순차적으로 진행 중입니다. 따라서 현재는 일본어 버전으로 통합되어 있습니다.", "현지화 작업에 시간이 조금 걸릴 것 같으니, 느긋하게 기다려주세요.", "모바일 버전의 위치 틀어짐 문제가 수정되었습니다. 환경에 따라 여전히 위치가 맞지 않을 수 있습니다. PC 사용을 권장합니다.", "Photo Filter 기능은 현재 수정 중으로 사용할 수 없습니다."], mag: "잡지 스타일의 캐릭터 카드를 만듭니다.", prof: "심플하고 보기 편한 캐릭터 카드를 만듭니다." },
+            cn: { title: "来自 Yunoᒼᑋªⁿ 的公告", notice: ["目前正在陆续推进各语言版本的本地化适配，因此目前整合为日语版本。", "本地化工作可能需要一些时间，请耐心等待哦。", "已修复手机端的位置偏差问题。根据您的设备或浏览器环境，仍可能存在位置显示不准确的情况。建议使用电脑操作。", "Photo Filter 功能目前正在修复中，暂时无法使用。"], mag: "制作杂志风格的角色卡。", prof: "制作简洁易读的角色卡。" }
         };
 
         function setLang(lang, btn) {
@@ -99,6 +110,11 @@
             document.getElementById('desc-prof').innerText = translations[lang].prof;
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+        }
+
+        function toggleTerms() {
+            const content = document.getElementById('terms-content');
+            content.style.display = (content.style.display === 'block') ? 'none' : 'block';
         }
     </script>
 </body>
