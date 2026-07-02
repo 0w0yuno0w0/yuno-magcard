@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ハート型フォトフレームPro</title>
+
+<style>
+:root{
+    --plum:#4a2e3f;
+    --gold:#e8b4a0;
+    --white:#ffffff;
+    --line:#f0d9df;
+}
+
+body{
+    margin:0;
+    font-family:sans-serif;
+    background:#fff6f2;
+    color:var(--plum);
+    padding:20px;
+}
+
+.wrap{
+    max-width:600px;
+    margin:0 auto;
+}
+
+#canvasHolder{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1;
+    background:#eee;
+    border-radius:16px;
+    overflow:hidden;
+    touch-action:none;
+    margin-bottom:20px;
+}
+
+#mainCanvas{
+    width:100%;
+    height:100%;
+    display:block;
+    cursor:move;
+}
+
+.panel{
+    background:white;
+    padding:20px;
+    border-radius:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,.05);
+}
+
+.group{
+    margin-bottom:15px;
+}
+
+label{
+    font-size:11px;
+    font-weight:bold;
+    display:block;
+    margin-bottom:2px;
+    color:var(--plum-soft);
+}
+
+select,
+input{
+    width:100%;
+}
+
+button.primary{
+    width:100%;
+    padding:15px;
+    background:var(--plum);
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-weight:bold;
+    margin-top:10px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<h1>ハート型フレーム Pro</h1>
+
+<div id="canvasHolder">
+    <canvas id="mainCanvas"></canvas>
+</div>
+
+<div class="panel">
+
+<div class="group">
+<label>フレーム比率</label>
+<select id="aspectRatio">
+<option value="1/1">1:1</option>
+<option value="4/3">4:3</option>
+<option value="3/4">3:4</option>
+</select>
+</div>
+
+<div class="group">
+<label>写真移動 X</label>
+<input type="range" id="photoX" min="-1000" max="1000" value="0">
+</div>
+
+<div class="group">
+<label>写真移動 Y</label>
+<input type="range" id="photoY" min="-1000" max="1000" value="0">
+</div>
+
+<div class="group">
+<label>ハート移動 X</label>
+<input type="range" id="heartX" min="-500" max="1500" value="500">
+</div>
+
+<div class="group">
+<label>ハート移動 Y</label>
+<input type="range" id="heartY" min="-500" max="1500" value="500">
+</div>
+
+<div class="group">
+<label>ハートの大きさ</label>
+<input type="range" id="heartSize" min="40" max="300" value="78">
+</div>
+<div class="group">
+<label>外側のぼかし量</label>
+<input type="range" id="feather" min="0" max="50" value="22">
+</div>
+
+<div class="group">
+<label>写真の拡大</label>
+<input type="range" id="zoom" min="100" max="500" value="100">
+</div>
+
+<div class="group">
+<label>ハートの角度</label>
+<input type="range" id="rotation" min="-180" max="180" value="0">
+</div>
+
+<input type="file" id="fileInput" accept="image/*">
+
+<button class="primary" id="downloadBtn">
+画像をダウンロード
+</button>
+
+</div>
+</div>
+
+<script>
+
+const canvas = document.getElementById("mainCanvas");
+const ctx = canvas.getContext("2d");
+const holder = document.getElementById("canvasHolder");
+
+let img = null;
+let userZoom = 1.0;
+
+let isDragging = false;
+let lastX;
+let lastY;
+let initialDist = 0;
+
+const isMobile =
+/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+function updateCanvasSize(){
+
+    const rect = holder.getBoundingClientRect();
+
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+
+    render();
+}
+
+function heartPoints(cx,cy,r){
+
+    const pts=[];
+    const steps=100;
+
+    for(let i=0;i<=steps;i++){
+
+        const t=(i/steps)*Math.PI*2;
+
+        const x=
+            16*Math.pow(Math.sin(t),3);
+
+        const y=
+            13*Math.cos(t)
+            -5*Math.cos(2*t)
+            -2*Math.cos(3*t)
+            -Math.cos(4*t);
+
+        pts.push([
+            cx+(x/16)*r,
+            cy-(y/17)*r
+        ]);
+    }
+
+    return pts;
+}
+
+function drawPath(context,pts,offsetX=0,offsetY=0){ 
+    context.beginPath(); 
+    context.moveTo( pts[0][0] + offsetX, pts[0][1] + offsetY ); 
+    pts.forEach(p=>{ context.lineTo( p[0] + offsetX, p[1] + offsetY ); }); 
+} 
+
+function jitter(v,amount=1.8){ return v + (Math.random()-0.5) * amount; } 
+
+function drawHandHeart(context,pts){ 
+    context.strokeStyle = "white"; 
+    context.lineCap = "round"; 
+    context.lineJoin = "round"; 
+    context.shadowBlur = 10; 
+    context.shadowColor = "rgba(0,0,0,.35)"; 
+    const layers = [ {x:0, y:0, w:10}, {x:2, y:-2, w:8}, {x:-2, y:2, w:7} ]; 
+    layers.forEach(layer=>{ 
+        context.lineWidth = layer.w; 
+        context.beginPath(); 
+        context.moveTo( jitter(pts[0][0] + layer.x), jitter(pts[0][1] + layer.y) ); 
+        pts.forEach(p=>{ context.lineTo( jitter(p[0] + layer.x), jitter(p[1] + layer.y) ); }); 
+        context.stroke(); 
+    }); 
+} 
+
+function render(){ 
+    const w = canvas.width; 
+    const h = canvas.height; 
+    ctx.clearRect(0,0,w,h); 
+    if(!img) return; 
+
+    const pX = parseInt(document.getElementById("photoX").value) * 2; 
+    const pY = parseInt(document.getElementById("photoY").value) * 2; 
+    const hX = (parseInt(document.getElementById("heartX").value)/1000) * w; 
+    const hY = (parseInt(document.getElementById("heartY").value)/1000) * h;
+    const hSize = parseInt(document.getElementById("heartSize").value) / 100;
+    const rot = parseInt(document.getElementById("rotation").value);
+    const radius = (Math.min(w,h)/2) * hSize * 0.6;
+    const scale = Math.max(w/img.width, h/img.height) * userZoom;
+    const blurAmount = parseInt(document.getElementById("feather").value) * 2;
+
+    // 1. 背景ぼかし用キャンバスを作成
+    const bgCanvas = document.createElement("canvas");
+    bgCanvas.width = w;
+    bgCanvas.height = h;
+    const bgCtx = bgCanvas.getContext("2d");
+
+    // Safari等でfilterが効く環境なら適用
+    bgCtx.filter = `blur(${blurAmount}px) brightness(0.8)`;
+    
+    // 背景画像を描画
+    bgCtx.drawImage(
+        img,
+        (w-img.width*scale)/2 + pX,
+        (h-img.height*scale)/2 + pY,
+        img.width*scale,
+        img.height*scale
+    );
+    
+    // 背景をメインキャンバスに転写
+    ctx.drawImage(bgCanvas, 0, 0);
+
+    // 2. ハート内画像の描画（鮮明）
+    const temp = document.createElement("canvas");
+    temp.width = w;
+    temp.height = h;
+    const tctx = temp.getContext("2d");
+
+    tctx.drawImage(
+        img,
+        (w-img.width*scale)/2 + pX,
+        (h-img.height*scale)/2 + pY,
+        img.width*scale,
+        img.height*scale
+    );
+
+    tctx.globalCompositeOperation = "destination-in";
+
+    tctx.save();
+    tctx.translate(hX,hY);
+    tctx.rotate(rot*Math.PI/180);
+
+    const pts = heartPoints(0, 0, radius);
+    drawPath(tctx,pts);
+    tctx.fill();
+    tctx.restore();
+
+    ctx.drawImage(temp,0,0);
+
+    // 3. 枠線
+    ctx.save();
+    ctx.translate(hX, hY);
+    ctx.rotate(rot * Math.PI / 180);
+    drawHandHeart(ctx, pts);
+    ctx.restore();
+}
+
+// ==========================
+// マウス操作
+// ==========================
+
+canvas.onmousedown = (e)=>{
+    isDragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+};
+
+window.onmouseup = ()=>{
+    isDragging = false;
+};
+
+canvas.onmousemove = (e)=>{
+    if(!isDragging) return;
+    document.getElementById("photoX").value = parseInt(document.getElementById("photoX").value) + (e.clientX-lastX);
+    document.getElementById("photoY").value = parseInt(document.getElementById("photoY").value) + (e.clientY-lastY);
+    lastX = e.clientX;
+    lastY = e.clientY;
+    render();
+};
+
+canvas.onwheel = (e)=>{
+    e.preventDefault();
+    userZoom += e.deltaY * -0.001;
+    document.getElementById("zoom").value = userZoom * 100;
+    render();
+};
+
+canvas.ontouchmove = (e)=>{
+    if(e.touches.length===1){
+        document.getElementById("photoX").value = parseInt(document.getElementById("photoX").value) + (e.touches[0].clientX-lastX);
+        document.getElementById("photoY").value = parseInt(document.getElementById("photoY").value) + (e.touches[0].clientY-lastY);
+        lastX = e.touches[0].clientX;
+        lastY = e.touches[0].clientY;
+    }else if(e.touches.length===2){
+        let dist = Math.hypot(e.touches[0].pageX-e.touches[1].pageX, e.touches[0].pageY-e.touches[1].pageY);
+        userZoom *= (dist/initialDist);
+        initialDist = dist;
+        document.getElementById("zoom").value = userZoom * 100;
+    }
+    render();
+    e.preventDefault();
+};
+
+canvas.ontouchstart = (e)=>{
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+    initialDist = e.touches.length===2 ? Math.hypot(e.touches[0].pageX-e.touches[1].pageX, e.touches[0].pageY-e.touches[1].pageY) : 0;
+};
+
+// ==========================
+// ダウンロード
+// ==========================
+
+document.getElementById("downloadBtn").onclick = ()=>{
+    const dataUrl = canvas.toDataURL("image/png");
+    if(isMobile){
+        const win = window.open();
+        win.document.write('<img src="' + dataUrl + '" style="width:100%;"><p style="text-align:center;">画像を長押しして保存してください</p>');
+    }else{
+        const link = document.createElement("a");
+        link.download = "heart_frame.png";
+        link.href = dataUrl;
+        link.click();
+    }
+};
+
+document.getElementById("fileInput").onchange = e=>{
+    const reader = new FileReader();
+    reader.onload = ev=>{
+        img = new Image();
+        img.onload = ()=>{ render(); };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(e.target.files[0]);
+};
+
+document.getElementById("aspectRatio").onchange = e=>{
+    holder.style.aspectRatio = e.target.value;
+    updateCanvasSize();
+};
+
+window.onresize = ()=>{
+    updateCanvasSize();
+};
+
+// ==========================
+// スライダー更新
+// ==========================
+
+[
+    "photoX",
+    "photoY",
+    "heartX",
+    "heartY",
+    "heartSize",
+    "feather",
+    "zoom",
+    "rotation"
+].forEach(id=>{
+    document.getElementById(id).oninput = ()=>{
+        if(id==="zoom"){
+            userZoom = document.getElementById("zoom").value / 100;
+        }
+        render();
+    };
+});
+
+updateCanvasSize();
+
+</script>
+</body>
+</html>
