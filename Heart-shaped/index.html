@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="heartframe="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ハート型フォトフレーム</title>
+
+<style>
+:root{
+    --plum:#4a2e3f;
+    --gold:#e8b4a0;
+    --white:#ffffff;
+    --line:#f0d9df;
+}
+
+body{
+    margin:0;
+    font-family:sans-serif;
+    background:#fff6f2;
+    color:var(--plum);
+    padding:20px;
+}
+
+.wrap{
+    max-width:600px;
+    margin:0 auto;
+}
+
+#canvasHolder{
+    position:sticky;
+    top:12px;
+    z-index:100;
+    width:100%;
+    aspect-ratio:1/1;
+    background:#eee;
+    border-radius:16px;
+    overflow:hidden;
+    touch-action:none;
+    margin-bottom:20px;
+    box-shadow:0 6px 16px rgba(0,0,0,.15);
+}
+
+#mainCanvas{
+    width:100%;
+    height:100%;
+    display:block;
+    cursor:move;
+}
+
+.panel{
+    background:white;
+    padding:24px;
+    border-radius:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,.05);
+}
+
+.group{
+    margin-bottom:26px;
+}
+
+label{
+    font-size:15px;
+    font-weight:bold;
+    display:block;
+    margin-bottom:8px;
+    color:var(--plum);
+}
+
+select,
+input[type="file"]{
+    width:100%;
+    font-size:16px;
+    padding:12px;
+    border-radius:10px;
+    border:2px solid var(--line);
+    background:white;
+    color:var(--plum);
+    box-sizing:border-box;
+}
+
+input[type="range"]{
+    width:100%;
+    height:34px;
+    margin:0;
+    -webkit-appearance:none;
+    appearance:none;
+    background:transparent;
+    box-sizing:border-box;
+}
+
+input[type="range"]::-webkit-slider-runnable-track{
+    height:8px;
+    border-radius:4px;
+    background:var(--line);
+}
+
+input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    background:var(--plum);
+    border:3px solid white;
+    box-shadow:0 2px 6px rgba(0,0,0,.3);
+    margin-top:-11px;
+    cursor:pointer;
+}
+
+input[type="range"]::-moz-range-track{
+    height:8px;
+    border-radius:4px;
+    background:var(--line);
+}
+
+input[type="range"]::-moz-range-thumb{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    background:var(--plum);
+    border:3px solid white;
+    box-shadow:0 2px 6px rgba(0,0,0,.3);
+    cursor:pointer;
+}
+
+input[type="checkbox"]{
+    width:22px;
+    height:22px;
+}
+
+button.primary{
+    width:100%;
+    padding:18px;
+    background:var(--plum);
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-weight:bold;
+    font-size:17px;
+    margin-top:10px;
+    cursor:pointer;
+}
+
+#saveModal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.85);
+    z-index:1000;
+    padding:24px;
+    box-sizing:border-box;
+    overflow:auto;
+}
+
+#saveModal .modalInner{
+    max-width:520px;
+    margin:40px auto;
+    text-align:center;
+}
+
+#saveModal img{
+    width:100%;
+    border-radius:12px;
+    display:block;
+}
+
+#saveModal p{
+    color:white;
+    margin-top:16px;
+    font-size:15px;
+}
+
+#saveModal button{
+    margin-top:14px;
+    padding:14px 28px;
+    border-radius:10px;
+    border:none;
+    background:white;
+    color:var(--plum);
+    font-weight:bold;
+    font-size:15px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<h1>ハート型フレーム</h1>
+
+<div id="canvasHolder">
+    <canvas id="mainCanvas"></canvas>
+</div>
+
+<div id="saveModal">
+    <div class="modalInner">
+        <img id="saveModalImg" alt="保存用画像">
+        <p>画像を長押しして保存してください</p>
+        <button id="closeSaveModal">閉じる</button>
+    </div>
+</div>
+
+<div class="panel">
+
+<input type="file" id="fileInput" accept="image/*">
+
+<div class="group">
+<label>フレーム比率</label>
+<select id="aspectRatio">
+<option value="1/1">1:1</option>
+<option value="4/3">4:3</option>
+<option value="3/4">3:4</option>
+<option value="16/9">16:9</option>
+<option value="9/16">9:16</option>
+</select>
+</div>
+
+<div class="group">
+<label>写真の拡大縮小</label>
+<input type="range" id="zoom" min="20" max="180" value="100">
+</div>
+
+<div class="group">
+<label>写真左右移動</label>
+<input type="range" id="photoX" min="-1000" max="1000" value="0">
+</div>
+
+<div class="group">
+<label>写真上下移動</label>
+<input type="range" id="photoY" min="-1000" max="1000" value="0">
+</div>
+
+<div class="group">
+<label>ハート左右移動</label>
+<input type="range" id="heartX" min="-500" max="1500" value="500">
+</div>
+
+<div class="group">
+<label>ハート上下移動</label>
+<input type="range" id="heartY" min="-500" max="1500" value="500">
+</div>
+
+<div class="group">
+<label>ハートの大きさ</label>
+<input type="range" id="heartSize" min="40" max="300" value="78">
+</div>
+
+<div class="group">
+<label>ハートの角度</label>
+<input type="range" id="rotation" min="-180" max="180" value="0">
+</div>
+
+<div class="group">
+<label>外側のぼかし量</label>
+<input type="range" id="feather" min="0" max="50" value="22">
+</div>
+
+<div class="group">
+<label>ぼかしの色</label>
+<select id="blurColor">
+<option value="default">デフォルト</option>
+<option value="white">白</option>
+<option value="black">黒</option>
+<option value="red">赤</option>
+<option value="orange">オレンジ</option>
+<option value="yellow">黄</option>
+<option value="green">緑</option>
+<option value="aqua">水色</option>
+<option value="blue">青</option>
+<option value="purple">紫</option>
+<option value="pastelPink">パステルピンク</option>
+<option value="pastelBlue">パステルブルー</option>
+<option value="pastelGreen">パステルグリーン</option>
+<option value="pastelYellow">パステルイエロー</option>
+</select>
+</div>
+
+<div class="group">
+<label>ぼかしの色の濃さ</label>
+<input type="range" id="blurColorIntensity" min="0" max="100" value="100">
+</div>
+
+<div class="group">
+<label>ハートの線の色</label>
+<select id="heartColor">
+<option value="white">白</option>
+<option value="black">黒</option>
+<option value="red">赤</option>
+<option value="orange">オレンジ</option>
+<option value="yellow">黄</option>
+<option value="green">緑</option>
+<option value="aqua">水色</option>
+<option value="blue">青</option>
+<option value="purple">紫</option>
+<option value="pastelPink">パステルピンク</option>
+<option value="pastelBlue">パステルブルー</option>
+<option value="pastelGreen">パステルグリーン</option>
+<option value="pastelYellow">パステルイエロー</option>
+<option value="neonPink">ネオンピンク</option>
+<option value="neonBlue">ネオンブルー</option>
+<option value="neonGreen">ネオングリーン</option>
+<option value="neonPurple">ネオンパープル</option>
+<option value="neonYellow">ネオンイエロー</option>
+</select>
+</div>
+
+<div class="group">
+<label>ハートの線の太さ</label>
+<input type="range" id="mainHeartLineWidth" min="2" max="30" value="10">
+</div>
+
+<div class="group">
+<label>
+<input type="checkbox" id="showExtraHeart" style="width:auto;vertical-align:middle;margin-right:6px;">
+ハートの追加
+</label>
+</div>
+
+<div id="extraHeartControls" style="display:none;">
+
+<div class="group">
+<label>追加ハートの大きさ</label>
+<input type="range" id="extraHeartSize" min="40" max="300" value="78">
+</div>
+
+<div class="group">
+<label>追加ハート左右移動</label>
+<input type="range" id="extraHeartX" min="-500" max="1500" value="500">
+</div>
+
+<div class="group">
+<label>追加ハート上下移動</label>
+<input type="range" id="extraHeartY" min="-500" max="1500" value="500">
+</div>
+
+<div class="group">
+<label>追加ハートの角度</label>
+<input type="range" id="extraHeartRotation" min="-180" max="180" value="0">
+</div>
+
+<div class="group">
+<label>追加ハートの内側のぼかし量</label>
+<input type="range" id="extraHeartBlur" min="0" max="50" value="22">
+</div>
+
+<div class="group">
+<label>追加ハートの内側のぼかしの色</label>
+<div style="display:flex;align-items:center;gap:12px;">
+<select id="extraHeartBlurColor" style="flex:1;">
+<option value="default">デフォルト</option>
+<option value="white">白</option>
+<option value="black">黒</option>
+<option value="red">赤</option>
+<option value="orange">オレンジ</option>
+<option value="yellow">黄</option>
+<option value="green">緑</option>
+<option value="aqua">水色</option>
+<option value="blue">青</option>
+<option value="purple">紫</option>
+<option value="pastelPink">パステルピンク</option>
+<option value="pastelBlue">パステルブルー</option>
+<option value="pastelGreen">パステルグリーン</option>
+<option value="pastelYellow">パステルイエロー</option>
+</select>
+<label style="display:flex;align-items:center;gap:6px;margin:0;white-space:nowrap;font-size:14px;">
+<input type="checkbox" id="extraHeartTransparent" style="width:auto;">
+透明
+</label>
+</div>
+</div>
+
+<div class="group">
+<label>追加ハートの内側のぼかしの色の濃さ</label>
+<input type="range" id="extraHeartBlurColorIntensity" min="0" max="100" value="100">
+</div>
+
+<div class="group">
+<label>追加ハートの線の色</label>
+<select id="extraHeartLineColor">
+<option value="white">白</option>
+<option value="black">黒</option>
+<option value="red">赤</option>
+<option value="orange">オレンジ</option>
+<option value="yellow">黄</option>
+<option value="green">緑</option>
+<option value="aqua">水色</option>
+<option value="blue">青</option>
+<option value="purple">紫</option>
+<option value="pastelPink">パステルピンク</option>
+<option value="pastelBlue">パステルブルー</option>
+<option value="pastelGreen">パステルグリーン</option>
+<option value="pastelYellow">パステルイエロー</option>
+<option value="neonPink">ネオンピンク</option>
+<option value="neonBlue">ネオンブルー</option>
+<option value="neonGreen">ネオングリーン</option>
+<option value="neonPurple">ネオンパープル</option>
+<option value="neonYellow">ネオンイエロー</option>
+</select>
+</div>
+
+<div class="group">
+<label>追加ハートの線の太さ</label>
+<input type="range" id="extraHeartLineWidth" min="2" max="30" value="10">
+</div>
+
+</div>
+
+<div class="group">
+<label>
+<input type="checkbox" id="showCopyright" checked style="width:auto;vertical-align:middle;margin-right:6px;">
+権利表記を表示（© SQUARE ENIX）
+</label>
+</div>
+
+<div class="group">
+<label>権利表記の色</label>
+<select id="copyrightColor">
+<option value="white">白</option>
+<option value="black">黒</option>
+<option value="gray">グレー</option>
+</select>
+</div>
+
+<div class="group">
+<label>権利表記 左右位置</label>
+<input type="range" id="copyrightX" min="0" max="100" value="100">
+</div>
+
+<div class="group">
+<label>権利表記 上下位置</label>
+<input type="range" id="copyrightY" min="0" max="100" value="100">
+</div>
+
+<button class="primary" id="downloadBtn">
+画像をダウンロード
+</button>
+
+</div>
+</div>
+
+<script>
+
+const canvas = document.getElementById("mainCanvas");
+const ctx = canvas.getContext("2d");
+const holder = document.getElementById("canvasHolder");
+
+let img = null;
+let userZoom = 1.0;
+
+let isDragging = false;
+let lastX;
+let lastY;
+let initialDist = 0;
+let initialAngle = 0;
+let initialRotationValue = 0;
+
+const isMobile =
+/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+function updateCanvasSize(){
+
+    const rect = holder.getBoundingClientRect();
+
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+
+    render();
+}
+
+function heartPoints(cx,cy,r){
+
+    const pts=[];
+    const steps=100;
+
+    for(let i=0;i<=steps;i++){
+
+        const t=(i/steps)*Math.PI*2;
+
+        const x=
+            16*Math.pow(Math.sin(t),3);
+
+        const y=
+            13*Math.cos(t)
+            -5*Math.cos(2*t)
+            -2*Math.cos(3*t)
+            -Math.cos(4*t);
+
+        pts.push([
+            cx+(x/16)*r,
+            cy-(y/17)*r
+        ]);
+    }
+
+    return pts;
+}
+
+function drawPath(context,pts,offsetX=0,offsetY=0){ 
+    context.beginPath(); 
+    context.moveTo( pts[0][0] + offsetX, pts[0][1] + offsetY ); 
+    pts.forEach(p=>{ context.lineTo( p[0] + offsetX, p[1] + offsetY ); }); 
+} 
+
+function jitter(v,amount=1.8){ return v + (Math.random()-0.5) * amount; } 
+
+const HEART_COLORS = {
+    white: "#ffffff",
+    black: "#222222",
+    red: "#e53935",
+    orange: "#fb8c00",
+    yellow: "#fdd835",
+    green: "#43a047",
+    aqua: "#4fc3f7",
+    blue: "#1e88e5",
+    purple: "#8e24aa",
+    pastelPink: "#f7c6d9",
+    pastelBlue: "#c6e2f7",
+    pastelGreen: "#c9ecc9",
+    pastelYellow: "#faf3c0",
+    neonPink: "#ff2ec4",
+    neonBlue: "#00e5ff",
+    neonGreen: "#39ff14",
+    neonPurple: "#b026ff",
+    neonYellow: "#faff00"
+};
+
+// ネオン系はふわっと光がにじむグロー表現を強める
+const NEON_KEYS = new Set(["neonPink","neonBlue","neonGreen","neonPurple","neonYellow"]);
+
+function getHeartColor(){
+    const key = document.getElementById("heartColor").value;
+    return HEART_COLORS[key] || HEART_COLORS.white;
+}
+function getHeartColorKey(){
+    return document.getElementById("heartColor").value;
+}
+
+function strokeOpenPath(context, pts){
+    context.beginPath();
+    context.moveTo( jitter(pts[0][0]), jitter(pts[0][1]) );
+    pts.forEach(p=>{ context.lineTo( jitter(p[0]), jitter(p[1]) ); });
+    context.stroke();
+}
+
+function drawHandHeart(context,pts,color,baseWidth,colorKey){
+    const isNeon = colorKey && NEON_KEYS.has(colorKey);
+
+    context.strokeStyle = color || "white";
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.setLineDash([]);
+
+    if(isNeon){
+        const bw = baseWidth || 10;
+
+        // 外側のふわっとにじむ光
+        context.save();
+        context.shadowColor = color;
+        context.shadowBlur = bw * 4.5;
+        context.globalAlpha = 0.35;
+        [bw*2.2, bw*1.5].forEach(w=>{
+            context.lineWidth = w;
+            strokeOpenPath(context, pts);
+        });
+        context.restore();
+
+        // メインの発光ライン
+        context.save();
+        context.shadowColor = color;
+        context.shadowBlur = bw * 2.2;
+        context.globalAlpha = 0.9;
+        context.lineWidth = bw;
+        strokeOpenPath(context, pts);
+        context.restore();
+
+        // 中心の白い芯（ネオン管っぽさ）
+        context.save();
+        context.shadowBlur = 0;
+        context.globalAlpha = 0.85;
+        context.strokeStyle = "#ffffff";
+        context.lineWidth = bw * 0.35;
+        strokeOpenPath(context, pts);
+        context.restore();
+
+        return;
+    }
+
+    context.shadowBlur = 10;
+    context.shadowColor = "rgba(0,0,0,.35)";
+    const bw = baseWidth || 10;
+    const layers = [ {x:0, y:0, w:bw}, {x:2, y:-2, w:bw*0.8}, {x:-2, y:2, w:bw*0.7} ]; 
+    layers.forEach(layer=>{ 
+        context.lineWidth = layer.w; 
+        context.beginPath(); 
+        context.moveTo( jitter(pts[0][0] + layer.x), jitter(pts[0][1] + layer.y) ); 
+        pts.forEach(p=>{ context.lineTo( jitter(p[0] + layer.x), jitter(p[1] + layer.y) ); }); 
+        context.stroke(); 
+    }); 
+} 
+
+// ==========================
+// 手動ぼかし（Safari含む全ブラウザで同じ結果になるボックスブラー実装）
+// CSSのfilter: blur()に頼らず、ピクセルデータを直接処理してぼかす
+// ==========================
+
+function boxBlurPass(src, dst, w, h, radius){
+    // 横方向のボックスブラー（スライディングウィンドウで高速化）
+    if(radius < 1) { dst.set(src); return; }
+    const diameter = radius * 2 + 1;
+
+    for(let y = 0; y < h; y++){
+        const rowStart = y * w * 4;
+        let rSum = 0, gSum = 0, bSum = 0, aSum = 0;
+
+        // 初期ウィンドウを構築（端はクランプ）
+        for(let i = -radius; i <= radius; i++){
+            const xi = Math.min(w - 1, Math.max(0, i));
+            const idx = rowStart + xi * 4;
+            rSum += src[idx];
+            gSum += src[idx + 1];
+            bSum += src[idx + 2];
+            aSum += src[idx + 3];
+        }
+
+        for(let x = 0; x < w; x++){
+            const outIdx = rowStart + x * 4;
+            dst[outIdx]     = rSum / diameter;
+            dst[outIdx + 1] = gSum / diameter;
+            dst[outIdx + 2] = bSum / diameter;
+            dst[outIdx + 3] = aSum / diameter;
+
+            const addX = Math.min(w - 1, x + radius + 1);
+            const subX = Math.max(0, x - radius);
+            const addIdx = rowStart + addX * 4;
+            const subIdx = rowStart + subX * 4;
+            rSum += src[addIdx]     - src[subIdx];
+            gSum += src[addIdx + 1] - src[subIdx + 1];
+            bSum += src[addIdx + 2] - src[subIdx + 2];
+            aSum += src[addIdx + 3] - src[subIdx + 3];
+        }
+    }
+}
+
+function boxBlurPassVertical(src, dst, w, h, radius){
+    if(radius < 1) { dst.set(src); return; }
+    const diameter = radius * 2 + 1;
+
+    for(let x = 0; x < w; x++){
+        let rSum = 0, gSum = 0, bSum = 0, aSum = 0;
+
+        for(let i = -radius; i <= radius; i++){
+            const yi = Math.min(h - 1, Math.max(0, i));
+            const idx = (yi * w + x) * 4;
+            rSum += src[idx];
+            gSum += src[idx + 1];
+            bSum += src[idx + 2];
+            aSum += src[idx + 3];
+        }
+
+        for(let y = 0; y < h; y++){
+            const outIdx = (y * w + x) * 4;
+            dst[outIdx]     = rSum / diameter;
+            dst[outIdx + 1] = gSum / diameter;
+            dst[outIdx + 2] = bSum / diameter;
+            dst[outIdx + 3] = aSum / diameter;
+
+            const addY = Math.min(h - 1, y + radius + 1);
+            const subY = Math.max(0, y - radius);
+            const addIdx = (addY * w + x) * 4;
+            const subIdx = (subY * w + x) * 4;
+            rSum += src[addIdx]     - src[subIdx];
+            gSum += src[addIdx + 1] - src[subIdx + 1];
+            bSum += src[addIdx + 2] - src[subIdx + 2];
+            aSum += src[addIdx + 3] - src[subIdx + 3];
+        }
+    }
+}
+
+function applyManualBlur(context, w, h, blurPx){
+    if(blurPx < 1) return;
+
+    // 3回ボックスブラーを重ねてガウスぼかしに近づける（標準的な手法）
+    // CSSのblur(Npx)とだいたい近い見た目になるように半径を調整
+    const radius = Math.max(1, Math.round(blurPx / 3));
+
+    const imageData = context.getImageData(0, 0, w, h);
+    let data = imageData.data;
+
+    let bufA = new Uint8ClampedArray(data.length);
+    let bufB = new Uint8ClampedArray(data.length);
+
+    for(let pass = 0; pass < 3; pass++){
+        boxBlurPass(data, bufA, w, h, radius);
+        boxBlurPassVertical(bufA, bufB, w, h, radius);
+        data = bufB;
+        bufB = new Uint8ClampedArray(data.length);
+    }
+
+    imageData.data.set(data);
+    context.putImageData(imageData, 0, 0);
+}
+
+const BLUR_COLORS = {
+    white: "#ffffff",
+    black: "#000000",
+    red: "#e53935",
+    orange: "#fb8c00",
+    yellow: "#fdd835",
+    green: "#43a047",
+    aqua: "#4fc3f7",
+    blue: "#1e88e5",
+    purple: "#8e24aa",
+    pastelPink: "#f7c6d9",
+    pastelBlue: "#c6e2f7",
+    pastelGreen: "#c9ecc9",
+    pastelYellow: "#faf3c0"
+};
+
+function tintCanvasColor(context, w, h, colorKey, intensityPct){
+    if(!colorKey || colorKey === "default") return; // デフォルトは何もしない
+    const color = BLUR_COLORS[colorKey];
+    if(!color) return;
+
+    const intensity = (intensityPct===undefined ? 100 : intensityPct) / 100;
+    if(intensity <= 0) return;
+
+    context.save();
+    // "color"合成：明暗（輝度）はそのままに、色相・彩度だけを塗り替える
+    context.globalCompositeOperation = "color";
+    context.globalAlpha = intensity;
+    context.fillStyle = color;
+    context.fillRect(0,0,w,h);
+    context.restore();
+}
+
+function applyBlurTint(context, w, h){
+    const key = document.getElementById("blurColor").value;
+    const intensity = parseInt(document.getElementById("blurColorIntensity").value);
+    tintCanvasColor(context, w, h, key, intensity);
+}
+
+function render(targetCtx, targetW, targetH){
+    // 引数なしの場合はプレビュー用canvasに描画（従来通り）
+    const outCtx = targetCtx || ctx;
+    const w = targetW || canvas.width;
+    const h = targetH || canvas.height;
+
+    outCtx.clearRect(0,0,w,h);
+    if(!img) return;
+
+    // プレビュー解像度に対する倍率（書き出し時にプレビューより大きい/小さいcanvasへ描く場合の補正）
+    const sf = w / canvas.width;
+
+    const pX = parseInt(document.getElementById("photoX").value) * 2 * sf;
+    const pY = parseInt(document.getElementById("photoY").value) * 2 * sf;
+    const hX = (parseInt(document.getElementById("heartX").value)/1000) * w;
+    const hY = (parseInt(document.getElementById("heartY").value)/1000) * h;
+    const hSize = parseInt(document.getElementById("heartSize").value) / 100;
+    const rot = parseInt(document.getElementById("rotation").value);
+    const radius = (Math.min(w,h)/2) * hSize * 0.6;
+    const scale = Math.max(w/img.width, h/img.height) * userZoom;
+    const blurAmount = parseInt(document.getElementById("feather").value) * 2 * sf;
+
+    // 写真の描画位置・サイズ（背景ぼかし／ハート内クリア画像／追加ハートの内側ぼかしで共通利用）
+    const dx = (w-img.width*scale)/2 + pX;
+    const dy = (h-img.height*scale)/2 + pY;
+    const dw = img.width*scale;
+    const dh = img.height*scale;
+
+    // 1. 背景ぼかし用キャンバスを作成（filterを使わず手動でぼかす＝Safariでも同じ見た目になる）
+    const bgCanvas = document.createElement("canvas");
+    bgCanvas.width = w;
+    bgCanvas.height = h;
+    const bgCtx = bgCanvas.getContext("2d");
+
+    // 背景画像を描画（フィルターなし）
+    bgCtx.drawImage(img, dx, dy, dw, dh);
+
+    // 手動ぼかし（ボックスブラーを複数回かけて疑似ガウスぼかしにする。全ブラウザで同じ結果）
+    applyManualBlur(bgCtx, w, h, blurAmount);
+
+    // 明るさを0.8倍に落とす（brightness(0.8)相当。乗算合成で代替。全ブラウザで同じ見た目）
+    bgCtx.save();
+    bgCtx.globalCompositeOperation = "multiply";
+    bgCtx.fillStyle = "rgb(204,204,204)"; // 255 * 0.8 = 204
+    bgCtx.fillRect(0,0,w,h);
+    bgCtx.restore();
+
+    // ぼかしの色（デフォルト以外が選ばれていれば色味を重ねる。明暗（輝度）はそのまま、色相だけを変える）
+    applyBlurTint(bgCtx, w, h);
+
+    // 背景をメインキャンバスに転写
+    outCtx.drawImage(bgCanvas, 0, 0);
+
+    // 2. ハート内画像の描画（鮮明）
+    const temp = document.createElement("canvas");
+    temp.width = w;
+    temp.height = h;
+    const tctx = temp.getContext("2d");
+
+    tctx.drawImage(img, dx, dy, dw, dh);
+
+    tctx.globalCompositeOperation = "destination-in";
+
+    tctx.save();
+    tctx.translate(hX,hY);
+    tctx.rotate(rot*Math.PI/180);
+
+    const pts = heartPoints(0, 0, radius);
+    drawPath(tctx,pts);
+    tctx.fill();
+    tctx.restore();
+
+    outCtx.drawImage(temp,0,0);
+
+    // 3. 枠線
+    outCtx.save();
+    outCtx.translate(hX, hY);
+    outCtx.rotate(rot * Math.PI / 180);
+    const lineWidth = parseInt(document.getElementById("mainHeartLineWidth").value) * sf;
+    drawHandHeart(outCtx, pts, getHeartColor(), lineWidth, getHeartColorKey());
+    outCtx.restore();
+
+    // 4. 追加ハート（内側は独自のぼかし＋色。権利表記より下、他のレイヤーより上）
+    drawExtraHeart(outCtx, w, h, sf, { dx, dy, dw, dh });
+
+    // 5. 権利表記（常に一番上のレイヤー。右下固定でフレーム比率が変わっても位置が崩れない）
+    drawCopyright(outCtx, w, h);
+}
+
+const COPYRIGHT_COLORS = {
+    white: "rgba(255,255,255,.92)",
+    black: "rgba(20,20,20,.92)",
+    gray: "rgba(150,150,150,.92)"
+};
+
+function drawCopyright(context, w, h){
+    const showCopyright = document.getElementById("showCopyright").checked;
+    if(!showCopyright) return;
+
+    const text = "© SQUARE ENIX";
+    const fontSize = Math.max(10, Math.round(Math.min(w,h) * 0.028));
+    const margin = Math.round(Math.min(w,h) * 0.035);
+
+    const colorKey = document.getElementById("copyrightColor").value;
+    const color = COPYRIGHT_COLORS[colorKey] || COPYRIGHT_COLORS.white;
+
+    context.save();
+    context.font = `bold ${fontSize}px sans-serif`;
+    context.textAlign = "left";
+    context.textBaseline = "top";
+
+    const textWidth = context.measureText(text).width;
+    const textHeight = fontSize * 1.15; // 目視でのテキスト高さの近似値
+
+    // スライダーは0〜100の割合。デフォルト値100・100＝初期配置（右下）を変えない。
+    // フレームの幅・高さから毎回計算するので、比率が変わっても左右・上下の端まで
+    // きちんと届く。
+    const fracX = parseInt(document.getElementById("copyrightX").value) / 100;
+    const fracY = parseInt(document.getElementById("copyrightY").value) / 100;
+
+    const availW = Math.max(w - margin*2 - textWidth, 0);
+    const availH = Math.max(h - margin*2 - textHeight, 0);
+
+    const x = margin + fracX * availW;
+    const y = margin + fracY * availH;
+
+    // 背景でも読めるよう、うっすら影を落としてから文字を描く
+    context.shadowBlur = fontSize * 0.4;
+    context.shadowColor = "rgba(0,0,0,.6)";
+    context.fillStyle = color;
+    context.fillText(text, x, y);
+    context.restore();
+}
+
+function drawExtraHeart(context, w, h, sf, photoParams){
+    const show = document.getElementById("showExtraHeart").checked;
+    if(!show) return;
+
+    const eX = (parseInt(document.getElementById("extraHeartX").value)/1000) * w;
+    const eY = (parseInt(document.getElementById("extraHeartY").value)/1000) * h;
+    const eSize = parseInt(document.getElementById("extraHeartSize").value) / 100;
+    const eRot = parseInt(document.getElementById("extraHeartRotation").value);
+    const eRadius = (Math.min(w,h)/2) * eSize * 0.6;
+    const pts = heartPoints(0, 0, eRadius);
+
+    const lineKey = document.getElementById("extraHeartLineColor").value;
+    const lineColor = HEART_COLORS[lineKey] || HEART_COLORS.white;
+    const lineWidth = parseInt(document.getElementById("extraHeartLineWidth").value) * sf;
+
+    const isTransparent = document.getElementById("extraHeartTransparent").checked;
+
+    if(!isTransparent && img){
+        // 1. 内側用のぼかしキャンバスを作成（外側のぼかしと同じ処理を、この追加ハート専用の
+        //    ぼかし量／ぼかしの色で適用する＝「外側のぼかしを内側に変えたハート」）
+        const innerCanvas = document.createElement("canvas");
+        innerCanvas.width = w;
+        innerCanvas.height = h;
+        const innerCtx = innerCanvas.getContext("2d");
+
+        innerCtx.drawImage(img, photoParams.dx, photoParams.dy, photoParams.dw, photoParams.dh);
+
+        const innerBlurAmount = parseInt(document.getElementById("extraHeartBlur").value) * 2 * sf;
+        applyManualBlur(innerCtx, w, h, innerBlurAmount);
+
+        // 明るさを0.8倍に落とす（外側のぼかしと同じ基準の暗さ）
+        innerCtx.save();
+        innerCtx.globalCompositeOperation = "multiply";
+        innerCtx.fillStyle = "rgb(204,204,204)";
+        innerCtx.fillRect(0,0,w,h);
+        innerCtx.restore();
+
+        // ぼかしの色（この追加ハート専用の色設定）
+        const innerColorKey = document.getElementById("extraHeartBlurColor").value;
+        const innerColorIntensity = parseInt(document.getElementById("extraHeartBlurColorIntensity").value);
+        tintCanvasColor(innerCtx, w, h, innerColorKey, innerColorIntensity);
+
+        // ハート形にマスク
+        innerCtx.globalCompositeOperation = "destination-in";
+        innerCtx.save();
+        innerCtx.translate(eX, eY);
+        innerCtx.rotate(eRot * Math.PI / 180);
+        drawPath(innerCtx, pts);
+        innerCtx.closePath();
+        innerCtx.fill();
+        innerCtx.restore();
+
+        context.drawImage(innerCanvas, 0, 0);
+    }
+    // 「透明」がチェックされている場合は内側を何も描かず、下のレイヤーを透過して見せる
+
+    // 2. 枠線（既存ハートと同じ手描き風の生成方法）
+    context.save();
+    context.translate(eX, eY);
+    context.rotate(eRot * Math.PI / 180);
+    drawHandHeart(context, pts, lineColor, lineWidth, lineKey);
+    context.restore();
+}
+
+// ==========================
+// マウス・タッチ操作（ハートの位置・大きさをキャンバス上で直接操作）
+// 写真の移動・拡大縮小はスライダーのみで行う
+// ==========================
+
+canvas.onmousedown = (e)=>{
+    isDragging = true;
+    lastX = e.clientX;
+    lastY = e.clientY;
+};
+
+window.onmouseup = ()=>{
+    isDragging = false;
+};
+
+canvas.onmousemove = (e)=>{
+    if(!isDragging) return;
+    const rect = holder.getBoundingClientRect();
+    const heartXEl = document.getElementById("heartX");
+    const heartYEl = document.getElementById("heartY");
+    const dxValue = (e.clientX - lastX) * (1000 / rect.width);
+    const dyValue = (e.clientY - lastY) * (1000 / rect.height);
+    heartXEl.value = parseInt(heartXEl.value) + dxValue;
+    heartYEl.value = parseInt(heartYEl.value) + dyValue;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    render();
+};
+
+canvas.onwheel = (e)=>{
+    e.preventDefault();
+    const heartSizeEl = document.getElementById("heartSize");
+    let size = parseInt(heartSizeEl.value) - e.deltaY * 0.1;
+    size = Math.min(300, Math.max(40, size));
+    heartSizeEl.value = size;
+    render();
+};
+
+canvas.ontouchmove = (e)=>{
+    const rect = holder.getBoundingClientRect();
+    const heartXEl = document.getElementById("heartX");
+    const heartYEl = document.getElementById("heartY");
+    const heartSizeEl = document.getElementById("heartSize");
+    const rotationEl = document.getElementById("rotation");
+
+    if(e.touches.length===1){
+        const dxValue = (e.touches[0].clientX - lastX) * (1000 / rect.width);
+        const dyValue = (e.touches[0].clientY - lastY) * (1000 / rect.height);
+        heartXEl.value = parseInt(heartXEl.value) + dxValue;
+        heartYEl.value = parseInt(heartYEl.value) + dyValue;
+        lastX = e.touches[0].clientX;
+        lastY = e.touches[0].clientY;
+    }else if(e.touches.length===2){
+        // ピンチで大きさ、2本指のひねりで角度を変更
+        let dist = Math.hypot(e.touches[0].pageX-e.touches[1].pageX, e.touches[0].pageY-e.touches[1].pageY);
+        if(initialDist > 0){
+            let size = parseInt(heartSizeEl.value) * (dist/initialDist);
+            size = Math.min(300, Math.max(40, size));
+            heartSizeEl.value = size;
+        }
+        initialDist = dist;
+
+        const angle = Math.atan2(
+            e.touches[1].clientY - e.touches[0].clientY,
+            e.touches[1].clientX - e.touches[0].clientX
+        ) * 180 / Math.PI;
+        let deltaAngle = angle - initialAngle;
+        let newRotation = initialRotationValue + deltaAngle;
+        newRotation = Math.max(-180, Math.min(180, newRotation));
+        rotationEl.value = newRotation;
+    }
+    render();
+    e.preventDefault();
+};
+
+canvas.ontouchstart = (e)=>{
+    lastX = e.touches[0].clientX;
+    lastY = e.touches[0].clientY;
+    if(e.touches.length===2){
+        initialDist = Math.hypot(e.touches[0].pageX-e.touches[1].pageX, e.touches[0].pageY-e.touches[1].pageY);
+        initialAngle = Math.atan2(
+            e.touches[1].clientY - e.touches[0].clientY,
+            e.touches[1].clientX - e.touches[0].clientX
+        ) * 180 / Math.PI;
+        initialRotationValue = parseInt(document.getElementById("rotation").value);
+    }else{
+        initialDist = 0;
+    }
+};
+
+// ==========================
+// 書き出しサイズの自動計算（パターンA）
+// プレビューは軽い解像度のまま、ダウンロード時だけ
+// フルHDクラスの高解像度で再レンダリングする。
+// ただし元画像より大きく引き伸ばして粗くならないよう、
+// 画像の実解像度でサイズをキャップする。
+// ==========================
+
+function getCurrentAspectRatio(){
+    const val = document.getElementById("aspectRatio").value; // 例: "16/9"
+    const [a, b] = val.split("/").map(Number);
+    return { a, b, ratio: a / b };
+}
+
+function calcExportSize(){
+    const { a, b, ratio } = getCurrentAspectRatio();
+
+    // 1. フルHDクラスの理想サイズ（長辺1920px基準）
+    let idealW, idealH;
+    if(ratio >= 1){
+        idealW = 1920;
+        idealH = 1920 / ratio;
+    }else{
+        idealH = 1920;
+        idealW = 1920 * ratio;
+    }
+
+    if(!img){
+        return { w: Math.round(idealW), h: Math.round(idealH) };
+    }
+
+    // 2. 元画像を超えて引き伸ばさないための上限サイズ
+    //    （このアスペクト比のフレームをcoverするのに画像拡大が要らない最大サイズ）
+    const capWByImage = Math.min(img.width, img.height * ratio);
+    const capW = Math.max(1, capWByImage);
+    const capH = capW / ratio;
+
+    // 3. 「フルHD理想サイズ」と「画像解像度による上限」の小さい方を採用
+    let finalW = Math.min(idealW, capW);
+    let finalH = finalW / ratio;
+
+    // 極端に小さくなりすぎないよう最低限のサイズは確保（画質优先の下限）
+    const MIN_LONG_SIDE = 480;
+    const longSide = Math.max(finalW, finalH);
+    if(longSide < MIN_LONG_SIDE){
+        const boost = MIN_LONG_SIDE / longSide;
+        finalW *= boost;
+        finalH *= boost;
+    }
+
+    return { w: Math.round(finalW), h: Math.round(finalH) };
+}
+
+// ==========================
+// ダウンロード
+// ==========================
+
+document.getElementById("downloadBtn").onclick = ()=>{
+
+    const { w: exportW, h: exportH } = calcExportSize();
+
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = exportW;
+    exportCanvas.height = exportH;
+    const exportCtx = exportCanvas.getContext("2d");
+
+    render(exportCtx, exportW, exportH);
+
+    const dataUrl = exportCanvas.toDataURL("image/png");
+    if(isMobile){
+        document.getElementById("saveModalImg").src = dataUrl;
+        document.getElementById("saveModal").style.display = "block";
+    }else{
+        const link = document.createElement("a");
+        link.download = "heart_frame.png";
+        link.href = dataUrl;
+        link.click();
+    }
+};
+
+document.getElementById("closeSaveModal").onclick = ()=>{
+    document.getElementById("saveModal").style.display = "none";
+};
+
+document.getElementById("fileInput").onchange = e=>{
+    const reader = new FileReader();
+    reader.onload = ev=>{
+        img = new Image();
+        img.onload = ()=>{ render(); };
+        img.src = ev.target.result;
+    };
+    reader.readAsDataURL(e.target.files[0]);
+};
+
+document.getElementById("aspectRatio").onchange = e=>{
+    holder.style.aspectRatio = e.target.value;
+    updateCanvasSize();
+};
+
+window.onresize = ()=>{
+    updateCanvasSize();
+};
+
+// ==========================
+// スライダー更新
+// ==========================
+
+[
+    "photoX",
+    "photoY",
+    "heartX",
+    "heartY",
+    "heartSize",
+    "mainHeartLineWidth",
+    "feather",
+    "zoom",
+    "rotation",
+    "extraHeartSize",
+    "extraHeartX",
+    "extraHeartY",
+    "extraHeartRotation",
+    "extraHeartBlur",
+    "extraHeartLineWidth"
+].forEach(id=>{
+    document.getElementById(id).oninput = ()=>{
+        if(id==="zoom"){
+            userZoom = document.getElementById("zoom").value / 100;
+        }
+        render();
+    };
+});
+
+document.getElementById("heartColor").onchange = ()=>{ render(); };
+document.getElementById("blurColor").onchange = ()=>{ render(); };
+document.getElementById("blurColorIntensity").oninput = ()=>{ render(); };
+document.getElementById("showCopyright").onchange = ()=>{ render(); };
+document.getElementById("copyrightColor").onchange = ()=>{ render(); };
+document.getElementById("copyrightX").oninput = ()=>{ render(); };
+document.getElementById("copyrightY").oninput = ()=>{ render(); };
+
+document.getElementById("showExtraHeart").onchange = ()=>{
+    document.getElementById("extraHeartControls").style.display =
+        document.getElementById("showExtraHeart").checked ? "block" : "none";
+    render();
+};
+document.getElementById("extraHeartBlurColor").onchange = ()=>{
+    // ぼかしの色を選んだら「透明」は自動的に解除する
+    document.getElementById("extraHeartTransparent").checked = false;
+    render();
+};
+document.getElementById("extraHeartTransparent").onchange = ()=>{ render(); };
+document.getElementById("extraHeartLineColor").onchange = ()=>{ render(); };
+document.getElementById("extraHeartBlurColorIntensity").oninput = ()=>{ render(); };
+
+updateCanvasSize();
+
+</script>
+</body>
+</html>
