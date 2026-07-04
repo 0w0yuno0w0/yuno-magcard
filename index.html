@@ -28,15 +28,19 @@
         .footer-notice { width: 100%; max-width: 800px; margin-top: 30px; padding: 16px 20px; background: #fff3f3; border-left: 4px solid var(--accent); border-radius: 8px; font-size: 0.85rem; color: #636366; line-height: 1.7; }
         .footer-notice strong { color: var(--accent); }
 
-        /* 規約ボタンとエリア */
         .terms-btn { background: #fff; border: 1px solid var(--accent); color: var(--accent); padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 20px; font-weight: bold; transition: 0.3s; }
         .terms-btn:hover { background: var(--accent); color: white; }
         #terms-content { display: none; width: 100%; max-width: 800px; margin-top: 20px; text-align: left; }
+        
+        /* 追加したボタンのスタイル */
+        .yuno-tool-btn { display: inline-block; margin-top: 30px; padding: 6px 12px; font-size: 0.75rem; color: #888; border: 1px solid #ddd; border-radius: 20px; text-decoration: none; transition: 0.3s; }
+        .yuno-tool-btn:hover { background: #eee; color: #555; }
     </style>
 </head>
 <body>
     <h1>Yunoᒼᑋªⁿ Tool Portal</h1>
 
+    <!-- (中略: notice-board〜footer-noticeの箇所は変更ありません) -->
     <div class="notice-board">
         <div class="lang-btns" id="lang-switcher">
             <button class="lang-btn active" onclick="setLang('jp', this)">JP</button>
@@ -95,24 +99,17 @@
         このツールで作成したカードは、<strong>FINAL FANTASY XIV のキャラクター</strong>を対象としています。それ以外の作品・版権キャラクターへのご使用はお控えください。
     </div>
 
+    <!-- 追加したボタン -->
+    <a href="./Heart-shaped/index.html" class="yuno-tool-btn">Yunoᒼᑋªⁿ開発室</a>
+
     <script>
+        // (JavaScript部分は変更ありません)
         const translations = {
             jp: { title: "Yunoᒼᑋªⁿからのお知らせ", notice: ["現在、各言語版へのローカライズを順次進めています。そのため、現在は日本語版に集約しています。", "ローカライズには時間がかかりそうなので、気長に待っててね。", "スマホ版の位置ズレが修正されました。環境によっては位置ズレがあるかもしれません。PCでの操作を推奨しています。", "Photo Filter機能は現在修正中のため使用できません。"], mag: "マガジン風のキャラクターカードを作成します。", prof: "シンプルで見やすいキャラクターカードを作成します。" },
             en: { title: "Notice from Yunoᒼᑋªⁿ", notice: ["We are working on localization for each language version, so we have consolidated them into the Japanese version for now.", "Localization might take a while, so please be patient and wait for it.", "Mobile alignment issues have been fixed. Please note that depending on your environment, some issues may still occur. We recommend using a PC.", "The Photo Filter feature is currently under maintenance and is unavailable."], mag: "Create a magazine-style character card.", prof: "Create a simple and easy-to-read character card." },
             kr: { title: "Yunoᒼᑋªⁿ 공지사항", notice: ["현재 각 언어별 현지화 작업을 순차적으로 진행 중입니다. 따라서 현재는 일본어 버전으로 통합되어 있습니다.", "현지화 작업에 시간이 조금 걸릴 것 같으니, 느긋하게 기다려주세요.", "모바일 버전의 위치 틀어짐 문제가 수정되었습니다. 환경에 따라 여전히 위치가 맞지 않을 수 있습니다. PC 사용을 권장합니다.", "Photo Filter 기능은 현재 수정 중으로 사용할 수 없습니다."], mag: "잡지 스타일의 캐릭터 카드를 만듭니다.", prof: "심플하고 보기 편한 캐릭터 카드를 만듭니다." },
             cn: { title: "来自 Yunoᒼᑋªⁿ 的公告", notice: ["目前正在陆续推进各语言版本的本地化适配，因此目前整合为日语版本。", "本地化工作可能需要一些时间，请耐心等待哦。", "已修复手机端的位置偏差问题。根据您的设备或浏览器环境，仍可能存在位置显示不准确的情况。建议使用电脑操作。", "Photo Filter 功能目前正在修复中，暂时无法使用。"], mag: "制作杂志风格的角色卡。", prof: "制作简洁易读的角色卡。" },
-tw: {
-    title: "Yunoᒼᑋªⁿ 的公告",
-    notice: [
-        "目前正逐步進行各語言版本的在地化，因此目前統一使用日文版本。",
-        "在地化需要一些時間，請耐心等待。",
-        "已修正手機版的位置偏移問題，但依不同裝置或瀏覽器仍可能出現些微差異，建議使用電腦。",
-        "Photo Filter 功能目前正在修正中，暫時無法使用。"
-    ],
-    mag: "製作雜誌風格的角色卡。",
-    prof: "製作簡潔易讀的角色卡。"
-}
-
+            tw: { title: "Yunoᒼᑋªⁿ 的公告", notice: ["目前正逐步進行各語言版本的在地化，因此目前統一使用日文版本。", "在地化需要一些時間，請耐心等待。", "已修正手機版的位置偏移問題，但依不同裝置或瀏覽器仍可能出現些微差異，建議使用電腦。", "Photo Filter 功能目前正在修正中，暫時無法使用。"], mag: "製作雜誌風格的角色卡。", prof: "製作簡潔易讀的角色卡。" }
         };
 
         function setLang(lang, btn) {
