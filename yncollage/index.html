@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>フォトコラージュ・メーカー</title>
+<meta name="theme-color" content="#131317">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS — 暗室 / コンタクトシート (darkroom / contact-sheet)
+   ============================================================ */
+:root{
+  --bg:#131317;
+  --bg-grain:#17171c;
+  --surface:#1c1c22;
+  --surface-2:#242429;
+  --surface-3:#2c2c33;
+  --line:#38383f;
+  --line-soft:#2a2a30;
+  --text:#f3efe6;
+  --text-dim:#9a97a3;
+  --text-faint:#67646f;
+  --accent:#e0a84c;      /* safelight amber */
+  --accent-dim:#8a6b34;
+  --accent-2:#6fb8ae;    /* darkroom teal — secondary / selected */
+  --danger:#e0654c;
+  --font-display:'Zen Kaku Gothic New', -apple-system, 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  --font-mono:'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --radius-s:6px;
+  --radius-m:12px;
+  --radius-l:18px;
+  --shadow-panel:0 1px 0 rgba(255,255,255,0.03) inset, 0 12px 30px -18px rgba(0,0,0,0.6);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1200px 800px at 15% -10%, #1b1b21 0%, transparent 60%),
+    radial-gradient(900px 700px at 110% 10%, #1a1a1f 0%, transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-display);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  padding-bottom:64px;
+}
+img{max-width:none;}
+button{font-family:inherit;}
+input,select,textarea{font-family:inherit;}
+::selection{background:var(--accent);color:#1a1a1a;}
+
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 0;}
+
+/* ---------- header ---------- */
+.app-header{padding:22px 4px 26px;border-bottom:1px solid var(--line-soft);margin-bottom:22px;display:flex;justify-content:space-between;gap:16px;align-items:flex-start;}
+.app-header-main{min-width:0;flex:1;}
+.lang-switch{display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:999px;padding:3px;flex:none;}
+.lang-switch button{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.03em;color:var(--text-faint);background:transparent;
+  border:none;border-radius:999px;padding:6px 13px;cursor:pointer;transition:.12s;
+}
+.lang-switch button.active{background:var(--accent);color:#1a1408;font-weight:700;}
+.lang-switch button:not(.active):hover{color:var(--text);}
+.app-header .eyebrow{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;color:var(--accent);
+  text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:8px;
+}
+.app-header .eyebrow::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(224,168,76,.18);}
+.app-header h1{font-size:clamp(22px,4vw,30px);font-weight:900;margin:0 0 6px;letter-spacing:.01em;}
+.app-header p{margin:0;color:var(--text-dim);font-size:13.5px;line-height:1.7;max-width:56ch;}
+
+/* ---------- layout ---------- */
+.layout{display:flex;flex-direction:column;gap:34px;}
+.col-setup{display:flex;flex-direction:column;gap:26px;min-width:0;}
+.col-output{display:flex;flex-direction:column;gap:22px;min-width:0;}
+@media(min-width:960px){
+  .layout{flex-direction:row;align-items:flex-start;}
+  .col-setup{flex:0 0 420px;}
+  .col-output{flex:1;position:sticky;top:16px;}
+}
+
+/* ---------- step panel ---------- */
+.step{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius-l);padding:18px 18px 20px;box-shadow:var(--shadow-panel);}
+.step-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+.step-num{font-family:var(--font-mono);font-size:12px;color:var(--accent);border:1px solid var(--accent-dim);border-radius:999px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex:none;background:rgba(224,168,76,.06);}
+.step-title{font-size:15.5px;font-weight:700;letter-spacing:.01em;}
+.step-sub{font-size:12px;color:var(--text-faint);margin-left:auto;font-family:var(--font-mono);white-space:nowrap;}
+.step-desc{font-size:12.5px;color:var(--text-dim);margin:-8px 0 14px;line-height:1.7;}
+
+/* ---------- upload ---------- */
+.upload-drop{
+  border:1.5px dashed var(--line);border-radius:var(--radius-m);padding:20px 14px;text-align:center;
+  cursor:pointer;transition:.15s;background:var(--surface-2);
+}
+.upload-drop:hover{border-color:var(--accent-dim);background:var(--surface-3);}
+.upload-drop.drag{border-color:var(--accent);background:rgba(224,168,76,.08);}
+.upload-drop svg{width:26px;height:26px;stroke:var(--text-dim);margin-bottom:6px;}
+.upload-drop .t1{font-size:13px;font-weight:700;}
+.upload-drop .t2{font-size:11.5px;color:var(--text-faint);margin-top:3px;}
+
+.thumb-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.thumb{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--radius-s);padding:7px;}
+.thumb .n{font-family:var(--font-mono);font-size:11px;color:var(--accent);width:18px;text-align:center;flex:none;}
+.thumb img{width:44px;height:44px;object-fit:cover;border-radius:5px;flex:none;background:#000;}
+.thumb .meta{flex:1;min-width:0;font-size:11.5px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.thumb .actions{display:flex;gap:4px;flex:none;}
+.icon-btn{
+  width:28px;height:28px;border-radius:7px;border:1px solid var(--line-soft);background:var(--surface-3);
+  color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.12s;
+}
+.icon-btn:hover{border-color:var(--accent-dim);color:var(--text);}
+.icon-btn:active{transform:scale(.94);}
+.icon-btn.danger:hover{border-color:var(--danger);color:var(--danger);}
+.icon-btn svg{width:14px;height:14px;}
+.upload-note{font-size:11.5px;color:var(--text-faint);margin-top:10px;line-height:1.6;}
+.upload-note b{color:var(--accent);font-weight:700;}
+
+/* ---------- ratio buttons ---------- */
+.ratio-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.ratio-btn{
+  background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--radius-s);
+  padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:.12s;
+}
+.ratio-btn:hover{border-color:var(--accent-dim);}
+.ratio-btn.active{border-color:var(--accent);background:rgba(224,168,76,.08);}
+.ratio-btn .swatch{width:30px;height:30px;display:flex;align-items:center;justify-content:center;}
+.ratio-btn .swatch span{display:block;background:transparent;border:1.6px solid var(--text-dim);border-radius:2px;}
+.ratio-btn.active .swatch span{border-color:var(--accent);}
+.ratio-btn .lbl{font-family:var(--font-mono);font-size:10.5px;color:var(--text-dim);}
+.ratio-btn.active .lbl{color:var(--accent);}
+
+/* ---------- template buttons ---------- */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.tpl-btn{
+  background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--radius-s);
+  padding:8px;cursor:pointer;transition:.12s;display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.tpl-btn:hover{border-color:var(--accent-dim);}
+.tpl-btn.active{border-color:var(--accent);background:rgba(224,168,76,.08);}
+.tpl-btn svg{width:100%;aspect-ratio:1;display:block;}
+.tpl-btn .lbl{font-size:10.5px;color:var(--text-dim);text-align:center;line-height:1.3;}
+.tpl-btn.active .lbl{color:var(--text);}
+.tpl-empty{font-size:12.5px;color:var(--text-faint);padding:10px 2px;text-align:center;border:1px dashed var(--line-soft);border-radius:var(--radius-s);}
+
+/* ---------- preview / frame ---------- */
+.preview-panel{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--radius-l);padding:18px;box-shadow:var(--shadow-panel);}
+.exif-bar{
+  font-family:var(--font-mono);font-size:10.5px;color:var(--text-faint);display:flex;gap:14px;flex-wrap:wrap;
+  margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line-soft);
+}
+.exif-bar b{color:var(--accent-2);font-weight:500;}
+.frame-stage{display:flex;justify-content:center;align-items:center;padding:6px 0 10px;}
+.frame{
+  position:relative;background:#000;border-radius:4px;overflow:hidden;
+  box-shadow:0 0 0 1px var(--line-soft), 0 18px 40px -20px rgba(0,0,0,.7);
+  touch-action:none;
+}
+.frame .cell{position:absolute;inset:0;overflow:hidden;cursor:grab;}
+.frame .cell:active{cursor:grabbing;}
+.frame .cell.selected::after{
+  content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 2.5px var(--accent-2);pointer-events:none;
+}
+.frame .rot-wrap{position:absolute;top:50%;left:50%;}
+.frame .rot-wrap img{position:absolute;top:50%;left:50%;user-select:none;-webkit-user-drag:none;pointer-events:none;display:block;}
+.cell-tag{
+  position:absolute;top:6px;left:6px;font-family:var(--font-mono);font-size:9.5px;color:#fff;
+  background:rgba(0,0,0,.45);border-radius:4px;padding:2px 6px;pointer-events:none;letter-spacing:.04em;
+  opacity:0;transition:opacity .15s;
+}
+.frame .cell.selected .cell-tag{opacity:1;}
+.copy-el{
+  position:absolute;color:#fff;font-family:var(--font-display);font-weight:700;white-space:nowrap;
+  text-shadow:0 1px 3px rgba(0,0,0,.7),0 0 10px rgba(0,0,0,.35);cursor:grab;user-select:none;
+  transform:translate(-100%,-100%);line-height:1;padding:4px;touch-action:none;
+}
+.copy-el.dragging{cursor:grabbing;}
+.copy-el.hidden-el{display:none;}
+.frame-hint{text-align:center;font-size:11px;color:var(--text-faint);margin-top:2px;}
+
+/* ---------- adjust toolbar ---------- */
+.adjust-box{margin-top:8px;border-top:1px solid var(--line-soft);padding-top:14px;}
+.adjust-box.disabled{opacity:.4;pointer-events:none;}
+.adjust-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.adjust-row:last-child{margin-bottom:0;}
+.adjust-label{font-size:11.5px;color:var(--text-dim);width:64px;flex:none;font-family:var(--font-mono);}
+.dpad{display:grid;grid-template-columns:repeat(3,26px);grid-template-rows:repeat(2,26px);gap:3px;flex:none;}
+.dpad button{grid-column:auto;}
+.dpad .up{grid-column:2;grid-row:1;}
+.dpad .left{grid-column:1;grid-row:2;}
+.dpad .down{grid-column:2;grid-row:2;}
+.dpad .right{grid-column:3;grid-row:2;}
+.dpad .zi{grid-column:1;grid-row:1;}
+.dpad .zo{grid-column:3;grid-row:1;}
+.mini-btn{
+  width:26px;height:26px;border-radius:6px;border:1px solid var(--line-soft);background:var(--surface-3);
+  color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;
+}
+.mini-btn:hover{border-color:var(--accent-dim);color:var(--text);}
+.mini-btn:active{transform:scale(.92);}
+.mini-btn svg{width:13px;height:13px;}
+.adjust-actions{display:flex;gap:6px;margin-left:auto;flex:none;}
+.txt-btn{
+  font-family:var(--font-mono);font-size:11px;color:var(--text-dim);background:var(--surface-3);
+  border:1px solid var(--line-soft);border-radius:7px;padding:7px 10px;cursor:pointer;white-space:nowrap;
+}
+.txt-btn:hover{border-color:var(--accent-dim);color:var(--text);}
+
+/* ---------- sliders ---------- */
+.field{margin-bottom:0;}
+.field + .field{margin-top:16px;}
+.field-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.field-head label{font-size:12.5px;color:var(--text-dim);}
+.field-head .val{font-family:var(--font-mono);font-size:11.5px;color:var(--accent);}
+.slider-track{position:relative;}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;cursor:pointer;margin:0;
+}
+input[type=range]::-webkit-slider-runnable-track{height:4px;background:var(--line);border-radius:3px;}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--accent);
+  border:2px solid #171719;margin-top:-6.5px;box-shadow:0 2px 6px rgba(0,0,0,.4);
+}
+input[type=range]::-moz-range-track{height:4px;background:var(--line);border-radius:3px;}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--accent);border:2px solid #171719;}
+.slider-legend{display:flex;justify-content:space-between;font-size:10px;color:var(--text-faint);margin-top:2px;font-family:var(--font-mono);}
+
+/* ---------- copyright panel ---------- */
+.cw-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.cw-row:last-child{margin-bottom:0;}
+input[type=text].cw-text{
+  flex:1;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:8px;color:var(--text);
+  padding:9px 10px;font-size:13px;font-family:var(--font-mono);min-width:0;
+}
+input[type=text].cw-text:focus{outline:none;border-color:var(--accent-dim);}
+.color-swatches{display:flex;gap:8px;}
+.cw-swatch{
+  width:26px;height:26px;border-radius:50%;border:2px solid var(--line-soft);cursor:pointer;padding:0;
+  box-shadow:0 1px 3px rgba(0,0,0,.4);transition:.12s;
+}
+.cw-swatch:hover{border-color:var(--accent-dim);}
+.cw-swatch.active{border-color:var(--accent-2);box-shadow:0 0 0 3px rgba(111,184,174,.25);}
+.checkbox-row{display:flex;align-items:center;gap:8px;user-select:none;}
+.checkbox-row input{width:16px;height:16px;accent-color:var(--accent);}
+.checkbox-row label{font-size:12.5px;color:var(--text-dim);cursor:pointer;}
+
+/* ---------- download ---------- */
+.download-btn{
+  width:100%;background:linear-gradient(180deg,var(--accent),#c8912f);color:#1a1408;border:none;
+  border-radius:var(--radius-m);padding:15px 18px;font-size:14.5px;font-weight:700;letter-spacing:.02em;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:.12s;
+  box-shadow:0 10px 24px -12px rgba(224,168,76,.5);
+}
+.download-btn:hover{filter:brightness(1.06);}
+.download-btn:active{transform:translateY(1px) scale(.995);}
+.download-btn:disabled{opacity:.4;cursor:not-allowed;filter:none;box-shadow:none;}
+.download-btn svg{width:17px;height:17px;}
+
+/* ---------- modal (mobile save) ---------- */
+.modal-back{
+  position:fixed;inset:0;background:rgba(8,8,10,.82);backdrop-filter:blur(6px);display:none;
+  align-items:flex-end;justify-content:center;z-index:100;
+}
+.modal-back.open{display:flex;}
+@media(min-width:640px){.modal-back{align-items:center;}}
+.modal-card{
+  background:var(--surface);border:1px solid var(--line-soft);border-radius:20px 20px 0 0;padding:20px;
+  width:100%;max-width:480px;max-height:88vh;overflow:auto;
+}
+@media(min-width:640px){.modal-card{border-radius:var(--radius-l);}}
+.modal-card h3{margin:0 0 4px;font-size:16px;}
+.modal-card .sub{font-size:12.5px;color:var(--text-dim);margin:0 0 14px;line-height:1.6;}
+.modal-img-wrap{background:#000;border-radius:10px;overflow:hidden;margin-bottom:14px;display:flex;justify-content:center;}
+.modal-img-wrap img{max-width:100%;max-height:56vh;display:block;}
+.modal-steps{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.modal-step{display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:var(--text-dim);line-height:1.6;}
+.modal-step .num{
+  font-family:var(--font-mono);font-size:10.5px;color:var(--accent);border:1px solid var(--accent-dim);
+  border-radius:50%;width:19px;height:19px;flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px;
+}
+.modal-actions{display:flex;gap:8px;}
+.modal-actions .txt-btn{flex:1;text-align:center;padding:11px;}
+.modal-close{background:var(--surface-3);}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="app-header">
+    <div class="app-header-main">
+      <div class="eyebrow" data-i18n="eyebrow">Photo Collage / コンタクトシート・エディタ</div>
+      <h1 data-i18n="title">フォトコラージュ・メーカー</h1>
+      <p data-i18n="subtitle">写真を2〜4枚アップロードして、分割テンプレート・比率・境界線のぼかしを自由に組み合わせたコラージュを作成できます。PC・スマートフォンどちらでもご利用いただけます。</p>
+    </div>
+    <div class="lang-switch" id="lang-switch">
+      <button type="button" data-lang="ja" id="lang-ja">日本語</button>
+      <button type="button" data-lang="en" id="lang-en">English</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- ===================== LEFT: SETUP ===================== -->
+    <div class="col-setup">
+
+      <section class="step" id="step-upload">
+        <div class="step-head">
+          <div class="step-num">01</div>
+          <div class="step-title" data-i18n="s1.title">画像をアップロード</div>
+          <div class="step-sub" id="upload-count">0 / 4</div>
+        </div>
+        <div class="step-desc" data-i18n="s1.desc">2〜4枚の画像をアップロードしてください。枚数に応じて分割テンプレートが自動で切り替わります。</div>
+
+        <div class="upload-drop" id="upload-drop">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="t1" data-i18n="s1.tap">タップして画像を選択</div>
+          <div class="t2" data-i18n="s1.dragdrop">またはドラッグ&ドロップ（2〜4枚 / JPEG・PNG・HEIC）</div>
+        </div>
+        <input type="file" id="file-input" accept="image/*" multiple class="sr-only">
+
+        <div class="thumb-list" id="thumb-list"></div>
+        <div class="upload-note" id="upload-note"></div>
+      </section>
+
+      <section class="step" id="step-ratio">
+        <div class="step-head">
+          <div class="step-num">02</div>
+          <div class="step-title" data-i18n="s2.title">フレーム比率</div>
+        </div>
+        <div class="step-desc" data-i18n="s2.desc">コラージュ全体の縦横比を選びます。画像は比率に合わせて自動調整され、伸びたり歪んだりしません。</div>
+        <div class="ratio-grid" id="ratio-grid"></div>
+      </section>
+
+      <section class="step" id="step-template">
+        <div class="step-head">
+          <div class="step-num">03</div>
+          <div class="step-title" data-i18n="s3.title">分割テンプレート</div>
+        </div>
+        <div class="step-desc" data-i18n="s3.desc">画像の枚数に合わせて選べるテンプレートです。縦・横分割のほか、斜め分割やクロス分割も選べます。</div>
+        <div id="tpl-container"><div class="tpl-empty" data-i18n="s3.empty">画像を2枚以上アップロードすると表示されます</div></div>
+      </section>
+
+    </div>
+
+    <!-- ===================== RIGHT: OUTPUT ===================== -->
+    <div class="col-output">
+
+      <section class="preview-panel">
+        <div class="exif-bar">
+          <span>RATIO <b id="exif-ratio">—</b></span>
+          <span>SPLIT <b id="exif-tpl">—</b></span>
+          <span>FEATHER <b id="exif-blur">0px</b></span>
+          <span>IMAGES <b id="exif-count">0</b></span>
+        </div>
+        <div class="frame-stage" id="frame-stage">
+          <div class="frame" id="frame">
+            <svg class="mask-defs sr-only" id="mask-defs"><defs id="mask-defs-inner"></defs></svg>
+          </div>
+        </div>
+        <div class="frame-hint" id="frame-hint" data-i18n="frame.hint">セルをドラッグして位置を調整・ピンチ / スライダーで拡大縮小できます</div>
+
+        <div class="adjust-box disabled" id="adjust-box">
+          <div class="adjust-row">
+            <span class="adjust-label" data-i18n="adjust.selecting">選択中</span>
+            <span class="txt-btn" id="adjust-selected-label" style="pointer-events:none"></span>
+            <div class="adjust-actions">
+              <button class="txt-btn" id="btn-rotate" data-i18n-title="adjust.rotateTitle" title="回転（縦横切替）">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px"><path d="M21 12a9 9 0 11-3-6.7" stroke-linecap="round"/><path d="M21 3v6h-6" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="adjust.rotate">回転</span>
+              </button>
+              <button class="txt-btn" id="btn-reset-img" data-i18n="adjust.reset">リセット</button>
+            </div>
+          </div>
+          <div class="field" style="margin-top:2px">
+            <div class="field-head"><label data-i18n="adjust.zoom">拡大縮小</label><span class="val" id="zoom-val">100%</span></div>
+            <input type="range" id="zoom-slider" min="30" max="400" value="100">
+            <div class="slider-legend"><span data-i18n="adjust.zoomMin">30%（縮小）</span><span data-i18n="adjust.zoomMax">400%（拡大）</span></div>
+          </div>
+          <div class="field">
+            <div class="field-head"><label data-i18n="adjust.posx">左右position</label><span class="val" id="posx-val">0</span></div>
+            <input type="range" id="posx-slider" min="-50" max="50" value="0">
+            <div class="slider-legend"><span data-i18n="adjust.left">◀ 左</span><span data-i18n="adjust.right">右 ▶</span></div>
+          </div>
+          <div class="field">
+            <div class="field-head"><label data-i18n="adjust.posy">上下position</label><span class="val" id="posy-val">0</span></div>
+            <input type="range" id="posy-slider" min="-50" max="50" value="0">
+            <div class="slider-legend"><span data-i18n="adjust.up">▲ 上</span><span data-i18n="adjust.down">下 ▼</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="step">
+        <div class="step-head">
+          <div class="step-num">04</div>
+          <div class="step-title" data-i18n="s4.title">境界線</div>
+        </div>
+        <div class="step-desc" data-i18n="s4.desc">画像同士の境界を、はっきりした線から自然にぼかした境界まで調整できます。</div>
+        <div class="field">
+          <div class="field-head"><label data-i18n="s4.label">境界のぼかし具合</label><span class="val" id="blur-val">0px</span></div>
+          <input type="range" id="blur-slider" min="0" max="40" value="0">
+          <div class="slider-legend"><span data-i18n="s4.sharp">くっきり</span><span data-i18n="s4.soft">自然にぼかす</span></div>
+        </div>
+      </section>
+
+      <section class="step">
+        <div class="step-head">
+          <div class="step-num">05</div>
+          <div class="step-title" data-i18n="s5.title">権利表記</div>
+        </div>
+        <div class="step-desc" data-i18n="s5.desc">右下にデフォルト配置される表記です。位置・文字サイズを調整したり、非表示にできます。プレビュー内をドラッグしても移動できます。</div>
+        <div class="cw-row">
+          <input type="text" class="cw-text" id="cw-text" value="© SQUARE ENIX" maxlength="60">
+        </div>
+        <div class="field">
+          <div class="field-head"><label data-i18n="adjust.posx">左右position</label><span class="val" id="cw-x-val">92</span></div>
+          <input type="range" id="cw-x-slider" min="2" max="98" value="92">
+        </div>
+        <div class="field">
+          <div class="field-head"><label data-i18n="adjust.posy">上下position</label><span class="val" id="cw-y-val">90</span></div>
+          <input type="range" id="cw-y-slider" min="2" max="98" value="90">
+        </div>
+        <div class="field">
+          <div class="field-head"><label data-i18n="s5.size">文字サイズ</label><span class="val" id="cw-size-val">16px</span></div>
+          <input type="range" id="cw-size" min="8" max="48" value="16">
+        </div>
+        <div class="cw-row" style="margin-top:14px">
+          <span class="adjust-label" style="width:auto" data-i18n="s5.color">文字色</span>
+          <div class="color-swatches" id="cw-colors">
+            <button class="cw-swatch active" data-color="#ffffff" style="background:#ffffff" data-i18n-title="s5.white" title="白" data-i18n-aria="s5.white" aria-label="白"></button>
+            <button class="cw-swatch" data-color="#9a9a9a" style="background:#9a9a9a" data-i18n-title="s5.gray" title="灰" data-i18n-aria="s5.gray" aria-label="灰"></button>
+            <button class="cw-swatch" data-color="#000000" style="background:#000000" data-i18n-title="s5.black" title="黒" data-i18n-aria="s5.black" aria-label="黒"></button>
+          </div>
+        </div>
+        <div class="cw-row" style="margin-top:2px">
+          <div class="checkbox-row">
+            <input type="checkbox" id="cw-hide">
+            <label for="cw-hide" data-i18n="s5.hide">権利表記を非表示にする</label>
+          </div>
+        </div>
+      </section>
+
+      <button class="download-btn" id="btn-download" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13M12 16l-5-5M12 16l5-5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke-linecap="round"/></svg>
+        <span id="download-label"></span>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<!-- mobile save modal -->
+<div class="modal-back" id="modal-back">
+  <div class="modal-card">
+    <h3 data-i18n="modal.title">画像を保存</h3>
+    <p class="sub" data-i18n="modal.sub">お使いの端末では、画像を長押しして写真フォルダに保存してください。</p>
+    <div class="modal-img-wrap"><img id="modal-img" data-i18n-alt="modal.alt" alt="作成したコラージュ"></div>
+    <div class="modal-steps">
+      <div class="modal-step"><span class="num">1</span><span data-i18n="modal.step1">下の画像を指で長押しします</span></div>
+      <div class="modal-step"><span class="num">2</span><span data-i18n="modal.step2">表示されたメニューから「画像を保存」を選びます</span></div>
+      <div class="modal-step"><span class="num">3</span><span data-i18n="modal.step3">写真アプリに保存されたことを確認します</span></div>
+    </div>
+    <div class="modal-actions">
+      <button class="txt-btn" id="modal-tryfile" data-i18n="modal.tryfile">ファイルとして保存を試す</button>
+      <button class="txt-btn modal-close" id="modal-close" data-i18n="modal.close">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   1. GEOMETRY — polygon templates (0-100 normalized space)
+   ============================================================ */
+function clipHalf(poly, a, b, c){
+  const out=[];
+  const n=poly.length;
+  for(let i=0;i<n;i++){
+    const cur=poly[i], prev=poly[(i-1+n)%n];
+    const curIn  = a*cur[0]+b*cur[1]  <= c+1e-6;
+    const prevIn = a*prev[0]+b*prev[1] <= c+1e-6;
+    if(curIn){
+      if(!prevIn) out.push(intersect(prev,cur,a,b,c));
+      out.push(cur);
+    } else if(prevIn){
+      out.push(intersect(prev,cur,a,b,c));
+    }
+  }
+  return out;
+}
+function intersect(p1,p2,a,b,c){
+  const [x1,y1]=p1,[x2,y2]=p2;
+  const d1=a*x1+b*y1-c, d2=a*x2+b*y2-c;
+  const t = d1/(d1-d2);
+  return [x1+t*(x2-x1), y1+t*(y2-y1)];
+}
+const SQUARE=[[0,0],[100,0],[100,100],[0,100]];
+
+function splitVertical(n){
+  const cells=[];
+  for(let i=0;i<n;i++){
+    const x0=i*100/n, x1=(i+1)*100/n;
+    cells.push([[x0,0],[x1,0],[x1,100],[x0,100]]);
+  }
+  return cells;
+}
+function splitHorizontal(n){
+  const cells=[];
+  for(let i=0;i<n;i++){
+    const y0=i*100/n, y1=(i+1)*100/n;
+    cells.push([[0,y0],[100,y0],[100,y1],[0,y1]]);
+  }
+  return cells;
+}
+function grid2x2(){
+  return [
+    [[0,0],[50,0],[50,50],[0,50]],
+    [[50,0],[100,0],[100,50],[50,50]],
+    [[0,50],[50,50],[50,100],[0,100]],
+    [[50,50],[100,50],[100,100],[50,100]],
+  ];
+}
+function xCross(){
+  const c=[50,50];
+  return [
+    [[0,0],[100,0],c],
+    [[100,0],[100,100],c],
+    [[100,100],[0,100],c],
+    [[0,100],[0,0],c],
+  ];
+}
+function lShape3(){
+  return [
+    [[0,0],[50,0],[50,100],[0,100]],
+    [[50,0],[100,0],[100,50],[50,50]],
+    [[50,50],[100,50],[100,100],[50,100]],
+  ];
+}
+function diagStripes(n, dir){
+  const cells=[];
+  for(let i=0;i<n;i++){
+    let lo,hi,poly;
+    if(dir==='\\'){ // bands across x-y, range [-100,100]
+      lo=-100+i*200/n; hi=-100+(i+1)*200/n;
+      poly=clipHalf(clipHalf(SQUARE,1,-1,hi), -1,1,-lo);
+    } else { // '/'  bands across x+y, range [0,200]
+      lo=i*200/n; hi=(i+1)*200/n;
+      poly=clipHalf(clipHalf(SQUARE,1,1,hi), -1,-1,-lo);
+    }
+    cells.push(poly);
+  }
+  return cells;
+}
+function farBoundary(corner){
+  // returns {apex, pts:[{t,p}], total}
+  if(corner==='tl') return {apex:[0,0], pts:[{t:0,p:[100,0]},{t:100,p:[100,100]},{t:200,p:[0,100]}], total:200};
+  if(corner==='br') return {apex:[100,100], pts:[{t:0,p:[100,0]},{t:100,p:[0,0]},{t:200,p:[0,100]}], total:200};
+  if(corner==='tr') return {apex:[100,0], pts:[{t:0,p:[0,0]},{t:100,p:[0,100]},{t:200,p:[100,100]}], total:200};
+  return {apex:[0,100], pts:[{t:0,p:[0,0]},{t:100,p:[100,0]},{t:200,p:[100,100]}], total:200};
+}
+function farPointAt(t, pts){
+  for(let i=0;i<pts.length-1;i++){
+    if(t>=pts[i].t && t<=pts[i+1].t){
+      const seg=pts[i+1].t-pts[i].t;
+      const f = seg===0?0:(t-pts[i].t)/seg;
+      return [ pts[i].p[0]+f*(pts[i+1].p[0]-pts[i].p[0]), pts[i].p[1]+f*(pts[i+1].p[1]-pts[i].p[1]) ];
+    }
+  }
+  return pts[pts.length-1].p;
+}
+function fan(n, corner){
+  const {apex,pts,total}=farBoundary(corner);
+  const cells=[];
+  for(let i=0;i<n;i++){
+    const t0=i*total/n, t1=(i+1)*total/n;
+    const poly=[apex, farPointAt(t0,pts)];
+    for(const pt of pts){ if(pt.t>t0+1e-6 && pt.t<t1-1e-6) poly.push(pt.p); }
+    poly.push(farPointAt(t1,pts));
+    cells.push(poly);
+  }
+  return cells;
+}
+
+/* ---- weighted / asymmetric splits: one side deliberately larger ---- */
+function splitVerticalWeighted(weights){
+  const total=weights.reduce((a,b)=>a+b,0);
+  const cells=[]; let acc=0;
+  weights.forEach(wt=>{
+    const x0=acc/total*100; acc+=wt; const x1=acc/total*100;
+    cells.push([[x0,0],[x1,0],[x1,100],[x0,100]]);
+  });
+  return cells;
+}
+function splitHorizontalWeighted(weights){
+  const total=weights.reduce((a,b)=>a+b,0);
+  const cells=[]; let acc=0;
+  weights.forEach(wt=>{
+    const y0=acc/total*100; acc+=wt; const y1=acc/total*100;
+    cells.push([[0,y0],[100,y0],[100,y1],[0,y1]]);
+  });
+  return cells;
+}
+function bigPlusStack(bigSide, r, count){
+  // One big cell along `bigSide` ('left' or 'top') sized `r` (0-100),
+  // the remaining (count-1) cells split evenly in the leftover space.
+  const cells=[];
+  if(bigSide==='left'){
+    cells.push([[0,0],[r,0],[r,100],[0,100]]);
+    for(let i=0;i<count-1;i++){
+      const y0=i*100/(count-1), y1=(i+1)*100/(count-1);
+      cells.push([[r,y0],[100,y0],[100,y1],[r,y1]]);
+    }
+  } else {
+    cells.push([[0,0],[100,0],[100,r],[0,r]]);
+    for(let i=0;i<count-1;i++){
+      const x0=i*100/(count-1), x1=(i+1)*100/(count-1);
+      cells.push([[x0,r],[x1,r],[x1,100],[x0,100]]);
+    }
+  }
+  return cells;
+}
+function bigGrid4(r){
+  // 2x2 grid where the top-left quadrant is enlarged to r% (0-100).
+  return [
+    [[0,0],[r,0],[r,r],[0,r]],
+    [[r,0],[100,0],[100,r],[r,r]],
+    [[0,r],[r,r],[r,100],[0,100]],
+    [[r,r],[100,r],[100,100],[r,100]],
+  ];
+}
+
+const TEMPLATES = {
+  2: [
+    {id:'v2',   name:'縦2分割',       nameEn:'Vertical Split',        cells:splitVertical(2)},
+    {id:'h2',   name:'横2分割',       nameEn:'Horizontal Split',      cells:splitHorizontal(2)},
+    {id:'v2w',  name:'縦2分割（左大）', nameEn:'Vertical (Left Big)',  cells:splitVerticalWeighted([2,1])},
+    {id:'h2w',  name:'横2分割（上大）', nameEn:'Horizontal (Top Big)', cells:splitHorizontalWeighted([2,1])},
+    {id:'d2a',  name:'斜め分割',      nameEn:'Diagonal Split',        cells:diagStripes(2,'\\')},
+    {id:'d2b',  name:'斜め分割（逆）', nameEn:'Diagonal Split (Rev.)', cells:diagStripes(2,'/')},
+  ],
+  3: [
+    {id:'v3',   name:'縦3分割',    nameEn:'Vertical Split',            cells:splitVertical(3)},
+    {id:'h3',   name:'横3分割',    nameEn:'Horizontal Split',          cells:splitHorizontal(3)},
+    {id:'l3',   name:'L字3分割（左大）',   nameEn:'L-Shape (Left Big)', cells:lShape3()},
+    {id:'v3w',  name:'縦3分割（左大）', nameEn:'Vertical (Left Big)',  cells:splitVerticalWeighted([2,1,1])},
+    {id:'t3',   name:'T字3分割（上大）', nameEn:'T-Shape (Top Big)',   cells:bigPlusStack('top',60,3)},
+    {id:'fan3', name:'扇3分割',    nameEn:'Fan Split',                 cells:fan(3,'tl')},
+    {id:'d3a',  name:'斜めストライプ', nameEn:'Diagonal Stripes',      cells:diagStripes(3,'\\')},
+    {id:'d3b',  name:'斜めストライプ（逆）', nameEn:'Diagonal Stripes (Rev.)', cells:diagStripes(3,'/')},
+  ],
+  4: [
+    {id:'grid4',name:'2×2グリッド', nameEn:'2×2 Grid',                 cells:grid2x2()},
+    {id:'v4',   name:'縦4分割',     nameEn:'Vertical Split',           cells:splitVertical(4)},
+    {id:'h4',   name:'横4分割',     nameEn:'Horizontal Split',         cells:splitHorizontal(4)},
+    {id:'big4', name:'2×2グリッド（左上大）', nameEn:'2×2 Grid (Top-Left Big)', cells:bigGrid4(62)},
+    {id:'col4big', name:'縦4分割（左大）', nameEn:'Vertical (Left Big)', cells:bigPlusStack('left',55,4)},
+    {id:'row4big', name:'横4分割（上大）', nameEn:'Horizontal (Top Big)', cells:bigPlusStack('top',55,4)},
+    {id:'x4',   name:'クロス4分割', nameEn:'Cross Split',              cells:xCross()},
+    {id:'fan4', name:'扇4分割',     nameEn:'Fan Split',                cells:fan(4,'tl')},
+    {id:'d4a',  name:'斜めストライプ', nameEn:'Diagonal Stripes',      cells:diagStripes(4,'\\')},
+  ],
+};
+function tplName(tpl){ return lang==='en' ? tpl.nameEn : tpl.name; }
+
+function svgIcon(cells){
+  let s = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<rect x="2" y="2" width="96" height="96" rx="6" fill="var(--surface-3)" stroke="var(--line)" stroke-width="2"/>`;
+  for(const cell of cells){
+    const pts = cell.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    s += `<polygon points="${pts}" fill="none" stroke="var(--text-dim)" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+  }
+  s += `</svg>`;
+  return s;
+}
+function ratioIcon(w,h){
+  const box=30, pad=3;
+  let rw,rh;
+  if(w>=h){ rw=box-pad*2; rh=rw*h/w; } else { rh=box-pad*2; rw=rh*w/h; }
+  return `<span style="width:${rw.toFixed(1)}px;height:${rh.toFixed(1)}px;"></span>`;
+}
+
+/* ============================================================
+   2. STATE
+   ============================================================ */
+const RATIOS = [
+  {key:'1:1', w:1,h:1},
+  {key:'2:3', w:2,h:3},
+  {key:'3:2', w:3,h:2},
+  {key:'16:9',w:16,h:9},
+  {key:'9:16',w:9,h:16},
+];
+const MAX_ZOOM=4, MIN_ZOOM=0.3;
+
+const state = {
+  images: [],          // {id, url, imgEl, natW, natH, rotation, zoom, offX, offY}
+  ratioKey: '1:1',
+  templateId: null,
+  blur: 0,
+  copyright: { text:'© SQUARE ENIX', xPct:92, yPct:90, size:16, visible:true, color:'#ffffff' },
+  activeIndex: null,
+  frameW: 0, frameH: 0,
+};
+let uid=1;
+
+/* ============================================================
+   2b. I18N
+   ============================================================ */
+const I18N = {
+  ja: {
+    eyebrow:'Photo Collage / コンタクトシート・エディタ',
+    title:'フォトコラージュ・メーカー',
+    subtitle:'写真を2〜4枚アップロードして、分割テンプレート・比率・境界線のぼかしを自由に組み合わせたコラージュを作成できます。PC・スマートフォンどちらでもご利用いただけます。',
+    docTitle:'フォトコラージュ・メーカー',
+    's1.title':'画像をアップロード', 's1.desc':'2〜4枚の画像をアップロードしてください。枚数に応じて分割テンプレートが自動で切り替わります。',
+    's1.tap':'タップして画像を選択', 's1.dragdrop':'またはドラッグ&ドロップ（2〜4枚 / JPEG・PNG・HEIC）',
+    's2.title':'フレーム比率', 's2.desc':'コラージュ全体の縦横比を選びます。画像は比率に合わせて自動調整され、伸びたり歪んだりしません。',
+    's3.title':'分割テンプレート', 's3.desc':'画像の枚数に合わせて選べるテンプレートです。縦・横分割のほか、斜め分割やクロス分割も選べます。', 's3.empty':'画像を2枚以上アップロードすると表示されます',
+    's4.title':'境界線', 's4.desc':'画像同士の境界を、はっきりした線から自然にぼかした境界まで調整できます。', 's4.label':'境界のぼかし具合', 's4.sharp':'くっきり', 's4.soft':'自然にぼかす',
+    's5.title':'権利表記', 's5.desc':'右下にデフォルト配置される表記です。位置・文字サイズを調整したり、非表示にできます。プレビュー内をドラッグしても移動できます。',
+    's5.size':'文字サイズ', 's5.color':'文字色', 's5.hide':'権利表記を非表示にする', 's5.white':'白', 's5.gray':'灰', 's5.black':'黒',
+    'frame.hint':'セルをドラッグして位置を調整・ピンチ / スライダーで拡大縮小できます',
+    'adjust.selecting':'選択中', 'adjust.selectPrompt':'画像を選択してください', 'adjust.editing':n=>`IMG ${n} を編集中`,
+    'adjust.rotate':'回転', 'adjust.rotateTitle':'回転（縦横切替）', 'adjust.reset':'リセット',
+    'adjust.zoom':'拡大縮小', 'adjust.zoomMin':'30%（縮小）', 'adjust.zoomMax':'400%（拡大）',
+    'adjust.posx':'左右position', 'adjust.posy':'上下position', 'adjust.left':'◀ 左', 'adjust.right':'右 ▶', 'adjust.up':'▲ 上', 'adjust.down':'下 ▼',
+    'upload.count':n=>`${n} / 4`,
+    'upload.note':(n,remain)=> remain>0 ? `現在 <b>${n}枚</b> — あと${remain}枚で作成できます。` : `現在 <b>${n}枚</b> — 作成できます。`,
+    'upload.max':'画像は最大4枚までです。',
+    'upload.maxTrim':n=>`画像は最大4枚までのため、先頭${n}枚のみ追加しました。`,
+    'upload.loadError':name=>`画像を読み込めませんでした: ${name}`,
+    'thumb.up':'上へ', 'thumb.down':'下へ', 'thumb.swap':'差し替え', 'thumb.del':'削除',
+    'download.ready':'画像をダウンロード', 'download.needMore':'画像を2枚以上追加してください', 'download.tooMany':'画像は4枚までです', 'download.generating':'生成中…',
+    'modal.title':'画像を保存', 'modal.sub':'お使いの端末では、画像を長押しして写真フォルダに保存してください。', 'modal.alt':'作成したコラージュ',
+    'modal.step1':'下の画像を指で長押しします', 'modal.step2':'表示されたメニューから「画像を保存」を選びます', 'modal.step3':'写真アプリに保存されたことを確認します',
+    'modal.tryfile':'ファイルとして保存を試す', 'modal.close':'閉じる',
+  },
+  en: {
+    eyebrow:'Photo Collage / Contact-Sheet Editor',
+    title:'Photo Collage Maker',
+    subtitle:'Upload 2–4 photos and freely combine split templates, frame ratios, and edge feathering to build a collage. Works on both desktop and mobile.',
+    docTitle:'Photo Collage Maker',
+    's1.title':'Upload Photos', 's1.desc':'Upload 2–4 images. The available split templates update automatically to match how many you add.',
+    's1.tap':'Tap to choose photos', 's1.dragdrop':'or drag & drop (2–4 files / JPEG, PNG, HEIC)',
+    's2.title':'Frame Ratio', 's2.desc':'Choose the overall aspect ratio of the collage. Photos are auto-fitted to the ratio without stretching or distorting.',
+    's3.title':'Split Template', 's3.desc':'Templates available depend on how many photos you uploaded — vertical, horizontal, diagonal, and cross splits are all selectable.', 's3.empty':'Upload 2 or more photos to see templates',
+    's4.title':'Edge Blend', 's4.desc':'Adjust the border between photos, from a crisp hard edge to a soft, natural blend.', 's4.label':'Edge feather amount', 's4.sharp':'Crisp', 's4.soft':'Soft blend',
+    's5.title':'Copyright Notice', 's5.desc':'Placed bottom-right by default. Adjust its position and text size, or hide it entirely. You can also drag it directly in the preview.',
+    's5.size':'Text size', 's5.color':'Text color', 's5.hide':'Hide the copyright notice', 's5.white':'White', 's5.gray':'Gray', 's5.black':'Black',
+    'frame.hint':'Drag a cell to reposition it — pinch or use the sliders to zoom',
+    'adjust.selecting':'Selected', 'adjust.selectPrompt':'Select a photo to edit', 'adjust.editing':n=>`Editing IMG ${n}`,
+    'adjust.rotate':'Rotate', 'adjust.rotateTitle':'Rotate (switch orientation)', 'adjust.reset':'Reset',
+    'adjust.zoom':'Zoom', 'adjust.zoomMin':'30% (shrink)', 'adjust.zoomMax':'400% (enlarge)',
+    'adjust.posx':'Horizontal position', 'adjust.posy':'Vertical position', 'adjust.left':'◀ Left', 'adjust.right':'Right ▶', 'adjust.up':'▲ Up', 'adjust.down':'Down ▼',
+    'upload.count':n=>`${n} / 4`,
+    'upload.note':(n,remain)=> remain>0 ? `<b>${n} photo${n===1?'':'s'}</b> added — add ${remain} more to continue.` : `<b>${n} photos</b> added — ready to create.`,
+    'upload.max':'You can upload up to 4 photos.',
+    'upload.maxTrim':n=>`Only the first ${n} photo${n===1?'':'s'} were added (4 max).`,
+    'upload.loadError':name=>`Couldn't load this image: ${name}`,
+    'thumb.up':'Move up', 'thumb.down':'Move down', 'thumb.swap':'Replace', 'thumb.del':'Remove',
+    'download.ready':'Download Image', 'download.needMore':'Add 2 or more photos', 'download.tooMany':'Up to 4 photos allowed', 'download.generating':'Generating…',
+    'modal.title':'Save Image', 'modal.sub':'On this device, long-press the image below to save it to your photo library.', 'modal.alt':'Your finished collage',
+    'modal.step1':'Long-press the image below', 'modal.step2':'Choose "Save Image" from the menu', 'modal.step3':'Check that it was saved to your Photos app',
+    'modal.tryfile':'Try saving as a file', 'modal.close':'Close',
+  },
+};
+let lang = (navigator.language||'ja').toLowerCase().startsWith('ja') ? 'ja' : 'en';
+function t(key, ...args){
+  const entry = (I18N[lang] && I18N[lang][key]!==undefined) ? I18N[lang][key] : I18N.ja[key];
+  return typeof entry==='function' ? entry(...args) : entry;
+}
+function applyStaticI18n(){
+  document.documentElement.lang = lang;
+  document.title = t('docTitle');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el=>{ el.title = t(el.dataset.i18nTitle); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el=>{ el.setAttribute('aria-label', t(el.dataset.i18nAria)); });
+  document.querySelectorAll('[data-i18n-alt]').forEach(el=>{ el.alt = t(el.dataset.i18nAlt); });
+  document.querySelectorAll('#lang-switch button').forEach(b=>{ b.classList.toggle('active', b.dataset.lang===lang); });
+}
+
+/* ============================================================
+   3. DOM refs
+   ============================================================ */
+const $ = sel => document.querySelector(sel);
+const fileInput = $('#file-input');
+const uploadDrop = $('#upload-drop');
+const thumbList = $('#thumb-list');
+const uploadCount = $('#upload-count');
+const uploadNote = $('#upload-note');
+const langJaBtn = $('#lang-ja');
+const langEnBtn = $('#lang-en');
+const ratioGrid = $('#ratio-grid');
+const tplContainer = $('#tpl-container');
+const frameStage = $('#frame-stage');
+const frameEl = $('#frame');
+const maskDefsInner = $('#mask-defs-inner');
+const frameHint = $('#frame-hint');
+const adjustBox = $('#adjust-box');
+const adjustSelectedLabel = $('#adjust-selected-label');
+const zoomSlider = $('#zoom-slider');
+const zoomVal = $('#zoom-val');
+const posxSlider = $('#posx-slider');
+const posxVal = $('#posx-val');
+const posySlider = $('#posy-slider');
+const posyVal = $('#posy-val');
+const blurSlider = $('#blur-slider');
+const blurVal = $('#blur-val');
+const cwText = $('#cw-text');
+const cwColors = $('#cw-colors');
+const cwXSlider = $('#cw-x-slider');
+const cwXVal = $('#cw-x-val');
+const cwYSlider = $('#cw-y-slider');
+const cwYVal = $('#cw-y-val');
+const cwSize = $('#cw-size');
+const cwSizeVal = $('#cw-size-val');
+const cwHide = $('#cw-hide');
+const downloadBtn = $('#btn-download');
+const downloadLabel = $('#download-label');
+const exifRatio = $('#exif-ratio');
+const exifTpl = $('#exif-tpl');
+const exifBlur = $('#exif-blur');
+const exifCount = $('#exif-count');
+const modalBack = $('#modal-back');
+const modalImg = $('#modal-img');
+
+/* ============================================================
+   4. UPLOAD
+   ============================================================ */
+uploadDrop.addEventListener('click', ()=>fileInput.click());
+uploadDrop.addEventListener('dragover', e=>{e.preventDefault(); uploadDrop.classList.add('drag');});
+uploadDrop.addEventListener('dragleave', ()=>uploadDrop.classList.remove('drag'));
+uploadDrop.addEventListener('drop', e=>{
+  e.preventDefault(); uploadDrop.classList.remove('drag');
+  if(e.dataTransfer.files && e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e=>{
+  if(e.target.files && e.target.files.length) addFiles(e.target.files);
+  fileInput.value='';
+});
+
+function addFiles(fileList){
+  const files = Array.from(fileList).filter(f=>f.type.startsWith('image/'));
+  const slots = 4 - state.images.length;
+  if(slots<=0){ alert(t('upload.max')); return; }
+  const use = files.slice(0, slots);
+  if(files.length>slots) alert(t('upload.maxTrim', use.length));
+  use.forEach(loadFile);
+}
+function loadFile(file){
+  const url = URL.createObjectURL(file);
+  const imgEl = new Image();
+  imgEl.onload = ()=>{
+    state.images.push({
+      id: uid++, url, imgEl, natW: imgEl.naturalWidth, natH: imgEl.naturalHeight,
+      rotation:0, zoom:1, offX:0, offY:0, name:file.name,
+    });
+    onImagesChanged();
+  };
+  imgEl.onerror = ()=>{ alert(t('upload.loadError', file.name)); };
+  imgEl.src = url;
+}
+function removeImage(id){
+  const idx = state.images.findIndex(im=>im.id===id);
+  if(idx<0) return;
+  URL.revokeObjectURL(state.images[idx].url);
+  state.images.splice(idx,1);
+  if(state.activeIndex===idx) state.activeIndex=null;
+  onImagesChanged();
+}
+function moveImage(id, dir){
+  const idx = state.images.findIndex(im=>im.id===id);
+  const j = idx+dir;
+  if(idx<0||j<0||j>=state.images.length) return;
+  const tmp=state.images[idx]; state.images[idx]=state.images[j]; state.images[j]=tmp;
+  onImagesChanged();
+}
+function replaceImage(id){
+  const idx = state.images.findIndex(im=>im.id===id);
+  if(idx<0) return;
+  const inp = document.createElement('input');
+  inp.type='file'; inp.accept='image/*';
+  inp.onchange = ()=>{
+    if(!inp.files||!inp.files[0]) return;
+    const file=inp.files[0];
+    const url=URL.createObjectURL(file);
+    const imgEl=new Image();
+    imgEl.onload=()=>{
+      URL.revokeObjectURL(state.images[idx].url);
+      state.images[idx] = {id, url, imgEl, natW:imgEl.naturalWidth, natH:imgEl.naturalHeight, rotation:0, zoom:1, offX:0, offY:0, name:file.name};
+      onImagesChanged();
+    };
+    imgEl.src=url;
+  };
+  inp.click();
+}
+
+function iconTrash(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0v13a1 1 0 01-1 1H8a1 1 0 01-1-1V7h10z" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+function iconUp(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M12 5l-6 6M12 5l6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+function iconDown(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M12 19l-6-6M12 19l6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+function iconSwap(){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h13l-3-3M20 17H7l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+
+function renderThumbs(){
+  thumbList.innerHTML='';
+  state.images.forEach((im,i)=>{
+    const row=document.createElement('div');
+    row.className='thumb';
+    row.innerHTML = `
+      <span class="n">${i+1}</span>
+      <img src="${im.url}" alt="">
+      <span class="meta">${escapeHtml(im.name||'image')}</span>
+      <span class="actions">
+        <button class="icon-btn" data-act="up" title="${t('thumb.up')}" ${i===0?'disabled style="opacity:.3"':''}>${iconUp()}</button>
+        <button class="icon-btn" data-act="down" title="${t('thumb.down')}" ${i===state.images.length-1?'disabled style="opacity:.3"':''}>${iconDown()}</button>
+        <button class="icon-btn" data-act="swap" title="${t('thumb.swap')}">${iconSwap()}</button>
+        <button class="icon-btn danger" data-act="del" title="${t('thumb.del')}">${iconTrash()}</button>
+      </span>`;
+    row.querySelector('[data-act="up"]').addEventListener('click', ()=>moveImage(im.id,-1));
+    row.querySelector('[data-act="down"]').addEventListener('click', ()=>moveImage(im.id,1));
+    row.querySelector('[data-act="swap"]').addEventListener('click', ()=>replaceImage(im.id));
+    row.querySelector('[data-act="del"]').addEventListener('click', ()=>removeImage(im.id));
+    thumbList.appendChild(row);
+  });
+  uploadCount.textContent = t('upload.count', state.images.length);
+  const remain = Math.max(0, 2-state.images.length);
+  uploadNote.innerHTML = t('upload.note', state.images.length, remain);
+  uploadDrop.style.display = state.images.length>=4 ? 'none':'block';
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function onImagesChanged(){
+  renderThumbs();
+  const count = state.images.length;
+  if(count>=2 && count<=4){
+    const list = TEMPLATES[count];
+    if(!list.find(tpl=>tpl.id===state.templateId)) state.templateId = list[0].id;
+  } else {
+    state.templateId = null;
+  }
+  if(state.activeIndex!==null && state.activeIndex>=count) state.activeIndex=null;
+  renderTemplateButtons();
+  updateDownloadState();
+  renderFrame();
+}
+
+/* ============================================================
+   5. RATIO
+   ============================================================ */
+function renderRatioButtons(){
+  ratioGrid.innerHTML='';
+  RATIOS.forEach(r=>{
+    const btn=document.createElement('button');
+    btn.className='ratio-btn'+(state.ratioKey===r.key?' active':'');
+    btn.innerHTML = `<span class="swatch">${ratioIcon(r.w,r.h)}</span><span class="lbl">${r.key}</span>`;
+    btn.addEventListener('click', ()=>{ state.ratioKey=r.key; renderRatioButtons(); renderFrame(); });
+    ratioGrid.appendChild(btn);
+  });
+}
+
+/* ============================================================
+   6. TEMPLATE
+   ============================================================ */
+function renderTemplateButtons(){
+  const count = state.images.length;
+  if(count<2 || count>4){
+    tplContainer.innerHTML = `<div class="tpl-empty">${t('s3.empty')}</div>`;
+    return;
+  }
+  const list = TEMPLATES[count];
+  const grid=document.createElement('div');
+  grid.className='tpl-grid';
+  list.forEach(tpl=>{
+    const btn=document.createElement('button');
+    btn.className='tpl-btn'+(state.templateId===tpl.id?' active':'');
+    btn.innerHTML = svgIcon(tpl.cells) + `<span class="lbl">${tplName(tpl)}</span>`;
+    btn.addEventListener('click', ()=>{ state.templateId=tpl.id; renderTemplateButtons(); renderFrame(); });
+    grid.appendChild(btn);
+  });
+  tplContainer.innerHTML='';
+  tplContainer.appendChild(grid);
+}
+
+function currentTemplate(){
+  const count = state.images.length;
+  if(count<2||count>4) return null;
+  return TEMPLATES[count].find(tpl=>tpl.id===state.templateId) || TEMPLATES[count][0];
+}
+
+/* ============================================================
+   7. FRAME SIZING + RENDER
+   ============================================================ */
+function currentRatio(){ return RATIOS.find(r=>r.key===state.ratioKey) || RATIOS[0]; }
+
+function computeFrameSize(){
+  const r = currentRatio();
+  const stageW = frameStage.clientWidth || 320;
+  const maxW = Math.min(stageW, 560);
+  const maxH = Math.min(window.innerHeight*0.62, 640);
+  let w,h;
+  if(maxW/maxH > r.w/r.h){ h=maxH; w=h*r.w/r.h; } else { w=maxW; h=w*r.h/r.w; }
+  return {w:Math.round(w), h:Math.round(h)};
+}
+
+function layoutImage(im, boxRotSwapW, boxRotSwapH){
+  const scale = Math.max(boxRotSwapW/im.natW, boxRotSwapH/im.natH);
+  const w = im.natW*scale, h = im.natH*scale;
+  const zw = w*im.zoom, zh = h*im.zoom;
+  // Pan range is floored to a fraction of the box size so both axes stay
+  // movable even when the image exactly (or more than) covers the cell —
+  // e.g. at 100% zoom one axis often has zero true "excess" and would
+  // otherwise be completely locked.
+  const panRangeX = Math.max(Math.abs(zw-boxRotSwapW), boxRotSwapW*0.6);
+  const panRangeY = Math.max(Math.abs(zh-boxRotSwapH), boxRotSwapH*0.6);
+  const panX = im.offX*panRangeX, panY = im.offY*panRangeY;
+  return {w,h,panX,panY,panRangeX,panRangeY};
+}
+
+// Each cell's polygon only covers part of the frame (e.g. one column of a
+// 4-way split). The image inside must be fit/centered against that cell's
+// own bounding box — not the full frame — otherwise cover-fit sizing and
+// pan range are computed against a box several times larger than what's
+// actually visible, which is what made panning reach one edge but stall
+// far short of the other.
+function cellBBox(cellPts, fw, fh){
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  cellPts.forEach(p=>{
+    const px=p[0]/100*fw, py=p[1]/100*fh;
+    if(px<x0)x0=px; if(px>x1)x1=px;
+    if(py<y0)y0=py; if(py>y1)y1=py;
+  });
+  return {x0,y0,x1,y1,w:x1-x0,h:y1-y0,cx:(x0+x1)/2,cy:(y0+y1)/2};
+}
+function cellBoxDims(bbox, rotation){
+  const rotSwap=(rotation%180)!==0;
+  return { boxW: rotSwap? bbox.h:bbox.w, boxH: rotSwap? bbox.w:bbox.h };
+}
+
+function renderFrame(){
+  const tpl = currentTemplate();
+  const r = currentRatio();
+  const {w:fw,h:fh} = computeFrameSize();
+  state.frameW=fw; state.frameH=fh;
+
+  frameEl.style.width=fw+'px';
+  frameEl.style.height=fh+'px';
+
+  // clear (keep mask defs svg)
+  Array.from(frameEl.querySelectorAll('.cell')).forEach(n=>n.remove());
+  Array.from(frameEl.querySelectorAll('.copy-el')).forEach(n=>n.remove());
+  maskDefsInner.innerHTML='';
+
+  exifRatio.textContent = r.key;
+  exifCount.textContent = state.images.length;
+  exifBlur.textContent = state.blur+'px';
+  exifTpl.textContent = tpl ? tplName(tpl) : '—';
+
+  if(!tpl || state.images.length<2){
+    frameHint.style.display='none';
+    return;
+  }
+  frameHint.style.display='block';
+
+  tpl.cells.forEach((cellPts, i)=>{
+    const im = state.images[i];
+    if(!im) return;
+    const cell=document.createElement('div');
+    cell.className='cell'+(state.activeIndex===i?' selected':'');
+    cell.dataset.index=i;
+
+    const pctPoly = 'polygon('+cellPts.map(p=>p[0].toFixed(2)+'% '+p[1].toFixed(2)+'%').join(',')+')';
+
+    if(state.blur>0){
+      const pxPts = cellPts.map(p=>[(p[0]/100*fw).toFixed(1),(p[1]/100*fh).toFixed(1)].join(',')).join(' ');
+      const fid='feather-'+i, mid='mask-'+i;
+      maskDefsInner.innerHTML += `
+        <filter id="${fid}" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="${state.blur}"/>
+        </filter>
+        <mask id="${mid}" maskUnits="userSpaceOnUse" x="0" y="0" width="${fw}" height="${fh}">
+          <polygon points="${pxPts}" fill="#fff" filter="url(#${fid})"/>
+        </mask>`;
+      cell.style.clipPath='none';
+      cell.style.webkitClipPath='none';
+      cell.style.mask=`url(#${mid})`;
+      cell.style.webkitMask=`url(#${mid})`;
+    } else {
+      cell.style.clipPath=pctPoly;
+      cell.style.webkitClipPath=pctPoly;
+      cell.style.mask='none';
+      cell.style.webkitMask='none';
+    }
+
+    const bbox = cellBBox(cellPts, fw, fh);
+    const {boxW, boxH} = cellBoxDims(bbox, im.rotation);
+    const {w,h,panX,panY} = layoutImage(im, boxW, boxH);
+
+    const rotWrap=document.createElement('div');
+    rotWrap.className='rot-wrap';
+    rotWrap.style.left=bbox.cx+'px'; rotWrap.style.top=bbox.cy+'px';
+    rotWrap.style.width=boxW+'px'; rotWrap.style.height=boxH+'px';
+    rotWrap.style.transform=`translate(-50%,-50%) rotate(${im.rotation}deg)`;
+
+    const imgEl=document.createElement('img');
+    imgEl.src=im.url;
+    imgEl.style.width=w+'px'; imgEl.style.height=h+'px';
+    imgEl.style.transform=`translate(-50%,-50%) translate(${panX}px,${panY}px) scale(${im.zoom})`;
+    imgEl.draggable=false;
+
+    rotWrap.appendChild(imgEl);
+    cell.appendChild(rotWrap);
+
+    const tag=document.createElement('span');
+    tag.className='cell-tag';
+    tag.textContent = 'IMG '+(i+1);
+    cell.appendChild(tag);
+
+    frameEl.appendChild(cell);
+  });
+
+  renderCopyright();
+  updateAdjustPanel();
+}
+
+/* ============================================================
+   8. IMAGE PAN / ZOOM / ROTATE interactions
+   ------------------------------------------------------------
+   Hit testing is done manually with point-in-polygon against the
+   template's own geometry, on a SINGLE listener on the frame.
+   (CSS `mask` — used for the feathered-edge cells — does not
+   participate in hit testing the way `clip-path` does, so relying
+   on per-cell DOM elements meant only the topmost cell in the
+   stacking order could ever receive pointer events once blur > 0.
+   Testing against the polygon data directly sidesteps that and
+   works identically whether blur is 0 or not.)
+   ============================================================ */
+function pointInPolygon(x, y, poly){
+  let inside=false;
+  for(let i=0, j=poly.length-1; i<poly.length; j=i++){
+    const xi=poly[i][0], yi=poly[i][1], xj=poly[j][0], yj=poly[j][1];
+    const hit = ((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi);
+    if(hit) inside=!inside;
+  }
+  return inside;
+}
+function hitTestCell(px, py){
+  const tpl = currentTemplate();
+  if(!tpl) return null;
+  for(let i=0;i<tpl.cells.length;i++){
+    if(!state.images[i]) continue;
+    const pts = tpl.cells[i].map(p=>[p[0]/100*state.frameW, p[1]/100*state.frameH]);
+    if(pointInPolygon(px,py,pts)) return i;
+  }
+  return null;
+}
+
+const activePointers = new Map(); // pointerId -> {x,y}
+let dragMode=null;      // 'pan' | 'pinch'
+let panStart=null;      // {offX,offY,x,y}
+let pinchStart=null;    // {dist, zoom}
+let dragCellIndex=null;
+
+frameEl.addEventListener('pointerdown', e=>{
+  if(e.target.closest('.copy-el')) return; // copyright label handles its own drag
+  const rect = frameEl.getBoundingClientRect();
+  const px = e.clientX-rect.left, py = e.clientY-rect.top;
+  if(activePointers.size===0){
+    const idx = hitTestCell(px,py);
+    if(idx===null) return;
+    dragCellIndex = idx;
+    state.activeIndex = idx;
+    document.querySelectorAll('.frame .cell').forEach(c=>c.classList.toggle('selected', +c.dataset.index===idx));
+    updateAdjustPanel();
+  }
+  if(dragCellIndex===null) return;
+  frameEl.setPointerCapture(e.pointerId);
+  activePointers.set(e.pointerId, {x:e.clientX,y:e.clientY});
+  const im = state.images[dragCellIndex];
+  if(!im) return;
+  if(activePointers.size===1){
+    dragMode='pan';
+    panStart={offX:im.offX, offY:im.offY, x:e.clientX, y:e.clientY};
+  } else if(activePointers.size===2){
+    dragMode='pinch';
+    const pts=[...activePointers.values()];
+    pinchStart={dist:dist(pts[0],pts[1]), zoom:im.zoom};
+  }
+});
+frameEl.addEventListener('pointermove', e=>{
+  if(dragCellIndex===null || !activePointers.has(e.pointerId)) return;
+  activePointers.set(e.pointerId, {x:e.clientX,y:e.clientY});
+  const im = state.images[dragCellIndex];
+  if(!im) return;
+  if(dragMode==='pan' && activePointers.size===1){
+    const tpl = currentTemplate();
+    const bbox = cellBBox(tpl.cells[dragCellIndex], state.frameW, state.frameH);
+    const {boxW,boxH} = cellBoxDims(bbox, im.rotation);
+    const {panRangeX,panRangeY}=layoutImage(im, boxW, boxH);
+    let dx=e.clientX-panStart.x, dy=e.clientY-panStart.y;
+    const rad=-im.rotation*Math.PI/180;
+    const ldx = dx*Math.cos(rad)-dy*Math.sin(rad);
+    const ldy = dx*Math.sin(rad)+dy*Math.cos(rad);
+    im.offX = clamp(panStart.offX + (panRangeX>0? ldx/panRangeX:0), -0.5, 0.5);
+    im.offY = clamp(panStart.offY + (panRangeY>0? ldy/panRangeY:0), -0.5, 0.5);
+    renderFrame();
+  } else if(dragMode==='pinch' && activePointers.size===2){
+    const pts=[...activePointers.values()];
+    const d = dist(pts[0],pts[1]);
+    const ratio = pinchStart.dist>0 ? d/pinchStart.dist : 1;
+    im.zoom = clamp(pinchStart.zoom*ratio, MIN_ZOOM, MAX_ZOOM);
+    renderFrame();
+  }
+});
+function endPointer(e){
+  if(!activePointers.has(e.pointerId)) return;
+  activePointers.delete(e.pointerId);
+  if(activePointers.size===1 && dragMode==='pinch'){
+    const im=state.images[dragCellIndex];
+    const remaining=[...activePointers.values()][0];
+    dragMode='pan';
+    panStart={offX:im.offX, offY:im.offY, x:remaining.x, y:remaining.y};
+  } else if(activePointers.size===0){
+    dragMode=null; dragCellIndex=null;
+  }
+}
+frameEl.addEventListener('pointerup', endPointer);
+frameEl.addEventListener('pointercancel', endPointer);
+
+function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+function clamp(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
+
+/* ============================================================
+   9. ADJUST PANEL (sliders)
+   ============================================================ */
+function updateAdjustPanel(){
+  const im = state.activeIndex!==null ? state.images[state.activeIndex] : null;
+  if(!im){
+    adjustBox.classList.add('disabled');
+    adjustSelectedLabel.textContent=t('adjust.selectPrompt');
+    return;
+  }
+  adjustBox.classList.remove('disabled');
+  adjustSelectedLabel.textContent = t('adjust.editing', state.activeIndex+1);
+  syncAdjustSliders();
+}
+function syncAdjustSliders(){
+  const im = state.activeIndex!==null ? state.images[state.activeIndex] : null;
+  const z = im ? Math.round(im.zoom*100) : 100;
+  zoomSlider.value=z; zoomVal.textContent=z+'%';
+  const px = im ? Math.round(im.offX*100) : 0;
+  const py = im ? Math.round(im.offY*100) : 0;
+  posxSlider.value=px; posxVal.textContent=px;
+  posySlider.value=py; posyVal.textContent=py;
+}
+function withActive(fn){
+  if(state.activeIndex===null) return;
+  const im = state.images[state.activeIndex];
+  if(!im) return;
+  fn(im);
+  renderFrame();
+}
+$('#btn-rotate').addEventListener('click', ()=>withActive(im=>{ im.rotation=(im.rotation+90)%360; }));
+$('#btn-reset-img').addEventListener('click', ()=>withActive(im=>{ im.zoom=1; im.offX=0; im.offY=0; }));
+zoomSlider.addEventListener('input', ()=>{
+  zoomVal.textContent=zoomSlider.value+'%';
+  withActive(im=>{ im.zoom=clamp(zoomSlider.value/100, MIN_ZOOM, MAX_ZOOM); });
+});
+posxSlider.addEventListener('input', ()=>{
+  posxVal.textContent=posxSlider.value;
+  withActive(im=>{ im.offX=clamp(posxSlider.value/100, -0.5, 0.5); });
+});
+posySlider.addEventListener('input', ()=>{
+  posyVal.textContent=posySlider.value;
+  withActive(im=>{ im.offY=clamp(posySlider.value/100, -0.5, 0.5); });
+});
+
+/* ============================================================
+   10. BLUR SLIDER
+   ============================================================ */
+blurSlider.addEventListener('input', ()=>{
+  state.blur = +blurSlider.value;
+  blurVal.textContent = state.blur+'px'+(state.blur===0?' ('+t('s4.sharp')+')':state.blur>=28?' ('+t('s4.soft')+')':'');
+  renderFrame();
+});
+
+/* ============================================================
+   11. COPYRIGHT
+   ============================================================ */
+function renderCopyright(){
+  const c = state.copyright;
+  const el=document.createElement('div');
+  el.className='copy-el'+(c.visible?'':' hidden-el');
+  el.textContent = c.text;
+  el.style.left = c.xPct+'%';
+  el.style.top = c.yPct+'%';
+  el.style.fontSize = c.size+'px';
+  el.style.color = c.color;
+  const outline = c.color==='#000000' ? 'rgba(255,255,255,.85)' : 'rgba(0,0,0,.65)';
+  el.style.webkitTextStroke = '1px '+outline;
+  el.style.textShadow = c.color==='#000000'
+    ? '0 0 4px rgba(255,255,255,.5), 0 1px 2px rgba(255,255,255,.4)'
+    : '0 1px 3px rgba(0,0,0,.7), 0 0 8px rgba(0,0,0,.35)';
+  el.addEventListener('pointerdown', e=>{
+    e.stopPropagation();
+    el.setPointerCapture(e.pointerId);
+    el.classList.add('dragging');
+    const startX=e.clientX, startY=e.clientY, sx=c.xPct, sy=c.yPct;
+    function move(ev){
+      const dx=(ev.clientX-startX)/state.frameW*100;
+      const dy=(ev.clientY-startY)/state.frameH*100;
+      c.xPct=clamp(sx+dx,2,98); c.yPct=clamp(sy+dy,2,98);
+      el.style.left=c.xPct+'%'; el.style.top=c.yPct+'%';
+      cwXSlider.value=Math.round(c.xPct); cwXVal.textContent=Math.round(c.xPct);
+      cwYSlider.value=Math.round(c.yPct); cwYVal.textContent=Math.round(c.yPct);
+    }
+    function up(ev){
+      el.removeEventListener('pointermove', move);
+      el.removeEventListener('pointerup', up);
+      el.classList.remove('dragging');
+    }
+    el.addEventListener('pointermove', move);
+    el.addEventListener('pointerup', up);
+  });
+  frameEl.appendChild(el);
+  cwXSlider.value=Math.round(c.xPct); cwXVal.textContent=Math.round(c.xPct);
+  cwYSlider.value=Math.round(c.yPct); cwYVal.textContent=Math.round(c.yPct);
+}
+cwColors.addEventListener('click', e=>{
+  const btn = e.target.closest('.cw-swatch');
+  if(!btn) return;
+  state.copyright.color = btn.dataset.color;
+  cwColors.querySelectorAll('.cw-swatch').forEach(b=>b.classList.toggle('active', b===btn));
+  renderFrame();
+});
+cwText.addEventListener('input', ()=>{ state.copyright.text=cwText.value||'© SQUARE ENIX'; renderFrame(); });
+cwSize.addEventListener('input', ()=>{ state.copyright.size=+cwSize.value; cwSizeVal.textContent=cwSize.value+'px'; renderFrame(); });
+cwHide.addEventListener('change', ()=>{ state.copyright.visible=!cwHide.checked; renderFrame(); });
+cwXSlider.addEventListener('input', ()=>{ state.copyright.xPct=+cwXSlider.value; cwXVal.textContent=cwXSlider.value; renderFrame(); });
+cwYSlider.addEventListener('input', ()=>{ state.copyright.yPct=+cwYSlider.value; cwYVal.textContent=cwYSlider.value; renderFrame(); });
+
+/* ============================================================
+   12. DOWNLOAD STATE
+   ============================================================ */
+function updateDownloadState(){
+  const count=state.images.length;
+  const ok = count>=2 && count<=4;
+  downloadBtn.disabled=!ok;
+  downloadLabel.textContent = ok ? t('download.ready') : (count<2?t('download.needMore'):t('download.tooMany'));
+}
+
+/* ============================================================
+   13. MANUAL BOX BLUR (unified PC / mobile behaviour)
+   ------------------------------------------------------------
+   Canvas 2D `ctx.filter` blur support/behaviour is inconsistent
+   across mobile and desktop browsers, so the feathered edge for
+   the exported image is produced with a hand-rolled box blur
+   applied to the mask's alpha channel instead — this guarantees
+   the exact same pixel result on PC and on iOS/Android.
+   ============================================================ */
+function boxBlurPass(src, w, h, radius){
+  if(radius<1) return src;
+  const out = new Uint8ClampedArray(src.length);
+  const win = radius*2+1;
+  // horizontal
+  const tmp = new Uint8ClampedArray(src.length);
+  for(let y=0;y<h;y++){
+    const row=y*w*4;
+    let r=0,g=0,b=0,a=0;
+    for(let x=-radius;x<=radius;x++){
+      const xx=Math.min(w-1,Math.max(0,x));
+      const idx=row+xx*4;
+      r+=src[idx]; g+=src[idx+1]; b+=src[idx+2]; a+=src[idx+3];
+    }
+    for(let x=0;x<w;x++){
+      const idx=row+x*4;
+      tmp[idx]=r/win; tmp[idx+1]=g/win; tmp[idx+2]=b/win; tmp[idx+3]=a/win;
+      const xAdd=Math.min(w-1,x+radius+1), xSub=Math.max(0,x-radius);
+      const idxA=row+xAdd*4, idxS=row+xSub*4;
+      r+=src[idxA]-src[idxS]; g+=src[idxA+1]-src[idxS+1]; b+=src[idxA+2]-src[idxS+2]; a+=src[idxA+3]-src[idxS+3];
+    }
+  }
+  // vertical
+  for(let x=0;x<w;x++){
+    let r=0,g=0,b=0,a=0;
+    for(let y=-radius;y<=radius;y++){
+      const yy=Math.min(h-1,Math.max(0,y));
+      const idx=(yy*w+x)*4;
+      r+=tmp[idx]; g+=tmp[idx+1]; b+=tmp[idx+2]; a+=tmp[idx+3];
+    }
+    for(let y=0;y<h;y++){
+      const idx=(y*w+x)*4;
+      out[idx]=r/win; out[idx+1]=g/win; out[idx+2]=b/win; out[idx+3]=a/win;
+      const yAdd=Math.min(h-1,y+radius+1), ySub=Math.max(0,y-radius);
+      const idxA=(yAdd*w+x)*4, idxS=(ySub*w+x)*4;
+      r+=tmp[idxA]-tmp[idxS]; g+=tmp[idxA+1]-tmp[idxS+1]; b+=tmp[idxA+2]-tmp[idxS+2]; a+=tmp[idxA+3]-tmp[idxS+3];
+    }
+  }
+  return out;
+}
+function boxBlurImageData(imageData, radius, passes){
+  let d = imageData.data;
+  for(let p=0;p<passes;p++){
+    d = boxBlurPass(d, imageData.width, imageData.height, radius);
+  }
+  imageData.data.set(d);
+  return imageData;
+}
+
+/* ============================================================
+   14. CANVAS EXPORT
+   ============================================================ */
+function drawPhotoOnCtx(ctx, im, bbox){
+  const {boxW,boxH} = cellBoxDims(bbox, im.rotation);
+  const {w,h,panX,panY} = layoutImage(im, boxW, boxH);
+  // Preview (DOM) applies zoom via CSS `scale(${im.zoom})` on top of the
+  // base w×h box, centered on (panX,panY). The export path was drawing
+  // at the un-zoomed w×h size, so any image with zoom !== 1 rendered at
+  // the wrong size *and* wrong position relative to its pan offset —
+  // that's the ズレ (and why a heavily zoomed photo could end up pushed
+  // almost entirely out of its cell).
+  const zw = w*im.zoom, zh = h*im.zoom;
+  ctx.save();
+  ctx.translate(bbox.cx, bbox.cy);
+  ctx.rotate(im.rotation*Math.PI/180);
+  ctx.translate(panX, panY);
+  ctx.drawImage(im.imgEl, -zw/2, -zh/2, zw, zh);
+  ctx.restore();
+}
+
+async function buildExportCanvas(){
+  const tpl = currentTemplate();
+  const r = currentRatio();
+  if(!tpl) return null;
+
+  const baseLong = 1500;
+  const dpr = Math.min(window.devicePixelRatio||1, 1.5);
+  let longEdge = Math.min(1900, Math.round(baseLong*dpr));
+  let fw,fh;
+  if(r.w>=r.h){ fw=longEdge; fh=Math.round(longEdge*r.h/r.w); }
+  else { fh=longEdge; fw=Math.round(longEdge*r.w/r.h); }
+
+  const scaleFactor = fw/state.frameW;
+
+  const out = document.createElement('canvas');
+  out.width=fw; out.height=fh;
+  const octx = out.getContext('2d');
+  octx.imageSmoothingQuality='high';
+
+  const exportRadius = Math.round(state.blur*scaleFactor);
+
+  tpl.cells.forEach((cellPts, i)=>{
+    const im = state.images[i];
+    if(!im) return;
+    const pxPts = cellPts.map(p=>[p[0]/100*fw, p[1]/100*fh]);
+    const bbox = cellBBox(cellPts, fw, fh);
+
+    if(exportRadius<=0){
+      octx.save();
+      const path=new Path2D();
+      pxPts.forEach((p,idx)=> idx===0?path.moveTo(p[0],p[1]):path.lineTo(p[0],p[1]));
+      path.closePath();
+      octx.clip(path);
+      drawPhotoOnCtx(octx, im, bbox);
+      octx.restore();
+    } else {
+      const maskCanvas=document.createElement('canvas');
+      maskCanvas.width=fw; maskCanvas.height=fh;
+      const mctx=maskCanvas.getContext('2d');
+      mctx.fillStyle='#fff';
+      mctx.beginPath();
+      pxPts.forEach((p,idx)=> idx===0?mctx.moveTo(p[0],p[1]):mctx.lineTo(p[0],p[1]));
+      mctx.closePath(); mctx.fill();
+      const imgData = mctx.getImageData(0,0,fw,fh);
+      boxBlurImageData(imgData, Math.max(1,Math.round(exportRadius/2)), 3);
+      mctx.putImageData(imgData,0,0);
+
+      const imgCanvas=document.createElement('canvas');
+      imgCanvas.width=fw; imgCanvas.height=fh;
+      const ictx=imgCanvas.getContext('2d');
+      drawPhotoOnCtx(ictx, im, bbox);
+      ictx.globalCompositeOperation='destination-in';
+      ictx.drawImage(maskCanvas,0,0);
+
+      octx.drawImage(imgCanvas,0,0);
+    }
+  });
+
+  const c = state.copyright;
+  if(c.visible && c.text.trim()){
+    const fs = c.size*scaleFactor;
+    octx.save();
+    octx.font = `700 ${fs}px 'Zen Kaku Gothic New', sans-serif`;
+    octx.textAlign='right';
+    octx.textBaseline='alphabetic';
+    const x=c.xPct/100*fw, y=c.yPct/100*fh;
+    octx.lineWidth=Math.max(2,fs*0.16);
+    octx.strokeStyle = c.color==='#000000' ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.55)';
+    octx.strokeText(c.text, x, y);
+    octx.fillStyle = c.color;
+    octx.fillText(c.text, x, y);
+    octx.restore();
+  }
+  return out;
+}
+
+/* ============================================================
+   15. DOWNLOAD (PC direct / mobile long-press popup)
+   ============================================================ */
+function isMobileDevice(){
+  const ua=navigator.userAgent||'';
+  const touchMac = /Macintosh/.test(ua) && navigator.maxTouchPoints>1;
+  return /Android|iPhone|iPad|iPod/i.test(ua) || touchMac;
+}
+function fileNameStamp(){
+  const d=new Date();
+  const p=n=>String(n).padStart(2,'0');
+  return `collage_${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}.png`;
+}
+downloadBtn.addEventListener('click', async ()=>{
+  if(downloadBtn.disabled) return;
+  const prevLabel=downloadLabel.textContent;
+  downloadBtn.disabled=true; downloadLabel.textContent=t('download.generating');
+  try{
+    const canvas = await buildExportCanvas();
+    if(!canvas) return;
+    const dataUrl = canvas.toDataURL('image/png');
+    if(isMobileDevice()){
+      modalImg.src=dataUrl;
+      modalBack.classList.add('open');
+      modalBack.dataset.dataurl=dataUrl;
+    } else {
+      const a=document.createElement('a');
+      a.href=dataUrl; a.download=fileNameStamp();
+      document.body.appendChild(a); a.click(); a.remove();
+    }
+  } finally {
+    downloadBtn.disabled=false; downloadLabel.textContent=prevLabel;
+  }
+});
+$('#modal-close').addEventListener('click', ()=>modalBack.classList.remove('open'));
+modalBack.addEventListener('click', e=>{ if(e.target===modalBack) modalBack.classList.remove('open'); });
+$('#modal-tryfile').addEventListener('click', ()=>{
+  const dataUrl = modalBack.dataset.dataurl;
+  if(!dataUrl) return;
+  const a=document.createElement('a');
+  a.href=dataUrl; a.download=fileNameStamp();
+  document.body.appendChild(a); a.click(); a.remove();
+});
+
+/* ============================================================
+   16. RESIZE
+   ============================================================ */
+let resizeTimer=null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(renderFrame, 120);
+});
+window.addEventListener('orientationchange', ()=> setTimeout(renderFrame, 200));
+
+/* ============================================================
+   17. INIT
+   ============================================================ */
+function setLang(newLang){
+  if(newLang!==('ja') && newLang!=='en') return;
+  lang = newLang;
+  applyStaticI18n();
+  renderThumbs();
+  renderTemplateButtons();
+  updateDownloadState();
+  updateAdjustPanel();
+  renderFrame();
+}
+langJaBtn.addEventListener('click', ()=>setLang('ja'));
+langEnBtn.addEventListener('click', ()=>setLang('en'));
+
+function init(){
+  applyStaticI18n();
+  renderRatioButtons();
+  renderThumbs();
+  renderTemplateButtons();
+  updateDownloadState();
+  renderFrame();
+}
+init();
+
+})();
+</script>
+</body>
+</html>
