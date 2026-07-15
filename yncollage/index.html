@@ -294,9 +294,9 @@ input[type=text].cw-text:focus{outline:none;border-color:var(--accent-dim);}
 <div class="wrap">
   <header class="app-header">
     <div class="app-header-main">
-      <div class="eyebrow" data-i18n="eyebrow">Photo Collage / コンタクトシート・エディタ</div>
+      <div class="eyebrow" data-i18n="eyebrow">Photo Collage</div>
       <h1 data-i18n="title">フォトコラージュ・メーカー</h1>
-      <p data-i18n="subtitle">写真を2〜4枚アップロードして、分割テンプレート・比率・境界線のぼかしを自由に組み合わせたコラージュを作成できます。PC・スマートフォンどちらでもご利用いただけます。</p>
+      <p data-i18n="subtitle">写真を2〜4枚でコラージュを作成。</p>
     </div>
     <div class="lang-switch" id="lang-switch">
       <button type="button" data-lang="ja" id="lang-ja">日本語</button>
@@ -332,7 +332,7 @@ input[type=text].cw-text:focus{outline:none;border-color:var(--accent-dim);}
           <div class="step-num">02</div>
           <div class="step-title" data-i18n="s2.title">フレーム比率</div>
         </div>
-        <div class="step-desc" data-i18n="s2.desc">コラージュ全体の縦横比を選びます。画像は比率に合わせて自動調整され、伸びたり歪んだりしません。</div>
+        <div class="step-desc" data-i18n="s2.desc">コラージュ全体の縦横比を選びます。画像は比率に合わせて自動調整されます。</div>
         <div class="ratio-grid" id="ratio-grid"></div>
       </section>
 
@@ -341,7 +341,7 @@ input[type=text].cw-text:focus{outline:none;border-color:var(--accent-dim);}
           <div class="step-num">03</div>
           <div class="step-title" data-i18n="s3.title">分割テンプレート</div>
         </div>
-        <div class="step-desc" data-i18n="s3.desc">画像の枚数に合わせて選べるテンプレートです。縦・横分割のほか、斜め分割やクロス分割も選べます。</div>
+        <div class="step-desc" data-i18n="s3.desc">画像の枚数に合わせて選べるテンプレートです。</div>
         <div id="tpl-container"><div class="tpl-empty" data-i18n="s3.empty">画像を2枚以上アップロードすると表示されます</div></div>
       </section>
 
@@ -381,12 +381,12 @@ input[type=text].cw-text:focus{outline:none;border-color:var(--accent-dim);}
             <div class="slider-legend"><span data-i18n="adjust.zoomMin">30%（縮小）</span><span data-i18n="adjust.zoomMax">400%（拡大）</span></div>
           </div>
           <div class="field">
-            <div class="field-head"><label data-i18n="adjust.posx">左右position</label><span class="val" id="posx-val">0</span></div>
+            <div class="field-head"><label data-i18n="adjust.posx">左右</label><span class="val" id="posx-val">0</span></div>
             <input type="range" id="posx-slider" min="-50" max="50" value="0">
             <div class="slider-legend"><span data-i18n="adjust.left">◀ 左</span><span data-i18n="adjust.right">右 ▶</span></div>
           </div>
           <div class="field">
-            <div class="field-head"><label data-i18n="adjust.posy">上下position</label><span class="val" id="posy-val">0</span></div>
+            <div class="field-head"><label data-i18n="adjust.posy">上下</label><span class="val" id="posy-val">0</span></div>
             <input type="range" id="posy-slider" min="-50" max="50" value="0">
             <div class="slider-legend"><span data-i18n="adjust.up">▲ 上</span><span data-i18n="adjust.down">下 ▼</span></div>
           </div>
@@ -398,11 +398,11 @@ input[type=text].cw-text:focus{outline:none;border-color:var(--accent-dim);}
           <div class="step-num">04</div>
           <div class="step-title" data-i18n="s4.title">境界線</div>
         </div>
-        <div class="step-desc" data-i18n="s4.desc">画像同士の境界を、はっきりした線から自然にぼかした境界まで調整できます。</div>
+        <div class="step-desc" data-i18n="s4.desc">画像同士の境界を調整。</div>
         <div class="field">
           <div class="field-head"><label data-i18n="s4.label">境界のぼかし具合</label><span class="val" id="blur-val">0px</span></div>
           <input type="range" id="blur-slider" min="0" max="40" value="0">
-          <div class="slider-legend"><span data-i18n="s4.sharp">くっきり</span><span data-i18n="s4.soft">自然にぼかす</span></div>
+          <div class="slider-legend"><span data-i18n="s4.sharp">くっきり</span><span data-i18n="s4.soft">ぼかす</span></div>
         </div>
       </section>
 
@@ -416,11 +416,11 @@ input[type=text].cw-text:focus{outline:none;border-color:var(--accent-dim);}
           <input type="text" class="cw-text" id="cw-text" value="© SQUARE ENIX" maxlength="60">
         </div>
         <div class="field">
-          <div class="field-head"><label data-i18n="adjust.posx">左右position</label><span class="val" id="cw-x-val">92</span></div>
+          <div class="field-head"><label data-i18n="adjust.posx">左右</label><span class="val" id="cw-x-val">92</span></div>
           <input type="range" id="cw-x-slider" min="2" max="98" value="92">
         </div>
         <div class="field">
-          <div class="field-head"><label data-i18n="adjust.posy">上下position</label><span class="val" id="cw-y-val">90</span></div>
+          <div class="field-head"><label data-i18n="adjust.posy">上下</label><span class="val" id="cw-y-val">90</span></div>
           <input type="range" id="cw-y-slider" min="2" max="98" value="90">
         </div>
         <div class="field">
@@ -712,22 +712,22 @@ let uid=1;
    ============================================================ */
 const I18N = {
   ja: {
-    eyebrow:'Photo Collage / コンタクトシート・エディタ',
+    eyebrow:'Photo Collage',
     title:'フォトコラージュ・メーカー',
-    subtitle:'写真を2〜4枚アップロードして、分割テンプレート・比率・境界線のぼかしを自由に組み合わせたコラージュを作成できます。PC・スマートフォンどちらでもご利用いただけます。',
+    subtitle:'写真を2〜4枚でコラージュを作成。',
     docTitle:'フォトコラージュ・メーカー',
     's1.title':'画像をアップロード', 's1.desc':'2〜4枚の画像をアップロードしてください。枚数に応じて分割テンプレートが自動で切り替わります。',
     's1.tap':'タップして画像を選択', 's1.dragdrop':'またはドラッグ&ドロップ（2〜4枚 / JPEG・PNG・HEIC）',
-    's2.title':'フレーム比率', 's2.desc':'コラージュ全体の縦横比を選びます。画像は比率に合わせて自動調整され、伸びたり歪んだりしません。',
-    's3.title':'分割テンプレート', 's3.desc':'画像の枚数に合わせて選べるテンプレートです。縦・横分割のほか、斜め分割やクロス分割も選べます。', 's3.empty':'画像を2枚以上アップロードすると表示されます',
-    's4.title':'境界線', 's4.desc':'画像同士の境界を、はっきりした線から自然にぼかした境界まで調整できます。', 's4.label':'境界のぼかし具合', 's4.sharp':'くっきり', 's4.soft':'自然にぼかす',
+    's2.title':'フレーム比率', 's2.desc':'コラージュ全体の縦横比を選びます。画像は比率に合わせて自動調整されます。',
+    's3.title':'分割テンプレート', 's3.desc':'画像の枚数に合わせて選べるテンプレートです。', 's3.empty':'画像を2枚以上アップロードすると表示されます',
+    's4.title':'境界線', 's4.desc':'画像同士の境界を調整。', 's4.label':'境界のぼかし具合', 's4.sharp':'くっきり', 's4.soft':'ぼかす',
     's5.title':'権利表記', 's5.desc':'右下にデフォルト配置される表記です。位置・文字サイズを調整したり、非表示にできます。プレビュー内をドラッグしても移動できます。',
     's5.size':'文字サイズ', 's5.color':'文字色', 's5.hide':'権利表記を非表示にする', 's5.white':'白', 's5.gray':'灰', 's5.black':'黒',
     'frame.hint':'セルをドラッグして位置を調整・ピンチ / スライダーで拡大縮小できます',
     'adjust.selecting':'選択中', 'adjust.selectPrompt':'画像を選択してください', 'adjust.editing':n=>`IMG ${n} を編集中`,
     'adjust.rotate':'回転', 'adjust.rotateTitle':'回転（縦横切替）', 'adjust.reset':'リセット',
     'adjust.zoom':'拡大縮小', 'adjust.zoomMin':'30%（縮小）', 'adjust.zoomMax':'400%（拡大）',
-    'adjust.posx':'左右position', 'adjust.posy':'上下position', 'adjust.left':'◀ 左', 'adjust.right':'右 ▶', 'adjust.up':'▲ 上', 'adjust.down':'下 ▼',
+    'adjust.posx':'左右', 'adjust.posy':'上下', 'adjust.left':'◀ 左', 'adjust.right':'右 ▶', 'adjust.up':'▲ 上', 'adjust.down':'下 ▼',
     'upload.count':n=>`${n} / 4`,
     'upload.note':(n,remain)=> remain>0 ? `現在 <b>${n}枚</b> — あと${remain}枚で作成できます。` : `現在 <b>${n}枚</b> — 作成できます。`,
     'upload.max':'画像は最大4枚までです。',
