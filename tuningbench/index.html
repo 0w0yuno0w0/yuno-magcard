@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TUNING BENCH ｜ チューニング支援ツール</title>
+<style>
+  :root{
+    --bg:#0f1013;
+    --bg-alt:#131418;
+    --panel:#17181d;
+    --panel-alt:#1d1f26;
+    --border:#2a2c34;
+    --border-soft:#22242b;
+    --text:#e9e7e1;
+    --text-dim:#9a9ba3;
+    --text-faint:#5e5f68;
+    --amber:#e0a458;
+    --amber-dim:#8a6a3f;
+    --cyan:#5bc4c2;
+    --ok:#75c088;
+    --warn:#c9714d;
+    --mono: "SFMono-Regular","JetBrains Mono",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans: -apple-system,BlinkMacSystemFont,"Segoe UI",Hiragino Sans,"Hiragino Kaku Gothic ProN",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 500px at 15% -10%, rgba(224,164,88,0.06), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:14px;
+    line-height:1.5;
+  }
+  h1,h2,h3{margin:0;font-weight:600;}
+  button{font-family:inherit;font-size:inherit;cursor:pointer;}
+  input,select{font-family:inherit;font-size:inherit;}
+  .hidden{display:none !important;}
+  .mono{font-family:var(--mono);}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    display:flex;align-items:center;gap:20px;
+    padding:12px 20px;
+    background:linear-gradient(180deg, var(--bg-alt), var(--bg));
+    border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .brand-mark{
+    width:30px;height:30px;border-radius:50%;
+    background:conic-gradient(from 200deg, var(--amber), #6b4a24 55%, var(--amber));
+    box-shadow:0 0 14px rgba(224,164,88,0.35);
+    flex-shrink:0;
+  }
+  .brand-text h1{font-size:13px;letter-spacing:.16em;color:var(--text);}
+  .brand-text .brand-sub{margin:1px 0 0;font-size:11px;color:var(--text-dim);letter-spacing:.02em;}
+  .session-meta{
+    flex:1;min-width:0;
+    display:flex;align-items:baseline;gap:10px;
+    font-family:var(--mono);font-size:12px;color:var(--text-dim);
+    overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+  }
+  .session-meta input{
+    background:transparent;border:none;border-bottom:1px dashed var(--border);
+    color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;
+    padding:2px 2px;min-width:80px;max-width:220px;
+  }
+  .session-meta input:focus{outline:none;border-bottom-color:var(--amber);}
+  .badge{
+    font-size:10px;padding:2px 7px;border-radius:20px;letter-spacing:.05em;
+    border:1px solid var(--border);color:var(--text-dim);
+  }
+  .badge.complete{color:var(--ok);border-color:var(--ok);}
+  .topnav{display:flex;gap:8px;flex-shrink:0;}
+  .btn{
+    background:var(--panel-alt);color:var(--text);border:1px solid var(--border);
+    padding:7px 12px;border-radius:6px;font-size:12px;letter-spacing:.02em;
+    transition:border-color .15s, color .15s, background .15s;
+  }
+  .btn:hover:not(:disabled){border-color:var(--amber-dim);color:var(--amber);}
+  .btn:disabled{opacity:.35;cursor:not-allowed;}
+  .btn-ghost{background:transparent;}
+  .btn-primary{
+    background:var(--amber);color:#1a1305;border-color:var(--amber);font-weight:600;
+  }
+  .btn-primary:hover:not(:disabled){background:#eab671;color:#1a1305;}
+  .btn-small{padding:4px 9px;font-size:11px;border-radius:5px;}
+  .btn-cyan{border-color:var(--cyan);color:var(--cyan);}
+
+  /* ---------- layout ---------- */
+  .layout{
+    display:grid;
+    grid-template-columns:250px 1fr 270px;
+    gap:1px;
+    background:var(--border);
+    min-height:calc(100vh - 57px);
+  }
+  .panel{background:var(--panel);padding:16px;overflow-y:auto;}
+  .panel h3{
+    font-size:11px;letter-spacing:.12em;color:var(--text-faint);
+    text-transform:uppercase;margin-bottom:12px;
+  }
+  .stage{background:var(--bg-alt);padding:24px;overflow-y:auto;}
+
+  @media (max-width:980px){
+    .layout{grid-template-columns:1fr;}
+    .panel-left,.panel-right{order:2;}
+    .stage{order:1;}
+  }
+
+  /* ---------- analysis panel ---------- */
+  .empty-note{color:var(--text-faint);font-size:12px;padding:6px 0;}
+  .metric-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:4px 0;font-size:12px;color:var(--text-dim);
+  }
+  .metric-row .v{font-family:var(--mono);color:var(--text);}
+  .hist{margin-top:10px;}
+  .hist-bar-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+  .hist-bar-label{width:52px;flex-shrink:0;font-size:10px;color:var(--text-faint);font-family:var(--mono);}
+  .hist-bar-track{flex:1;height:8px;background:var(--panel-alt);border-radius:2px;overflow:hidden;}
+  .hist-bar-fill{height:100%;background:linear-gradient(90deg,var(--amber-dim),var(--amber));}
+  .hist-bar-pct{width:32px;text-align:right;font-size:10px;color:var(--text-dim);font-family:var(--mono);}
+  .section-gap{margin-top:18px;padding-top:14px;border-top:1px solid var(--border-soft);}
+  .tag-list{display:flex;flex-wrap:wrap;gap:6px;}
+  .tag{
+    font-size:11px;padding:3px 9px;border-radius:20px;
+    background:var(--panel-alt);border:1px solid var(--border);color:var(--text-dim);
+  }
+  .tag.auto{color:var(--amber);border-color:var(--amber-dim);}
+  .tag.manual{color:var(--cyan);border-color:#2b5c5b;}
+  .tag-remove{margin-left:6px;color:var(--text-faint);cursor:pointer;}
+  .tag-input-row{display:flex;gap:6px;margin-top:8px;}
+  .tag-input-row input{
+    flex:1;background:var(--panel-alt);border:1px solid var(--border);color:var(--text);
+    border-radius:5px;padding:6px 8px;font-size:12px;
+  }
+  .thumb-frame{
+    width:100%;border-radius:6px;overflow:hidden;border:1px solid var(--border);
+    margin-bottom:12px;background:#000;
+  }
+  .thumb-frame img{display:block;width:100%;height:auto;}
+
+  /* ---------- history panel ---------- */
+  .hist-item{
+    border:1px solid var(--border-soft);border-radius:7px;padding:9px 10px;margin-bottom:7px;
+    background:var(--panel-alt);
+  }
+  .hist-item.active{border-color:var(--amber);}
+  .hist-item-top{display:flex;justify-content:space-between;align-items:center;}
+  .hist-item-label{font-size:12px;color:var(--text);}
+  .hist-item-val{font-family:var(--mono);font-size:13px;}
+  .hist-item-val.set{color:var(--ok);}
+  .hist-item-val.unset{color:var(--text-faint);font-size:11px;}
+  .hist-item-actions{display:flex;gap:6px;margin-top:7px;}
+  .hist-log{
+    margin-top:6px;font-size:10px;color:var(--text-faint);font-family:var(--mono);
+    display:flex;flex-wrap:wrap;gap:4px;
+  }
+  .hist-log span{padding:1px 5px;background:var(--panel);border-radius:3px;}
+  .hist-log span.cur{color:var(--amber);border:1px solid var(--amber-dim);}
+  .snap-item{
+    display:flex;justify-content:space-between;align-items:center;gap:6px;
+    padding:6px 8px;border:1px solid var(--border-soft);border-radius:6px;margin-bottom:6px;font-size:11px;
+  }
+  .snap-item.compare-on{border-color:var(--cyan);}
+  .snap-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .compare-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;}
+  .compare-table th,.compare-table td{
+    padding:4px 6px;border-bottom:1px solid var(--border-soft);text-align:right;font-family:var(--mono);
+  }
+  .compare-table th:first-child,.compare-table td:first-child{text-align:left;font-family:var(--sans);}
+
+  /* ---------- upload screen ---------- */
+  .screen{max-width:900px;margin:0 auto;}
+  /* 調整画面（5枚比較）はウィンドウ幅が大きいときにより広く使う（PC向け） */
+  #screen-tuning{max-width:1700px;}
+  .dropzone{
+    border:2px dashed var(--border);border-radius:14px;
+    padding:70px 30px;text-align:center;color:var(--text-dim);
+    transition:border-color .15s, background .15s;cursor:pointer;
+  }
+  .dropzone.drag{border-color:var(--amber);background:rgba(224,164,88,.05);}
+  .dropzone h2{font-size:18px;color:var(--text);margin-bottom:8px;font-weight:600;}
+  .dropzone p{font-size:12px;color:var(--text-faint);margin-top:6px;}
+  .intro-note{
+    margin-top:28px;padding:16px 18px;border:1px solid var(--border-soft);border-radius:10px;
+    background:var(--panel);font-size:12px;color:var(--text-dim);
+  }
+  .intro-note b{color:var(--text);}
+
+  /* ---------- tuning screen ---------- */
+  .item-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+  .item-tab{
+    padding:6px 12px;border-radius:20px;border:1px solid var(--border);
+    background:var(--panel);font-size:12px;color:var(--text-dim);position:relative;
+  }
+  .item-tab.done::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--ok);
+    display:inline-block;margin-right:6px;}
+  .item-tab.pending::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--border);
+    display:inline-block;margin-right:6px;}
+  .item-tab.suggested::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--cyan);
+    display:inline-block;margin-right:6px;}
+  .item-tab.active{border-color:var(--amber);color:var(--amber);background:rgba(224,164,88,.08);}
+
+  .tuning-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .tuning-head h2{font-size:20px;}
+  .tuning-head .sub{color:var(--text-faint);font-size:12px;margin-top:3px;}
+  .range-controls{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);}
+  .range-controls input[type=number]{
+    width:64px;background:var(--panel-alt);border:1px solid var(--border);color:var(--text);
+    border-radius:5px;padding:5px 7px;font-family:var(--mono);
+  }
+
+  .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+  @media (max-width:760px){.grid5{grid-template-columns:repeat(2,1fr);}}
+  .cmp-card{
+    border:2px solid var(--border);border-radius:10px;overflow:hidden;background:#000;
+    cursor:pointer;transition:border-color .15s, transform .1s;position:relative;
+  }
+  .cmp-card:hover{border-color:var(--amber-dim);}
+  .cmp-card.selected{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber), 0 0 18px rgba(224,164,88,.25);}
+  .cmp-card canvas{display:block;width:100%;height:auto;}
+  .cmp-card .cmp-label{
+    position:absolute;top:6px;left:6px;background:rgba(0,0,0,.55);color:var(--text);
+    font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:4px;letter-spacing:.05em;
+  }
+  .cmp-card .cmp-val{
+    text-align:center;padding:7px 4px;font-family:var(--mono);font-size:13px;
+    background:var(--panel-alt);color:var(--text-dim);
+  }
+  .cmp-card.selected .cmp-val{color:var(--amber);}
+
+  .tuning-foot{display:flex;justify-content:space-between;align-items:center;margin-top:22px;flex-wrap:wrap;gap:10px;}
+  .tuning-foot .left-actions,.tuning-foot .right-actions{display:flex;gap:8px;}
+  .current-value{font-family:var(--mono);font-size:13px;color:var(--text-dim);}
+  .current-value b{color:var(--amber);font-size:15px;}
+
+  /* ---------- final screen ---------- */
+  .final-preview{
+    border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#000;
+    margin-bottom:20px;position:relative;min-height:120px;
+  }
+  .final-preview canvas{display:block;width:100%;height:auto;}
+  .final-preview .rendering{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.55);color:var(--text-dim);font-size:12px;font-family:var(--mono);
+  }
+  .final-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:20px;}
+  .final-item{
+    border:1px solid var(--border-soft);border-radius:8px;padding:10px 12px;background:var(--panel);
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+  }
+  .final-item .fi-name{font-size:12px;color:var(--text-dim);}
+  .final-item .fi-val{font-family:var(--mono);font-size:15px;color:var(--ok);}
+
+  /* ---------- sessions screen ---------- */
+  .session-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+  .session-card{
+    border:1px solid var(--border-soft);border-radius:10px;overflow:hidden;background:var(--panel);
+  }
+  .session-card.compare-on{border-color:var(--cyan);}
+  .session-card .sc-thumb{width:100%;aspect-ratio:16/10;object-fit:cover;background:#000;display:block;}
+  .session-card .sc-body{padding:10px 12px;}
+  .session-card .sc-name{font-weight:600;font-size:13px;}
+  .session-card .sc-date{font-size:11px;color:var(--text-faint);font-family:var(--mono);margin-top:2px;}
+  .session-card .sc-tags{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;}
+  .session-card .sc-actions{display:flex;gap:6px;margin-top:6px;}
+
+  ::-webkit-scrollbar{width:9px;height:9px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-text">
+      <h1>TUNING BENCH</h1>
+      <p class="brand-sub">調整値比較ツール</p>
+    </div>
+  </div>
+  <div class="session-meta" id="sessionMeta">
+    <span class="empty-note">画像をアップロードしてセッションを開始してください</span>
+  </div>
+  <nav class="topnav">
+    <button class="btn btn-ghost" id="btnNewSession">＋ 新規セッション</button>
+    <button class="btn btn-ghost" id="btnSessionList">セッション一覧</button>
+    <button class="btn btn-ghost" id="btnExport" disabled>チューニングJSON書き出し</button>
+    <label class="btn btn-ghost" for="importInput">JSONインポート</label>
+    <input type="file" id="importInput" accept="application/json" hidden>
+  </nav>
+</header>
+
+<div class="layout">
+  <aside class="panel panel-left" id="panelAnalysis">
+    <span class="empty-note">画像解析結果はここに表示されます</span>
+  </aside>
+
+  <section class="stage" id="stage">
+
+    <div class="screen" id="screen-upload">
+      <div class="dropzone" id="dropzone">
+        <h2>画像をアップロード</h2>
+        <p>クリックまたはドラッグ＆ドロップ</p>
+        <p>PNG / JPEG 対応・単一HTML内で完結・画像は保存されません（サムネイルのみ保持）</p>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" hidden>
+      <div class="intro-note">
+        <b>使い方：</b> 画像を読み込むと自動解析とタグ付けが行われます。続いて調整項目（Exposure / Contrast / Highlight / Shadow / Sharpen / Saturation / Color Grade / Screen / Blur）を1つずつ選び、5パターンの比較画像から最も自然なものをクリックして決定します。全項目が終わると最終確認画面で仕上がりを確認し、いつでも各項目に戻って再調整できます。書き出しは2種類：このツールで再開・タグ別集計に使う「チューニングJSON」（全情報）と、画像加工HTML側に読み込ませる「完成プリセットJSON」（調整値のみの軽量版）です。
+      </div>
+    </div>
+
+    <div class="screen hidden" id="screen-tuning">
+      <div class="item-tabs" id="itemTabs"></div>
+      <div class="tuning-head">
+        <div>
+          <h2 id="tuningTitle">Exposure</h2>
+          <div class="sub" id="tuningSub">他の調整項目は現在値のまま固定されます</div>
+        </div>
+        <div class="range-controls">
+          <span>中心</span><input type="number" id="ctrCenter">
+          <span>幅(step)</span><input type="number" id="ctrStep">
+          <button class="btn btn-small" id="btnRegen">再生成</button>
+          <button class="btn btn-small btn-cyan" id="btnReExplore">現在値付近で再探索</button>
+        </div>
+      </div>
+      <div class="grid5" id="grid5"></div>
+      <div class="tuning-foot">
+        <div class="left-actions">
+          <button class="btn" id="btnPrevItem">← 戻る</button>
+        </div>
+        <div class="current-value" id="currentValueLabel">未選択</div>
+        <div class="right-actions">
+          <button class="btn" id="btnSkipItem">0のままスキップ</button>
+          <button class="btn btn-primary" id="btnNextItem" disabled>次へ →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen hidden" id="screen-final">
+      <h2 style="margin-bottom:4px;">最終確認</h2>
+      <p class="sub" style="color:var(--text-faint);font-size:12px;margin-bottom:16px;">全ての調整を適用した仕上がりです。項目ごとに再調整できます。</p>
+      <div class="final-preview" id="finalPreview"></div>
+      <div class="final-grid" id="finalGrid"></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="btnSaveImage">最終画像を保存（PNG）</button>
+        <button class="btn btn-primary" id="btnSaveSnapshot">＋ スナップショットとして保存</button>
+        <button class="btn btn-primary" id="btnExportPreset">完成プリセットを書き出す（軽量）</button>
+        <button class="btn" id="btnExportFinal">チューニングJSONを書き出す（全情報）</button>
+      </div>
+      <p style="font-size:10px;color:var(--text-faint);margin:8px 0 0;">画像を保存＝仕上がりのPNGファイル（元画像のフル解像度）／プリセットJSON＝画像加工HTMLに読み込む用（presetName・調整値のみ）／チューニングJSON＝このツールで再開・タグ別集計に使う用（解析・タグ・履歴など全情報）</p>
+      <div id="snapshotArea" class="section-gap"></div>
+    </div>
+
+    <div class="screen hidden" id="screen-sessions">
+      <h2 style="margin-bottom:14px;">セッション一覧</h2>
+      <p class="sub" style="color:var(--text-faint);font-size:12px;margin-bottom:16px;">このブラウザタブ内で作成・読込したセッション（最大2件を選んで比較できます）</p>
+      <div id="compareOut"></div>
+      <div class="session-list" id="sessionListGrid"></div>
+    </div>
+
+  </section>
+
+  <aside class="panel panel-right" id="panelHistory">
+    <span class="empty-note">調整履歴はここに表示されます</span>
+  </aside>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================== 定数 ============================== */
+const ADJ_ITEMS = ["Exposure","Contrast","Highlight","Shadow","Sharpen","Saturation","ColorGrade","Screen","Blur"];
+const ADJ_LABEL = {
+  Exposure:"Exposure（露光）", Contrast:"Contrast（コントラスト）", Highlight:"Highlight（ハイライト）",
+  Shadow:"Shadow（シャドウ）", Sharpen:"Sharpen（シャープ）", Saturation:"Saturation（彩度）",
+  ColorGrade:"Color Grade（色相）", Screen:"Screen（スクリーン）", Blur:"Blur（ぼかし）"
+};
+const ADJ_RANGE = {
+  Exposure:[-100,100], Contrast:[-100,100], Highlight:[-100,100], Shadow:[-100,100],
+  Sharpen:[0,100], Saturation:[-100,100], ColorGrade:[-180,180], Screen:[0,100], Blur:[0,10]
+};
+const ADJ_STEP_DEFAULT = {
+  Exposure:10, Contrast:10, Highlight:10, Shadow:10, Sharpen:15, Saturation:10, ColorGrade:15, Screen:8, Blur:1
+};
+const THUMB_W = 480;      // 比較用ワーキング解像度
+const FINAL_W = 820;      // 最終確認プレビュー解像度
+const CARD_THUMB_W = 720; // セッション一覧・サムネイル用の縮小サイズ
+
+/* ============================== 状態 ============================== */
+let sessions = [];      // 作成 / 読込済みセッション一覧（メモリ内のみ）
+let current = null;     // 現在アクティブなセッション
+let dayCounter = {};    // セッションID採番用
+let compareSel = [];    // セッション一覧の比較選択（最大2件）
+let snapCompareSel = []; // スナップショット比較選択（最大2件）
+let library = [];       // 読み込んだ過去JSONの傾向集計用ライブラリ（メモリ内のみ）
+
+/* ============================== DOM 参照 ============================== */
+const $ = (id)=>document.getElementById(id);
+const dropzone = $("dropzone"), fileInput = $("fileInput"), importInput = $("importInput");
+const screens = {
+  upload: $("screen-upload"), tuning: $("screen-tuning"), final: $("screen-final"), sessions: $("screen-sessions")
+};
+
+/* ============================== ユーティリティ ============================== */
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function fmtDate(d){
+  const p = n => String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+}
+function nextSessionId(){
+  const key = fmtDate(new Date());
+  dayCounter[key] = (dayCounter[key]||0) + 1;
+  return `${key}_${String(dayCounter[key]).padStart(3,"0")}`;
+}
+function showScreen(name){
+  Object.keys(screens).forEach(k=> screens[k].classList.toggle("hidden", k!==name));
+}
+function downloadJSON(obj, filename){
+  const blob = new Blob([JSON.stringify(obj,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 2000);
+}
+function downloadCanvasAsPNG(canvas, filename){
+  canvas.toBlob(blob=>{
+    if(!blob){ alert("画像の書き出しに失敗しました。"); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  }, "image/png");
+}
+
+/* ============================== 画像解析 ============================== */
+function scaledCanvas(img, maxW){
+  const scale = Math.min(1, maxW / img.width);
+  const w = Math.max(1, Math.round(img.width*scale));
+  const h = Math.max(1, Math.round(img.height*scale));
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  c.getContext("2d").drawImage(img,0,0,w,h);
+  return c;
+}
+
+function analyzeImage(img){
+  const c = scaledCanvas(img, 160);
+  const ctx = c.getContext("2d");
+  const {width:w, height:h} = c;
+  const data = ctx.getImageData(0,0,w,h).data;
+
+  const bins = [0,0,0,0,0]; // 0-50 / 51-100 / 101-150 / 151-200 / 201-255
+  let sumLum=0, sumSat=0, sumR=0, sumB=0;
+  const lums = [];
+  const n = w*h;
+
+  for(let i=0;i<data.length;i+=4){
+    const r=data[i], g=data[i+1], b=data[i+2];
+    const lum = 0.299*r + 0.587*g + 0.114*b;
+    lums.push(lum);
+    sumLum += lum; sumR += r; sumB += b;
+    const max=Math.max(r,g,b), min=Math.min(r,g,b);
+    const l = (max+min)/2/255;
+    const sat = max===min ? 0 : (l>0.5 ? (max-min)/(2-max/255-min/255) : (max-min)/(max/255+min/255));
+    sumSat += (isFinite(sat)?sat:0);
+    const bi = clamp(Math.floor(lum/51), 0, 4);
+    bins[bi]++;
+  }
+  const avgLum = sumLum/n;                 // 0-255
+  const avgSatPct = (sumSat/n)*100;        // 0-100
+  const histPct = bins.map(b => Math.round((b/n)*1000)/10);
+  const darkRatio = Math.round(((bins[0]+bins[1])/n)*1000)/10;
+  const brightRatio = Math.round(((bins[3]+bins[4])/n)*1000)/10;
+
+  let variance = 0;
+  for(const l of lums) variance += (l-avgLum)*(l-avgLum);
+  const std = Math.sqrt(variance/n);
+  const contrastLevel = std < 35 ? "低" : (std < 65 ? "普通" : "高");
+
+  const rbDiff = (sumR - sumB)/n;
+  const colorTendency = rbDiff > 8 ? "暖色寄り" : (rbDiff < -8 ? "寒色寄り" : "中立");
+
+  // 中心領域 vs 周辺領域の輝度差で「人物中心 / 風景中心」を簡易判定
+  const cx0=Math.floor(w*0.28), cx1=Math.ceil(w*0.72), cy0=Math.floor(h*0.15), cy1=Math.ceil(h*0.9);
+  let centerSum=0, centerN=0, edgeSum=0, edgeN=0;
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const idx=(y*w+x)*4;
+      const lum = 0.299*data[idx]+0.587*data[idx+1]+0.114*data[idx+2];
+      if(x>=cx0 && x<cx1 && y>=cy0 && y<cy1){ centerSum+=lum; centerN++; }
+      else { edgeSum+=lum; edgeN++; }
+    }
+  }
+  const centerAvg = centerSum/(centerN||1), edgeAvg = edgeSum/(edgeN||1);
+  const subjectGuess = Math.abs(centerAvg-edgeAvg) > 18 ? "人物中心" : "風景中心";
+
+  const brightnessPct = Math.round((avgLum/255)*1000)/10;
+
+  const autoTags = [];
+  autoTags.push(brightnessPct>=50 ? "昼" : "夜");
+  if(brightnessPct>=55) autoTags.push("明るい背景");
+  else if(brightnessPct<=35) autoTags.push("暗い背景");
+  if(avgSatPct>=45) autoTags.push("高彩度");
+  else if(avgSatPct<=18) autoTags.push("低彩度");
+  if(contrastLevel==="高") autoTags.push("高コントラスト");
+  else if(contrastLevel==="低") autoTags.push("低コントラスト");
+  autoTags.push(subjectGuess);
+  autoTags.push(colorTendency==="暖色寄り" && brightnessPct<55 ? "室内" : "屋外");
+
+  return {
+    brightness: brightnessPct, darkRatio, brightRatio, histogram: histPct,
+    saturation: Math.round(avgSatPct*10)/10, contrast: contrastLevel, colorTendency,
+    autoTags: [...new Set(autoTags)]
+  };
+}
+
+/* ============================== 画像処理（比較・最終レンダリング） ============================== */
+/* 重要: CanvasRenderingContext2D.filter はSafari／iOS（Safari・Chrome for iOS・Firefox for iOS等、
+   iOS上の全ブラウザが使うWebKitエンジン）で未対応のため使用しない。
+   Exposure/Contrast/Saturation/Blur/ColorGradeも含め、全項目を手動のピクセル処理で実装し、
+   デスクトップ・Android・iOSで同じ見た目になるようにする。 */
+function clampIdx(i, n){ return i<0 ? 0 : (i>=n ? n-1 : i); }
+
+function rgbToHsl(r,g,b){
+  r/=255; g/=255; b/=255;
+  const max=Math.max(r,g,b), min=Math.min(r,g,b);
+  let h=0, s=0; const l=(max+min)/2;
+  const d = max-min;
+  if(d!==0){
+    s = l>0.5 ? d/(2-max-min) : d/(max+min);
+    switch(max){
+      case r: h=(g-b)/d + (g<b?6:0); break;
+      case g: h=(b-r)/d + 2; break;
+      default: h=(r-g)/d + 4; break;
+    }
+    h/=6;
+  }
+  return [h,s,l];
+}
+function hslToRgb(h,s,l){
+  if(s===0){ const v=l*255; return [v,v,v]; }
+  const hue2rgb=(p,q,t)=>{
+    if(t<0) t+=1; if(t>1) t-=1;
+    if(t<1/6) return p+(q-p)*6*t;
+    if(t<1/2) return q;
+    if(t<2/3) return p+(q-p)*(2/3-t)*6;
+    return p;
+  };
+  const q = l<0.5 ? l*(1+s) : l+s-l*s;
+  const p = 2*l-q;
+  return [hue2rgb(p,q,h+1/3)*255, hue2rgb(p,q,h)*255, hue2rgb(p,q,h-1/3)*255];
+}
+
+/* Shadow/Highlight（トーンカーブ）→ Exposure → Contrast → Saturation → ColorGrade（色相）
+   を1ピクセルずつまとめて処理（全ブラウザ共通・ctx.filter不使用） */
+function applyColorPipeline(data, v){
+  const shadow=(v.Shadow||0)/100, highlight=(v.Highlight||0)/100;
+  const expFactor = 1 + (v.Exposure||0)/100;
+  const conFactor = 1 + (v.Contrast||0)/100;
+  const satFactor = Math.max(0, 1 + (v.Saturation||0)/100);
+  const hueShift = (v.ColorGrade||0)/360;
+  const needTone = !!(shadow || highlight);
+  const needHue = !!(v.ColorGrade);
+  for(let i=0;i<data.length;i+=4){
+    let r=data[i], g=data[i+1], b=data[i+2];
+    if(needTone){
+      const arr=[r,g,b];
+      for(let c=0;c<3;c++){
+        let val=arr[c];
+        if(val<128 && shadow!==0){ val += shadow*80*((128-val)/128); }
+        else if(val>=128 && highlight!==0){ val += highlight*80*((val-128)/127); }
+        arr[c]=val;
+      }
+      r=arr[0]; g=arr[1]; b=arr[2];
+    }
+    // Exposure（線形の明るさ倍率）
+    r*=expFactor; g*=expFactor; b*=expFactor;
+    // Contrast（中間灰色128を軸に伸縮）
+    r=(r-128)*conFactor+128; g=(g-128)*conFactor+128; b=(b-128)*conFactor+128;
+    r=clamp(r,0,255); g=clamp(g,0,255); b=clamp(b,0,255);
+    // Saturation（グレースケールとの補間）
+    if(satFactor!==1){
+      const gray = 0.299*r+0.587*g+0.114*b;
+      r=clamp(gray+(r-gray)*satFactor,0,255);
+      g=clamp(gray+(g-gray)*satFactor,0,255);
+      b=clamp(gray+(b-gray)*satFactor,0,255);
+    }
+    // ColorGrade（HSLで色相のみ回転）
+    if(needHue){
+      const [h,s,l] = rgbToHsl(r,g,b);
+      let h2 = h + hueShift; h2 -= Math.floor(h2);
+      [r,g,b] = hslToRgb(h2,s,l);
+    }
+    data[i]=clamp(r,0,255); data[i+1]=clamp(g,0,255); data[i+2]=clamp(b,0,255);
+  }
+}
+
+/* Blur：分離可能（水平→垂直）なスライディングウィンドウ方式のボックスブラー。
+   基準幅(THUMB_W)に対する相対半径にして、比較用サムネイルと最終フル解像度画像で見た目の強さを揃える。 */
+function applyBoxBlur(data, w, h, blurValue, refWidth){
+  const radius = Math.round((blurValue||0) * (w/refWidth));
+  if(radius < 1) return data;
+  const size = radius*2+1;
+  const tmp = new Uint8ClampedArray(data.length);
+  for(let y=0;y<h;y++){
+    const rowOff=y*w;
+    for(let c=0;c<3;c++){
+      let sum=0;
+      for(let k=-radius;k<=radius;k++) sum += data[(rowOff+clampIdx(k,w))*4+c];
+      for(let x=0;x<w;x++){
+        tmp[(rowOff+x)*4+c] = sum/size;
+        sum += data[(rowOff+clampIdx(x+radius+1,w))*4+c] - data[(rowOff+clampIdx(x-radius,w))*4+c];
+      }
+    }
+    for(let x=0;x<w;x++) tmp[(rowOff+x)*4+3] = data[(rowOff+x)*4+3];
+  }
+  const out = new Uint8ClampedArray(data.length);
+  for(let x=0;x<w;x++){
+    for(let c=0;c<3;c++){
+      let sum=0;
+      for(let k=-radius;k<=radius;k++) sum += tmp[(clampIdx(k,h)*w+x)*4+c];
+      for(let y=0;y<h;y++){
+        out[(y*w+x)*4+c] = sum/size;
+        sum += tmp[(clampIdx(y+radius+1,h)*w+x)*4+c] - tmp[(clampIdx(y-radius,h)*w+x)*4+c];
+      }
+    }
+  }
+  for(let i=3;i<out.length;i+=4) out[i]=tmp[i];
+  return out;
+}
+
+function applySharpen(data, w, h, amount){
+  if(!amount) return data;
+  const strength = clamp(amount,0,100)/100;
+  const out = new Uint8ClampedArray(data.length);
+  const K = [0,-1,0,-1,5,-1,0,-1,0];
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const idx=(y*w+x)*4;
+      if(x===0||y===0||x===w-1||y===h-1){
+        out[idx]=data[idx];out[idx+1]=data[idx+1];out[idx+2]=data[idx+2];out[idx+3]=data[idx+3];
+        continue;
+      }
+      for(let c=0;c<3;c++){
+        let sum=0,k=0;
+        for(let ky=-1;ky<=1;ky++){
+          for(let kx=-1;kx<=1;kx++){
+            sum += data[((y+ky)*w+(x+kx))*4+c]*K[k++];
+          }
+        }
+        const orig = data[idx+c];
+        out[idx+c] = clamp(orig + (sum-orig)*strength, 0, 255);
+      }
+      out[idx+3]=data[idx+3];
+    }
+  }
+  return out;
+}
+
+function renderVariant(baseImageData, w, h, values){
+  let data = new Uint8ClampedArray(baseImageData.data);
+  applyColorPipeline(data, values);
+  data = applyBoxBlur(data, w, h, values.Blur, THUMB_W);
+  if(values.Sharpen) data = applySharpen(data, w, h, values.Sharpen);
+
+  const c2 = document.createElement("canvas"); c2.width=w; c2.height=h;
+  const ctx2 = c2.getContext("2d");
+  ctx2.putImageData(new ImageData(data,w,h), 0, 0);
+
+  if(values.Screen){
+    ctx2.globalCompositeOperation = "screen";
+    ctx2.globalAlpha = clamp(values.Screen,0,100)/100;
+    ctx2.fillStyle = "#ffffff";
+    ctx2.fillRect(0,0,w,h);
+    ctx2.globalAlpha = 1;
+    ctx2.globalCompositeOperation = "source-over";
+  }
+  return c2;
+}
+
+/* ============================== タグ別集計 → 初期値サジェスト ============================== */
+function libraryPool(excludeId){
+  // 明示的に読み込んだJSON（library）＋このタブ内で作業済みの他セッション（sessions）をまとめる
+  const fromSessions = sessions
+    .filter(s => s.id !== excludeId)
+    .map(s => ({
+      autoTags: (s.analysis && s.analysis.autoTags) || [],
+      manualTags: s.manualTags || [],
+      values: s.values,
+      setFlags: s.setFlags
+    }));
+  return library.concat(fromSessions);
+}
+function computeSuggestions(tags, pool){
+  const tagSet = new Set(tags || []);
+  const matched = pool.filter(e => (e.autoTags||[]).concat(e.manualTags||[]).some(t => tagSet.has(t)));
+  const perItem = {};
+  ADJ_ITEMS.forEach(item=>{
+    const vals = matched.filter(e => e.setFlags && e.setFlags[item]).map(e => e.values[item]);
+    if(vals.length){
+      const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
+      perItem[item] = { value: clamp(Math.round(avg), ADJ_RANGE[item][0], ADJ_RANGE[item][1]), count: vals.length };
+    }
+  });
+  return { matchedCount: matched.length, poolSize: pool.length, perItem };
+}
+function refreshCurrentSuggestions(){
+  if(!current) return;
+  current._suggestions = computeSuggestions(
+    (current.analysis.autoTags||[]).concat(current.manualTags||[]),
+    libraryPool(current.id)
+  );
+}
+function addToLibrary(obj, filename){
+  const autoTags = obj.autoTags || (obj.analysis && obj.analysis.autoTags) || [];
+  library.push({
+    id: obj.sessionId || ("lib_" + Date.now() + "_" + Math.random().toString(36).slice(2)),
+    name: obj.presetName || filename.replace(/\.json$/i, ""),
+    autoTags,
+    manualTags: obj.manualTags || [],
+    values: Object.assign(emptyValues(), obj.values || {}),
+    setFlags: Object.assign(emptyFlags(), obj.setFlags || {})
+  });
+}
+
+/* ============================== セッション作成／管理 ============================== */
+function emptyValues(){ const o={}; ADJ_ITEMS.forEach(k=>o[k]=0); return o; }
+function emptyFlags(){ const o={}; ADJ_ITEMS.forEach(k=>o[k]=false); return o; }
+function emptyHistory(){ const o={}; ADJ_ITEMS.forEach(k=>o[k]=[]); return o; }
+
+function createSessionFromImage(file, img){
+  const baseCanvas = scaledCanvas(img, THUMB_W);
+  const baseCtx = baseCanvas.getContext("2d");
+  const baseImageData = baseCtx.getImageData(0,0,baseCanvas.width,baseCanvas.height);
+
+  const thumbCanvas = scaledCanvas(img, 320);
+  const analysis = analyzeImage(img);
+  const suggestions = computeSuggestions(analysis.autoTags, libraryPool());
+
+  const s = {
+    id: nextSessionId(),
+    name: (file && file.name ? file.name.replace(/\.[^.]+$/,"") : "Untitled"),
+    created: new Date().toISOString(),
+    image: { file: file ? file.name : "unknown", width: img.width, height: img.height },
+    thumbnail: thumbCanvas.toDataURL("image/jpeg",0.72),
+    analysis,
+    manualTags: [],
+    values: emptyValues(),
+    setFlags: emptyFlags(),
+    history: emptyHistory(),
+    snapshots: [],
+    currentIndex: 0,
+    reAdjustReturnToFinal: false,
+    stage: "tuning", // tuning | final
+    // メモリ内のみ（エクスポート対象外）
+    _img: img,
+    _baseW: baseCanvas.width, _baseH: baseCanvas.height, _baseImageData: baseImageData,
+    _step: {},
+    _suggestions: suggestions
+  };
+  ADJ_ITEMS.forEach(k => s._step[k] = ADJ_STEP_DEFAULT[k]);
+  return s;
+}
+
+function sanitizeFilename(s){
+  return String(s||"untitled").replace(/[\\/:*?"<>|]/g,"_").trim() || "untitled";
+}
+
+/* チューニングJSON：ツール内での再開・ライブラリ集計用（重い・全情報） */
+function exportableSession(s){
+  return {
+    schema: "tuning-bench-session",
+    schemaVersion: 1,
+    sessionId: s.id,
+    presetName: s.name,
+    created: s.created,
+    image: s.image,
+    thumbnail: s.thumbnail,
+    analysis: s.analysis,
+    autoTags: s.analysis ? s.analysis.autoTags : [],
+    manualTags: s.manualTags,
+    values: s.values,
+    setFlags: s.setFlags,
+    history: s.history,
+    snapshots: s.snapshots
+  };
+}
+
+/* プリセットJSON：画像加工HTML用（軽量・調整値のみ） */
+function exportablePreset(name, values, sourceSessionId){
+  return {
+    schema: "tuning-bench-preset",
+    schemaVersion: 1,
+    presetName: name,
+    createdAt: new Date().toISOString(),
+    sourceSessionId: sourceSessionId || null,
+    values: Object.assign(emptyValues(), values)
+  };
+}
+
+function importSession(obj){
+  const isPreset = obj.schema === "tuning-bench-preset";
+  const values = Object.assign(emptyValues(), obj.values || {});
+  // setFlagsが無いファイル（プリセットJSONや旧形式）はvaluesがあれば「全項目決定済み」とみなす
+  const setFlags = obj.setFlags
+    ? Object.assign(emptyFlags(), obj.setFlags)
+    : (obj.values ? ADJ_ITEMS.reduce((o,k)=>{o[k]=true; return o;}, {}) : emptyFlags());
+  const s = {
+    id: obj.sessionId || obj.sourceSessionId || nextSessionId(),
+    name: obj.presetName || "Imported",
+    created: obj.created || obj.createdAt || new Date().toISOString(),
+    image: obj.image || {file:"unknown",width:0,height:0},
+    thumbnail: obj.thumbnail || null,
+    analysis: obj.analysis || {brightness:0,darkRatio:0,brightRatio:0,histogram:[0,0,0,0,0],saturation:0,contrast:"普通",colorTendency:"中立",autoTags: obj.autoTags||[]},
+    manualTags: obj.manualTags || [],
+    values, setFlags,
+    history: Object.assign(emptyHistory(), obj.history||{}),
+    snapshots: obj.snapshots || [],
+    currentIndex: 0,
+    reAdjustReturnToFinal: false,
+    stage: "final",
+    _img: null, _baseW:0, _baseH:0, _baseImageData:null,
+    _step: {},
+    _isPresetImport: isPreset,
+    _suggestions: computeSuggestions((obj.autoTags||(obj.analysis&&obj.analysis.autoTags))||[], libraryPool())
+  };
+  if(!s.analysis.autoTags) s.analysis.autoTags = [];
+  ADJ_ITEMS.forEach(k => s._step[k] = ADJ_STEP_DEFAULT[k]);
+  return s;
+}
+
+
+/* ============================== レンダリング：トップバー ============================== */
+function renderTopbar(){
+  const meta = $("sessionMeta");
+  $("btnExport").disabled = !current;
+  if(!current){
+    meta.innerHTML = `<span class="empty-note">画像をアップロードしてセッションを開始してください</span>`;
+    return;
+  }
+  const doneCount = ADJ_ITEMS.filter(k=>current.setFlags[k]).length;
+  const complete = doneCount === ADJ_ITEMS.length;
+  meta.innerHTML = `
+    <input type="text" id="sessionNameInput" value="${escapeHtml(current.name)}">
+    <span class="mono">${current.id}</span>
+    <span class="mono">${fmtDate(new Date(current.created))}</span>
+    <span class="badge ${complete?"complete":""}">${doneCount}/${ADJ_ITEMS.length} 項目設定済み</span>
+  `;
+  $("sessionNameInput").addEventListener("change", e=>{ current.name = e.target.value || "Untitled"; });
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ============================== レンダリング：解析パネル ============================== */
+function renderLibrarySection(){
+  const inTab = sessions.filter(s => s !== current).length;
+  return `
+    <div class="section-gap" style="margin-top:0;padding-top:0;border-top:none;">
+      <h3>類似傾向ライブラリ</h3>
+      <div class="metric-row"><span>読込済みJSON</span><span class="v">${library.length}件</span></div>
+      <div class="metric-row"><span>このタブ内の他セッション</span><span class="v">${inTab}件</span></div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+        <button class="btn btn-small" id="btnLoadLibrary">＋ 過去のJSONを読込</button>
+        ${library.length ? `<button class="btn btn-small" id="btnClearLibrary">クリア</button>` : ""}
+      </div>
+      <input type="file" id="libraryInput" accept="application/json" multiple hidden>
+      <p style="font-size:10px;color:var(--text-faint);margin:6px 0 0;">タグが一致する過去データの平均値を、新規セッションの各項目の初期値（中心値）として自動反映します。</p>
+    </div>
+  `;
+}
+function wireLibrarySection(){
+  $("btnLoadLibrary").addEventListener("click", ()=> $("libraryInput").click());
+  $("libraryInput").addEventListener("change", async ()=>{
+    const files = Array.from($("libraryInput").files);
+    let added = 0, skippedPreset = 0, invalid = 0;
+    for(const f of files){
+      try{
+        const obj = JSON.parse(await f.text());
+        if(obj.schema === "tuning-bench-preset"){
+          skippedPreset++; // プリセットJSONはタグ情報を持たないため集計対象外
+          continue;
+        }
+        addToLibrary(obj, f.name);
+        added++;
+      }catch(err){ invalid++; console.warn("スキップ（不正なJSON）:", f.name, err); }
+    }
+    $("libraryInput").value = "";
+    refreshCurrentSuggestions();
+    renderAnalysisPanel();
+    if(current && current.stage==="tuning" && !screens.tuning.classList.contains("hidden")) renderTuningScreen();
+    if(skippedPreset || invalid){
+      alert(`${added}件を読み込みました。`
+        + (skippedPreset ? `\n${skippedPreset}件はプリセットJSON（タグ情報なし）のため集計対象外としてスキップしました。` : "")
+        + (invalid ? `\n${invalid}件は不正なJSONのためスキップしました。` : ""));
+    }
+  });
+  const clearBtn = $("btnClearLibrary");
+  if(clearBtn){
+    clearBtn.addEventListener("click", ()=>{
+      library = [];
+      refreshCurrentSuggestions();
+      renderAnalysisPanel();
+      if(current && current.stage==="tuning" && !screens.tuning.classList.contains("hidden")) renderTuningScreen();
+    });
+  }
+}
+
+function renderAnalysisPanel(){
+  const p = $("panelAnalysis");
+  if(!current){
+    p.innerHTML = renderLibrarySection() + `<div class="section-gap"><h3>画像解析</h3><span class="empty-note">セッションがありません</span></div>`;
+    wireLibrarySection();
+    return;
+  }
+  const a = current.analysis;
+  const histLabels = ["0-50","51-100","101-150","151-200","201-255"];
+  const sug = current._suggestions;
+  let html = renderLibrarySection();
+  html += `<div class="section-gap"><h3>画像解析</h3>`;
+  if(current.thumbnail){
+    html += `<div class="thumb-frame"><img src="${current.thumbnail}" alt="thumbnail"></div>`;
+  }
+  html += `
+    <div class="metric-row"><span>平均輝度</span><span class="v">${a.brightness}%</span></div>
+    <div class="metric-row"><span>暗部割合</span><span class="v">${a.darkRatio}%</span></div>
+    <div class="metric-row"><span>明部割合</span><span class="v">${a.brightRatio}%</span></div>
+    <div class="metric-row"><span>平均彩度</span><span class="v">${a.saturation}%</span></div>
+    <div class="metric-row"><span>コントラスト</span><span class="v">${a.contrast}</span></div>
+    <div class="metric-row"><span>色傾向</span><span class="v">${a.colorTendency}</span></div>
+    <div class="hist">
+      ${a.histogram.map((v,i)=>`
+        <div class="hist-bar-row">
+          <div class="hist-bar-label">${histLabels[i]}</div>
+          <div class="hist-bar-track"><div class="hist-bar-fill" style="width:${v}%"></div></div>
+          <div class="hist-bar-pct">${v}%</div>
+        </div>`).join("")}
+    </div>
+    </div>
+    <div class="section-gap">
+      <h3>自動タグ</h3>
+      <div class="tag-list">${(a.autoTags||[]).map(t=>`<span class="tag auto">${escapeHtml(t)}</span>`).join("")}</div>
+      ${sug && sug.matchedCount>0 ? `<p style="font-size:10px;color:var(--cyan);margin:8px 0 0;">タグが一致する過去データ ${sug.matchedCount}件を初期値の参考にしています</p>` : `<p style="font-size:10px;color:var(--text-faint);margin:8px 0 0;">一致する過去データはまだありません（初期値は0からスタート）</p>`}
+    </div>
+    <div class="section-gap">
+      <h3>手動タグ</h3>
+      <div class="tag-list" id="manualTagList">
+        ${current.manualTags.map((t,i)=>`<span class="tag manual">${escapeHtml(t)}<span class="tag-remove" data-i="${i}">×</span></span>`).join("")}
+      </div>
+      <div class="tag-input-row">
+        <input type="text" id="manualTagInput" placeholder="例: FCイベント / レイド">
+        <button class="btn btn-small" id="btnAddTag">追加</button>
+      </div>
+    </div>
+    ${!current._img ? `<div class="section-gap"><span class="empty-note">元画像は保存されていません。比較を再生成するには画像を再アップロードしてください。</span>
+      <button class="btn btn-small" id="btnReattachImage" style="margin-top:6px;">画像を再アップロード</button></div>` : ""}
+  `;
+  p.innerHTML = html;
+  wireLibrarySection();
+
+  $("btnAddTag").addEventListener("click", ()=>{
+    const inp = $("manualTagInput");
+    const v = inp.value.trim();
+    if(v){
+      current.manualTags.push(v); inp.value="";
+      refreshCurrentSuggestions();
+      renderAnalysisPanel();
+      if(current.stage==="tuning" && !screens.tuning.classList.contains("hidden")) renderTuningScreen();
+    }
+  });
+  $("manualTagInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); $("btnAddTag").click(); } });
+  p.querySelectorAll(".tag-remove").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      current.manualTags.splice(+el.dataset.i,1);
+      refreshCurrentSuggestions();
+      renderAnalysisPanel();
+      if(current.stage==="tuning" && !screens.tuning.classList.contains("hidden")) renderTuningScreen();
+    });
+  });
+  const reattach = $("btnReattachImage");
+  if(reattach){
+    reattach.addEventListener("click", ()=>{
+      const inp = document.createElement("input");
+      inp.type="file"; inp.accept="image/*";
+      inp.addEventListener("change", ()=>{ if(inp.files[0]) reattachImage(inp.files[0]); });
+      inp.click();
+    });
+  }
+}
+
+function reattachImage(file){
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = ()=>{
+    const baseCanvas = scaledCanvas(img, THUMB_W);
+    current._img = img;
+    current._baseW = baseCanvas.width; current._baseH = baseCanvas.height;
+    current._baseImageData = baseCanvas.getContext("2d").getImageData(0,0,baseCanvas.width,baseCanvas.height);
+    URL.revokeObjectURL(url);
+    renderAll();
+    if(current.stage==="final") renderFinalScreen(); else renderTuningScreen();
+  };
+  img.src = url;
+}
+
+/* ============================== レンダリング：履歴パネル ============================== */
+function renderHistoryPanel(){
+  const p = $("panelHistory");
+  if(!current){
+    p.innerHTML = `<h3>調整履歴</h3><span class="empty-note">セッションがありません</span>`;
+    return;
+  }
+  let html = `<h3>調整履歴</h3>`;
+  ADJ_ITEMS.forEach((item, idx)=>{
+    const set = current.setFlags[item];
+    const isActive = current.stage==="tuning" && current.currentIndex===idx;
+    const hist = current.history[item];
+    html += `
+      <div class="hist-item ${isActive?"active":""}">
+        <div class="hist-item-top">
+          <span class="hist-item-label">${item}</span>
+          <span class="hist-item-val ${set?"set":"unset"}">${set ? current.values[item] : "未設定"}</span>
+        </div>
+        ${hist.length>1 ? `<div class="hist-log">${hist.map((v,i)=>`<span class="${i===hist.length-1?"cur":""}">${i+1}回目:${v}</span>`).join("")}</div>` : ""}
+        <div class="hist-item-actions">
+          <button class="btn btn-small" data-goto="${item}">${set?"再調整":"調整する"}</button>
+        </div>
+      </div>`;
+  });
+  p.innerHTML = html;
+  p.querySelectorAll("[data-goto]").forEach(btn=>{
+    btn.addEventListener("click", ()=> goToItemForReAdjust(btn.dataset.goto));
+  });
+}
+
+/* ============================== チューニング画面 ============================== */
+function renderItemTabs(){
+  const wrap = $("itemTabs");
+  const sug = current._suggestions;
+  wrap.innerHTML = ADJ_ITEMS.map((item,idx)=>{
+    const hasSuggestion = sug && sug.perItem[item] && !current.setFlags[item];
+    const cls = idx===current.currentIndex ? "active" : (current.setFlags[item] ? "done" : (hasSuggestion ? "suggested" : "pending"));
+    return `<button class="item-tab ${cls}" data-idx="${idx}">${item}</button>`;
+  }).join("");
+  wrap.querySelectorAll("[data-idx]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      current.currentIndex = +btn.dataset.idx;
+      current.reAdjustReturnToFinal = false;
+      renderTuningScreen();
+    });
+  });
+}
+
+function computeFiveValues(lo, hi, center, step){
+  let start = center - 2*step;
+  if(start < lo) start = lo;
+  if(start + 4*step > hi) start = hi - 4*step;
+  if(start < lo) start = lo; // 範囲がstep幅より狭い場合はクランプに任せる
+  const vals = [];
+  for(let i=0;i<5;i++) vals.push(Math.round(clamp(start + i*step, lo, hi)));
+  return vals;
+}
+
+function generateComparisons(){
+  const grid = $("grid5");
+  if(!current._baseImageData){
+    grid.innerHTML = `<div class="empty-note" style="grid-column:1/-1;">元画像が読み込まれていません。左パネルから画像を再アップロードしてください。</div>`;
+    return;
+  }
+  const item = ADJ_ITEMS[current.currentIndex];
+  const [lo,hi] = ADJ_RANGE[item];
+  const step = current._step[item];
+  const center = current._center !== undefined ? current._center : current.values[item];
+  const vals = computeFiveValues(lo, hi, center, step);
+
+  grid.innerHTML = "";
+  const labels = ["A","B","C","D","E"];
+  vals.forEach((val, i)=>{
+    const testValues = Object.assign({}, current.values, {[item]: val});
+    const canvasOut = renderVariant(current._baseImageData, current._baseW, current._baseH, testValues);
+    const card = document.createElement("div");
+    card.className = "cmp-card" + (current.setFlags[item] && current.values[item]===val ? " selected" : "");
+    card.dataset.val = val;
+    card.innerHTML = `<span class="cmp-label">${labels[i]}</span>`;
+    canvasOut.style.width="100%"; canvasOut.style.height="auto";
+    card.appendChild(canvasOut);
+    const valDiv = document.createElement("div");
+    valDiv.className = "cmp-val";
+    valDiv.textContent = val;
+    card.appendChild(valDiv);
+    card.addEventListener("click", ()=> selectValue(item, val));
+    grid.appendChild(card);
+  });
+}
+
+function selectValue(item, val){
+  current.values[item] = val;
+  current.setFlags[item] = true;
+  current.history[item].push(val);
+  current._center = val;
+  $("currentValueLabel").innerHTML = `${item} = <b>${val}</b>`;
+  $("btnNextItem").disabled = false;
+  renderHistoryPanel();
+  renderItemTabs();
+  generateComparisons();
+}
+
+function renderTuningScreen(){
+  showScreen("tuning");
+  const item = ADJ_ITEMS[current.currentIndex];
+  const sug = current._suggestions && current._suggestions.perItem[item];
+  current._center = current.setFlags[item] ? current.values[item] : (sug ? sug.value : 0);
+  renderItemTabs();
+  $("tuningTitle").textContent = ADJ_LABEL[item];
+  const rangeNote = `範囲: ${ADJ_RANGE[item][0]} 〜 ${ADJ_RANGE[item][1]}`;
+  if(current.reAdjustReturnToFinal){
+    $("tuningSub").textContent = "再調整モード：選択すると最終確認画面に戻ります";
+  } else if(!current.setFlags[item] && sug){
+    $("tuningSub").textContent = `類似タグの過去データ${sug.count}件（一致${current._suggestions.matchedCount}件中）の平均から初期値 ${sug.value} を設定しました（${rangeNote}）`;
+  } else {
+    $("tuningSub").textContent = `他の8項目は現在の値のまま固定されます（${rangeNote}）`;
+  }
+  $("ctrCenter").value = current._center;
+  $("ctrStep").value = current._step[item];
+  $("btnPrevItem").disabled = (current.currentIndex===0) || current.reAdjustReturnToFinal;
+  $("btnNextItem").textContent = current.reAdjustReturnToFinal ? "確認画面へ戻る →" : (current.currentIndex===ADJ_ITEMS.length-1 ? "最終確認へ →" : "次へ →");
+  $("btnNextItem").disabled = !current.setFlags[item];
+  $("btnSkipItem").classList.toggle("hidden", current.reAdjustReturnToFinal);
+  $("currentValueLabel").innerHTML = current.setFlags[item] ? `${item} = <b>${current.values[item]}</b>` : "未選択";
+  generateComparisons();
+}
+
+function goToItemForReAdjust(item){
+  current.currentIndex = ADJ_ITEMS.indexOf(item);
+  current.reAdjustReturnToFinal = (current.stage === "final");
+  current.stage = "tuning";
+  renderTuningScreen();
+}
+
+/* ============================== 最終確認画面 ============================== */
+function renderFinalScreen(){
+  current.stage = "final";
+  showScreen("final");
+  const box = $("finalPreview");
+  box.innerHTML = `<div class="rendering">生成中…</div>`;
+  setTimeout(()=>{
+    if(current._img){
+      const baseCanvas = scaledCanvas(current._img, FINAL_W);
+      const baseData = baseCanvas.getContext("2d").getImageData(0,0,baseCanvas.width,baseCanvas.height);
+      const out = renderVariant(baseData, baseCanvas.width, baseCanvas.height, current.values);
+      out.style.width="100%"; out.style.height="auto";
+      box.innerHTML = "";
+      box.appendChild(out);
+    } else {
+      box.innerHTML = current.thumbnail
+        ? `<img src="${current.thumbnail}" style="width:100%;display:block;"><div class="rendering" style="position:static;background:none;padding:8px;">元画像未読込のためサムネイル表示中（再調整には画像の再アップロードが必要です）</div>`
+        : `<div class="rendering" style="position:static;">プレビューできません</div>`;
+    }
+  }, 10);
+
+  const grid = $("finalGrid");
+  grid.innerHTML = ADJ_ITEMS.map(item=>`
+    <div class="final-item">
+      <div><div class="fi-name">${item}</div><div class="fi-val">${current.setFlags[item] ? current.values[item] : "—"}</div></div>
+      <button class="btn btn-small" data-goto="${item}">${current.setFlags[item] ? "再調整" : "調整する"}</button>
+    </div>
+  `).join("");
+  grid.querySelectorAll("[data-goto]").forEach(btn=>{
+    btn.addEventListener("click", ()=> goToItemForReAdjust(btn.dataset.goto));
+  });
+
+  renderSnapshotArea();
+  renderHistoryPanel();
+}
+
+function renderSnapshotArea(){
+  const area = $("snapshotArea");
+  let html = `<h3 style="font-size:11px;letter-spacing:.12em;color:var(--text-faint);text-transform:uppercase;margin-bottom:10px;">スナップショット比較</h3>`;
+  if(current.snapshots.length===0){
+    html += `<span class="empty-note">まだスナップショットがありません</span>`;
+  } else {
+    html += current.snapshots.map(snap=>`
+      <div class="snap-item ${snapCompareSel.includes(snap.id)?"compare-on":""}" data-id="${snap.id}">
+        <span class="snap-name">${escapeHtml(snap.name)}</span>
+        <span class="mono" style="color:var(--text-faint);">${fmtDate(new Date(snap.timestamp))}</span>
+        <button class="btn btn-small" data-apply="${snap.id}">適用</button>
+        <button class="btn btn-small" data-cmp="${snap.id}">比較</button>
+        <button class="btn btn-small btn-cyan" data-preset="${snap.id}">プリセット書き出し</button>
+        <button class="btn btn-small" data-del="${snap.id}">削除</button>
+      </div>
+    `).join("");
+  }
+  if(snapCompareSel.length===2){
+    const [s1,s2] = snapCompareSel.map(id=>current.snapshots.find(s=>s.id===id));
+    if(s1 && s2){
+      html += `<table class="compare-table"><thead><tr><th>項目</th><th>${escapeHtml(s1.name)}</th><th>${escapeHtml(s2.name)}</th></tr></thead><tbody>`;
+      html += ADJ_ITEMS.map(item=>`<tr><td>${item}</td><td>${s1.values[item]}</td><td>${s2.values[item]}</td></tr>`).join("");
+      html += `</tbody></table>`;
+    }
+  }
+  area.innerHTML = html;
+  area.querySelectorAll("[data-apply]").forEach(b=>b.addEventListener("click", ()=>{
+    const snap = current.snapshots.find(s=>s.id===b.dataset.apply);
+    if(snap){
+      current.values = Object.assign(emptyValues(), snap.values);
+      ADJ_ITEMS.forEach(k=> current.setFlags[k] = true);
+      renderFinalScreen();
+    }
+  }));
+  area.querySelectorAll("[data-preset]").forEach(b=>b.addEventListener("click", ()=>{
+    const snap = current.snapshots.find(s=>s.id===b.dataset.preset);
+    if(snap) exportPreset(snap.name, snap.values, current.id);
+  }));
+  area.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>{
+    current.snapshots = current.snapshots.filter(s=>s.id!==b.dataset.del);
+    snapCompareSel = snapCompareSel.filter(id=>id!==b.dataset.del);
+    renderSnapshotArea();
+  }));
+  area.querySelectorAll("[data-cmp]").forEach(b=>b.addEventListener("click", ()=>{
+    const id = b.dataset.cmp;
+    if(snapCompareSel.includes(id)) snapCompareSel = snapCompareSel.filter(x=>x!==id);
+    else { snapCompareSel.push(id); if(snapCompareSel.length>2) snapCompareSel.shift(); }
+    renderSnapshotArea();
+  }));
+}
+
+/* ============================== セッション一覧画面 ============================== */
+function renderSessionsScreen(){
+  showScreen("sessions");
+  const grid = $("sessionListGrid");
+  const list = current ? [current, ...sessions.filter(s=>s!==current)] : sessions;
+  if(list.length===0){
+    grid.innerHTML = `<span class="empty-note">セッションがありません</span>`;
+  } else {
+    grid.innerHTML = list.map(s=>`
+      <div class="session-card ${compareSel.includes(s.id)?"compare-on":""}" data-id="${s.id}">
+        ${s.thumbnail ? `<img class="sc-thumb" src="${s.thumbnail}">` : `<div class="sc-thumb"></div>`}
+        <div class="sc-body">
+          <div class="sc-name">${escapeHtml(s.name)}</div>
+          <div class="sc-date">${s.id} ・ ${fmtDate(new Date(s.created))}</div>
+          <div class="sc-tags">${(s.analysis.autoTags||[]).slice(0,4).map(t=>`<span class="tag auto">${escapeHtml(t)}</span>`).join("")}</div>
+          <div class="sc-actions">
+            <button class="btn btn-small" data-open="${s.id}">開く</button>
+            <button class="btn btn-small" data-cmp="${s.id}">比較</button>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+  $("compareOut").innerHTML = "";
+  if(compareSel.length===2){
+    const [s1,s2] = compareSel.map(id => list.find(s=>s.id===id));
+    if(s1 && s2){
+      let html = `<table class="compare-table"><thead><tr><th>項目</th><th>${escapeHtml(s1.name)}</th><th>${escapeHtml(s2.name)}</th></tr></thead><tbody>`;
+      html += ADJ_ITEMS.map(item=>`<tr><td>${item}</td><td>${s1.values[item]}</td><td>${s2.values[item]}</td></tr>`).join("");
+      html += `</tbody></table>`;
+      $("compareOut").innerHTML = html;
+    }
+  }
+  grid.querySelectorAll("[data-open]").forEach(b=>b.addEventListener("click", ()=>{
+    const s = list.find(x=>x.id===b.dataset.open);
+    if(s){
+      if(!sessions.includes(s)) sessions.push(s);
+      current = s;
+      renderAll();
+      showScreen(current.stage==="final" ? "final" : "tuning");
+      if(current.stage==="final") renderFinalScreen(); else renderTuningScreen();
+    }
+  }));
+  grid.querySelectorAll("[data-cmp]").forEach(b=>b.addEventListener("click", ()=>{
+    const id = b.dataset.cmp;
+    if(compareSel.includes(id)) compareSel = compareSel.filter(x=>x!==id);
+    else { compareSel.push(id); if(compareSel.length>2) compareSel.shift(); }
+    renderSessionsScreen();
+  }));
+}
+
+/* ============================== 全体再描画 ============================== */
+function renderAll(){
+  renderTopbar();
+  renderAnalysisPanel();
+  renderHistoryPanel();
+}
+
+/* ============================== イベント：アップロード ============================== */
+function handleFile(file){
+  if(!file || !file.type.startsWith("image/")) return;
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = ()=>{
+    if(current && !sessions.includes(current)) sessions.push(current);
+    current = createSessionFromImage(file, img);
+    sessions.push(current);
+    URL.revokeObjectURL(url);
+    renderAll();
+    current.currentIndex = 0;
+    renderTuningScreen();
+  };
+  img.src = url;
+}
+dropzone.addEventListener("click", ()=>fileInput.click());
+fileInput.addEventListener("change", ()=>{ if(fileInput.files[0]) handleFile(fileInput.files[0]); });
+["dragenter","dragover"].forEach(ev=>dropzone.addEventListener(ev, e=>{ e.preventDefault(); dropzone.classList.add("drag"); }));
+["dragleave","drop"].forEach(ev=>dropzone.addEventListener(ev, e=>{ e.preventDefault(); dropzone.classList.remove("drag"); }));
+dropzone.addEventListener("drop", e=>{ if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+/* ============================== イベント：チューニング操作 ============================== */
+$("btnRegen").addEventListener("click", ()=>{
+  const item = ADJ_ITEMS[current.currentIndex];
+  current._center = +$("ctrCenter").value || 0;
+  current._step[item] = Math.max(1, +$("ctrStep").value || 1);
+  generateComparisons();
+});
+$("btnReExplore").addEventListener("click", ()=>{
+  const item = ADJ_ITEMS[current.currentIndex];
+  current._center = current.setFlags[item] ? current.values[item] : (+$("ctrCenter").value||0);
+  current._step[item] = Math.max(1, Math.round(current._step[item]/2) || 1);
+  $("ctrCenter").value = current._center;
+  $("ctrStep").value = current._step[item];
+  generateComparisons();
+});
+$("btnPrevItem").addEventListener("click", ()=>{
+  if(current.currentIndex>0){ current.currentIndex--; renderTuningScreen(); }
+});
+$("btnSkipItem").addEventListener("click", ()=>{
+  const item = ADJ_ITEMS[current.currentIndex];
+  if(!current.setFlags[item]) selectValue(item, 0);
+  $("btnNextItem").click();
+});
+$("btnNextItem").addEventListener("click", ()=>{
+  if(current.reAdjustReturnToFinal){
+    current.reAdjustReturnToFinal = false;
+    renderFinalScreen();
+    return;
+  }
+  if(current.currentIndex < ADJ_ITEMS.length-1){
+    current.currentIndex++;
+    renderTuningScreen();
+  } else {
+    renderFinalScreen();
+  }
+});
+document.addEventListener("keydown", e=>{
+  if(screens.tuning.classList.contains("hidden")) return;
+  if(["1","2","3","4","5"].includes(e.key)){
+    const cards = document.querySelectorAll("#grid5 .cmp-card");
+    const idx = +e.key - 1;
+    if(cards[idx]) cards[idx].click();
+  }
+});
+
+/* ============================== イベント：最終確認 ============================== */
+$("btnSaveSnapshot").addEventListener("click", ()=>{
+  const name = prompt("スナップショット名を入力してください", `プリセット案${current.snapshots.length+1}`);
+  if(name===null) return;
+  current.snapshots.push({
+    id: "snap_" + Date.now(),
+    name: name || `プリセット案${current.snapshots.length+1}`,
+    values: Object.assign({}, current.values),
+    timestamp: new Date().toISOString()
+  });
+  renderSnapshotArea();
+});
+$("btnExportFinal").addEventListener("click", exportCurrentSession);
+$("btnSaveImage").addEventListener("click", exportFinalImage);
+function exportFinalImage(){
+  if(!current) return;
+  const btn = $("btnSaveImage");
+  if(!current._img){
+    if(current.thumbnail){
+      const a = document.createElement("a");
+      a.href = current.thumbnail;
+      a.download = `${sanitizeFilename(current.name)}_thumbnail.jpg`;
+      document.body.appendChild(a); a.click(); a.remove();
+      alert("元画像が読み込まれていないため、保存済みサムネイル（低解像度）のみ保存しました。フル解像度で保存するには、左パネルから元画像を再アップロードしてください。");
+    } else {
+      alert("保存できる画像がありません。");
+    }
+    return;
+  }
+  const origText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "書き出し中…";
+  setTimeout(()=>{
+    try{
+      const baseCanvas = scaledCanvas(current._img, current._img.width); // フル解像度で再生成
+      const baseData = baseCanvas.getContext("2d").getImageData(0,0,baseCanvas.width,baseCanvas.height);
+      const out = renderVariant(baseData, baseCanvas.width, baseCanvas.height, current.values);
+      downloadCanvasAsPNG(out, `${sanitizeFilename(current.name)}_final.png`);
+    }catch(err){
+      alert("画像の書き出しに失敗しました: " + err.message);
+    }finally{
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
+  }, 20);
+}
+$("btnExportPreset").addEventListener("click", ()=>{
+  if(!current) return;
+  const unset = ADJ_ITEMS.filter(k=>!current.setFlags[k]);
+  if(unset.length && !confirm(`未設定の項目（${unset.join(", ")}）は0として書き出されます。よろしいですか？`)) return;
+  exportPreset(current.name, current.values, current.id);
+});
+
+/* ============================== イベント：トップバー ============================== */
+$("btnNewSession").addEventListener("click", ()=>{
+  if(current && !sessions.includes(current)) sessions.push(current);
+  current = null;
+  renderAll();
+  showScreen("upload");
+});
+$("btnSessionList").addEventListener("click", renderSessionsScreen);
+$("btnExport").addEventListener("click", exportCurrentSession);
+function exportCurrentSession(){
+  if(!current) return;
+  downloadJSON(exportableSession(current), `${current.id}_${sanitizeFilename(current.name)}.tuning.json`);
+}
+function exportPreset(name, values, sourceSessionId){
+  downloadJSON(exportablePreset(name, values, sourceSessionId), `${sanitizeFilename(name)}.preset.json`);
+}
+importInput.addEventListener("change", ()=>{
+  const file = importInput.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const obj = JSON.parse(reader.result);
+      const s = importSession(obj);
+      sessions.push(s);
+      current = s;
+      renderAll();
+      renderFinalScreen();
+      if(s._isPresetImport){
+        alert("軽量なプリセットJSON（調整値のみ）を読み込みました。タグ・解析・履歴情報は含まれていないため、比較を再生成するには元画像の再アップロードが必要です。");
+      }
+    }catch(err){
+      alert("JSONの読み込みに失敗しました: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+  importInput.value = "";
+});
+
+/* ============================== 初期表示 ============================== */
+renderAll();
+showScreen("upload");
+
+})();
+</script>
+</body>
+</html>
