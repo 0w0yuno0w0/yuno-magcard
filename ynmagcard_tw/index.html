@@ -826,6 +826,7 @@
             <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
                 <span>副職業（可複選）</span>
                 <label style="display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:#1C1C1E; cursor:pointer; background:#FFF; border:1px solid #D1D1D6; border-radius:8px; padding:5px 9px; text-transform:none; letter-spacing:normal;">
+                    <span>職業顯示</span>
                     <input type="checkbox" id="subjobs-english-mode" style="accent-color:#1C1C1E; width:13px; height:13px; cursor:pointer;">
                     English ver.
                 </label>
@@ -1103,6 +1104,52 @@
     cardMetaContainer.style.display = 'none';
 
     const jobTags = document.querySelectorAll('.job-tag');
+    const mainJobSelect = document.getElementById('input-main-job');
+    const mainJobLabels = {
+        'PALADIN': { zh: '騎士', en: 'Paladin' },
+        'WARRIOR': { zh: '戰士', en: 'Warrior' },
+        'DARK KNIGHT': { zh: '暗黑騎士', en: 'Dark Knight' },
+        'GUNBREAKER': { zh: '絕槍戰士', en: 'Gunbreaker' },
+        'WHITE MAGE': { zh: '白魔道士', en: 'White Mage' },
+        'SCHOLAR': { zh: '學者', en: 'Scholar' },
+        'ASTROLOGIAN': { zh: '占星術士', en: 'Astrologian' },
+        'SAGE': { zh: '賢者', en: 'Sage' },
+        'MONK': { zh: '武僧', en: 'Monk' },
+        'DRAGOON': { zh: '龍騎士', en: 'Dragoon' },
+        'NINJA': { zh: '忍者', en: 'Ninja' },
+        'SAMURAI': { zh: '武士', en: 'Samurai' },
+        'REAPER': { zh: '奪魂者', en: 'Reaper' },
+        'VIPER': { zh: '毒蛇劍士', en: 'Viper' },
+        'BARD': { zh: '吟遊詩人', en: 'Bard' },
+        'MACHINIST': { zh: '機工士', en: 'Machinist' },
+        'DANCER': { zh: '舞者', en: 'Dancer' },
+        'BLACK MAGE': { zh: '黑魔道士', en: 'Black Mage' },
+        'SUMMONER': { zh: '召喚士', en: 'Summoner' },
+        'RED MAGE': { zh: '赤魔道士', en: 'Red Mage' },
+        'BLUEMAGE': { zh: '青魔道士', en: 'Blue Mage' },
+        'PICTOMANCER': { zh: '繪靈法師', en: 'Pictomancer' }
+    };
+    const mainJobGroupLabels = [
+        { zh: '坦克', en: 'Tank' },
+        { zh: '治療', en: 'Healer' },
+        { zh: '近戰 DPS', en: 'Melee DPS' },
+        { zh: '遠程 DPS', en: 'Physical Ranged DPS' },
+        { zh: '魔法 DPS', en: 'Magical Ranged DPS' }
+    ];
+
+    function updateMainJobLabels() {
+        const isEn = document.getElementById('subjobs-english-mode').checked;
+        const placeholder = mainJobSelect.querySelector('option[value=""]');
+        if (placeholder) placeholder.textContent = isEn ? 'Please select' : '請選擇';
+        mainJobSelect.querySelectorAll('option').forEach(option => {
+            const label = mainJobLabels[option.value];
+            if (label) option.textContent = isEn ? label.en : label.zh;
+        });
+        mainJobSelect.querySelectorAll('optgroup').forEach((group, index) => {
+            const label = mainJobGroupLabels[index];
+            if (label) group.label = isEn ? label.en : label.zh;
+        });
+    }
 
     function updateSubJobLabels() {
         const isEn = document.getElementById('subjobs-english-mode').checked;
@@ -1112,6 +1159,7 @@
     }
 
     document.getElementById('subjobs-english-mode').addEventListener('change', () => {
+        updateMainJobLabels();
         updateSubJobLabels();
         updateJobsDisplay();
     });
@@ -1174,13 +1222,15 @@
         const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--magazine-accent').trim();
         const isEn = document.getElementById('subjobs-english-mode').checked;
 
-        const mainJobVal = document.getElementById('input-main-job').value;
+        const mainJobVal = mainJobSelect.value;
         if (mainJobVal) {
+            const mainJob = mainJobLabels[mainJobVal];
+            const mainJobName = mainJob ? (isEn ? mainJob.en : mainJob.zh) : mainJobVal;
             const mainItem = document.createElement('div');
             mainItem.className = 'job-display-item';
             mainItem.innerHTML = `
-                <span class="role-title" style="font-size:${roleSize}px; color:${accentColor}; margin-bottom: 0px; display: block; line-height: 1.2;">MAIN JOB</span>
-                <span class="job-display-en" style="font-size:${jobSize}px; display: block; line-height: 1.1;">${mainJobVal}</span>
+                <span class="role-title" style="font-size:${roleSize}px; color:${accentColor}; margin-bottom: 0px; display: block; line-height: 1.2;">${isEn ? 'MAIN JOB' : '主職業'}</span>
+                <span class="job-display-en" style="font-size:${jobSize}px; display: block; line-height: 1.1;">${mainJobName}</span>
             `;
             jobsContainer.appendChild(mainItem);
         }
@@ -1565,6 +1615,8 @@
     function updateImageTransform() { const img = document.getElementById('card-image'); if (img.src) { img.style.transform = `translate(calc(-50% + ${imgX}px), calc(-50% + ${imgY}px)) scale(${imgScale})`; } }
 
     window.addEventListener('DOMContentLoaded', () => {
+        updateMainJobLabels();
+        updateSubJobLabels();
         updateMagazineTopics();
         syncTopicDOMPosition();
         updateJobsDisplay();
