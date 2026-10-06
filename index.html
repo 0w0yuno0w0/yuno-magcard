@@ -51,10 +51,10 @@
         </div>
         <h3 id="notice-title">Yunoᒼᑋªⁿからのお知らせ</h3>
         <ul id="notice-list">
+            <li>Tarot Card Makerを実装しました。</li>
             <li>現在、各言語版へのローカライズを順次進めています。そのため、現在は日本語版に集約しています。</li>
             <li>ローカライズには時間がかかりそうなので、気長に待っててね。</li>
             <li>スマホ版の位置ズレが修正されました。環境によっては位置ズレがあるかもしれません。PCでの操作を推奨しています。</li>
-            <li>Photo Filter機能は現在修正中のため使用できません。</li>
         </ul>
     </div>
 
@@ -70,6 +70,19 @@
                 <a href="./ynmagcard_kr/" class="btn jp">한국어 Ver</a>
                 <a href="./ynmagcard_cn/" class="btn jp">簡体字版</a>
                <a href="./ynmagcard_tw/" class="btn jp">繁體字版</a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-content">
+                <h2>Tarot Card Maker</h2>
+                <p id="desc-tarot">タロットカード風カードを作成します。</p>
+            </div>
+            <div class="button-group">
+                <a href="./tarot-card-maker/" class="btn jp">日本語版</a>
+                <a href="#" class="btn disabled">English Ver</a>
+                <a href="#" class="btn disabled">한국어 Ver</a>
+                <a href="#" class="btn disabled">簡体字版</a>
+               <a href="#" class="btn disabled">繁體字版</a>
             </div>
         </div>
         <div class="card">
@@ -112,33 +125,38 @@
         const translations = {
             jp: { 
                 title: "Yunoᒼᑋªⁿからのお知らせ", 
-                notice: ["Magazine Card GeneratorのEnglish Verが使えるようになったよ！", "他の言語もローカライズを順次進めています。気長に待っててね。", "スマホ版の位置ズレが修正されました。環境によっては位置ズレがあるかもしれません。PCでの操作を推奨しています。", "Photo Filter機能は現在修正中のため使用できません。"], 
+                notice: ["Tarot Card Makerを実装しました。", "Magazine Card GeneratorのEnglish Verが使えるようになったよ！", "他の言語もローカライズを順次進めています。気長に待っててね。", "スマホ版の位置ズレが修正されました。環境によっては位置ズレがあるかもしれません。PCでの操作を推奨しています。"], 
                 mag: "マガジン風のキャラクターカードを作成します。", 
-                prof: "シンプルで見やすいキャラクターカードを作成します。" 
+                prof: "シンプルで見やすいキャラクターカードを作成します。",
+                tarot: "タロットカード風カードを作成します。"
             },
             en: { 
                 title: "Notice from Yunoᒼᑋªⁿ", 
-                notice: ["The English version of the Magazine Card Generator is now available!", "We are working on localization for other languages, so please be patient.", "Mobile alignment issues have been fixed. Please note that depending on your environment, some issues may still occur. We recommend using a PC.", "The Photo Filter feature is currently under maintenance and is unavailable."], 
+                notice: ["Tarot Card Maker has been added!", "The English version of the Magazine Card Generator is now available!", "We are working on localization for other languages, so please be patient.", "Mobile alignment issues have been fixed. Please note that depending on your environment, some issues may still occur. We recommend using a PC."], 
                 mag: "Create a magazine-style character card.", 
-                prof: "Create a simple and easy-to-read character card." 
+                prof: "Create a simple and easy-to-read character card.",
+                tarot: "Create a tarot-style card."
             },
             kr: { 
                 title: "Yunoᒼᑋªⁿ 공지사항", 
-                notice: ["Magazine Card Generator 영어 버전을 사용할 수 있게 되었어요!", "다른 언어들도 순차적으로 현지화 작업을 진행 중이니 조금만 기다려주세요.", "모바일 버전의 위치 틀어짐 문제가 수정되었습니다. 환경에 따라 여전히 위치가 맞지 않을 수 있습니다. PC 사용을 권장합니다.", "Photo Filter 기능은 현재 수정 중으로 사용할 수 없습니다."], 
+                notice: ["Tarot Card Maker가 추가되었어요!", "Magazine Card Generator 영어 버전을 사용할 수 있게 되었어요!", "다른 언어들도 순차적으로 현지화 작업을 진행 중이니 조금만 기다려주세요.", "모바일 버전의 위치 틀어짐 문제가 수정되었습니다. 환경에 따라 여전히 위치가 맞지 않을 수 있습니다. PC 사용을 권장합니다."], 
                 mag: "잡지 스타일의 캐릭터 카드를 만듭니다.", 
-                prof: "심플하고 보기 편한 캐릭터 카드를 만듭니다." 
+                prof: "심플하고 보기 편한 캐릭터 카드를 만듭니다.",
+                tarot: "타로 카드 스타일의 카드를 만듭니다."
             },
             cn: { 
                 title: "来自 Yunoᒼᑋªⁿ 的公告", 
-                notice: ["Magazine Card Generator 英文版现已上线！", "其他语言的本地化工作也在推进中，请耐心等待。", "已修复手机端的位置偏差问题。根据您的设备或浏览器环境，仍可能存在位置显示不准确的情况。建议使用电脑操作。", "Photo Filter 功能目前正在修复中，暂时无法使用。"], 
+                notice: ["Tarot Card Maker 现已上线！", "Magazine Card Generator 英文版现已上线！", "其他语言的本地化工作也在推进中，请耐心等待。", "已修复手机端的位置偏差问题。根据您的设备或浏览器环境，仍可能存在位置显示不准确的情况。建议使用电脑操作。"], 
                 mag: "制作杂志风格的角色卡。", 
-                prof: "制作简洁易读的角色卡。" 
+                prof: "制作简洁易读的角色卡。",
+                tarot: "制作塔罗牌风格的卡片。"
             },
             tw: { 
                 title: "Yunoᒼᑋªⁿ 的公告", 
-                notice: ["Magazine Card Generator 英文版現已開放使用！", "其他語言版本正逐步進行在地化，請耐心等待。", "已修正手機版的位置偏移問題，但依不同裝置或瀏覽器仍可能出現些微差異，建議使用電腦。", "Photo Filter 功能目前正在修正中，暫時無法使用。"], 
+                notice: ["Tarot Card Maker 現已開放使用！", "Magazine Card Generator 英文版現已開放使用！", "其他語言版本正逐步進行在地化，請耐心等待。", "已修正手機版的位置偏移問題，但依不同裝置或瀏覽器仍可能出現些微差異，建議使用電腦。"], 
                 mag: "製作雜誌風格的角色卡。", 
-                prof: "製作簡潔易讀的角色卡。" 
+                prof: "製作簡潔易讀的角色卡。",
+                tarot: "製作塔羅牌風格的卡片。"
             }
         };
 
@@ -148,6 +166,7 @@
             list.innerHTML = translations[lang].notice.map(n => `<li>${n}</li>`).join('');
             document.getElementById('desc-mag').innerText = translations[lang].mag;
             document.getElementById('desc-prof').innerText = translations[lang].prof;
+            document.getElementById('desc-tarot').innerText = translations[lang].tarot;
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
