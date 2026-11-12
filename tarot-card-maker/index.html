@@ -151,7 +151,7 @@ const mk=(w,h)=>{const e=document.createElement('canvas');e.width=w;e.height=h;r
 const RM=['0','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI'];
 const EN=['The Fool','The Magician','The High Priestess','The Empress','The Emperor','The Hierophant','The Lovers','The Chariot','Strength','The Hermit','Wheel of Fortune','Justice','The Hanged Man','Death','Temperance','The Devil','The Tower','The Star','The Moon','The Sun','Judgement','The World'];
 const JP=['愚者','魔術師','女教皇','女帝','皇帝','教皇','恋人','戦車','力','隠者','運命の輪','正義','吊られた男','死神','節制','悪魔','塔','星','月','太陽','審判','世界'];
-const FRM=[{"id":"g_lily","n":"ミュシャ風・ユリ","lay":"lily","gen":"lily","pal":"gold","tp":"#3a2b16","tn":"#3a2b16","dk":false,"mg":"#f5eedb","pl":{"y":1250,"x0":0,"x1":940},"cpy":1602,"tx":{"nx":470,"ny":119,"ns":0.85,"cx":470,"Y0":1336,"kc":0,"w":380,"ndy":-14,"jdy":20,"fz":30},"th":"data:image/webp;base64,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"},{"id":"g_deco","n":"アールデコ・金線アーチ","lay":"deco","gen":"deco","pal":"gold","pc":"#33566a","tp":"#4a3818","tn":"#4a3818","dk":false,"mg":"#f4ecd6","pl":{"y":1350,"x0":0,"x1":940},"cpy":1609,"tx":{"nx":470,"ny":150,"ns":0.68,"cx":470,"Y0":1476,"kc":0,"w":400,"ndy":-13,"jdy":21,"fz":30},"th":"data:image/webp;base64,UklGRn4IAABXRUJQVlA4WAoAAAAgAAAAPwAAbgAASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDggkAYAAHAcAJ0BKkAAbwA+MRaJQyIhIRScBZggAwSgDR8BOBf89xfXRbzh3zyT+U+oT5gH6WdJzzAftV+uXvUfzP9QPcX+wH6gf3L5AP6f1BfoL9Kj+6VsdexfZLpRAd5z/5z17djcqngZpevkvsAfnv0PNBz0/7B3669ZHySRo309bR9hYf612zZiZp93CJJ8Q9qDenqYQLkImw/qaOI9YjqjavdLXsK2y8MQbUY4LXqMq8QIfPPdUJu6eyP0fxCUmsHcRjP6ZwjSkq+00zvmeDcjy1Trt6XjUvHgklatWgHuKH3nHwFNGvp1m6NwAUeIAP7+EqIOgO/jBnFykUChtm6f3GW4emT1J6G5KCOEVL/penP4kemx/tu5lcAkhIgC/M7/xC4BYXmQW//WOl8eK4BU83yLw9sbbAvNeOJ9NvOIis0nOi/f2J3wGTG7ZZmfzzpvJp+7pymKTiQFBBgIE8PFXpxJs7gaFY0WnZdcwxfEsk9Yf5vXN8O8ifEQVfs86iUmCjKrfqNZj/1yxl9/QEcA8axYeAUTru8TrTy7HgVlmnb9B+MRSDuehEFUmp38iYluhAEjquH7qDbxt+vwHA21RovELq2wnbeR0+VfIrbsigg/6YS/Ee5aNLXGcjf6aSBv2mxems5TCNRYb+qSbcuNpQshQ0Gb4ZgZ9I8NT0juKx8CdaFMC29kM1K+L0fdr/1kMr8cuByYKrBC1HACCjcVuBJDUQaAcJ+f/0Pi3IcDRIZjDEZVUNxsHdvbb2JKkRL4S7vvWebCelRbLoU92gDdW/4RmDKZEnF9C45w8gcINnUswYx7MOof3zfIkdjqeKMWor94rtrSO34ot2XWj5cuRW+l/xuSVX+H0R+GWX9Vok71Os2hEjaexuDqFx9gV5u9LDZ4RzYohy3NaE+yUt3TmnJII1whAs6viij3XSvIaB2Jq7mH8LGdrb5qAtdyCCNnV9/3+XMhgyNf9z/ck+4+hm+EOd7Pg56B0gBuMavYe3YrFh+9hXEK87ov2fIMtVZxvcDYpcsL49iBO0Sj+uo5o2WyyGHotcmTPKKpwiqLQwhBn806r15X714PPIXtNPLEa5qhwQAwuU8OAj7NnB8gOkReWgQ4fx7F09CHuemONkEoL6EO0MGs3Fx7pOi1G6xTNczcNuXfn5oXBoe+NVNPsrN9LWVfs1DRQTVlrTsH3xXAkfCjrfFWJEUvZOYLtT59aUqsIxEUnQs4XLlWLxE40mh6yAk5QfkZcifYdL86tuZF43zB53MlxLDPiRhCwAADChj2dLOwqcY24JlDodHcb4XiywTn84Uak1aRngGp3ZkrPr+Alwirx1eNVb/NbXKU8yzfvHvWGWOXkcSVWYs3nWRurRG+jip8vyREdK3Olbsocciw4ut4Zl0ASf2bj+Fj+1SLh5s77BVWM5pq6m82zxb4LiTORZYCEzcrSHjudYahd09LQN8NwSV7cIl+7lAZEs1pqtoRli+7HYp4u/WmWbZj5pIv875pUE6Nmc7uCxCg+nJqOgFJAUd6SE0os3FlGK9KgYjPL6KZA7p0B1mLFh9nNS5/qZpVlYAM+mAUAGgpNU88BRFtmKQqaV1/vP6jerOjo3LrkAzBtsix1pScRXR9AWOh8B+egnFko1RFCoqBJYLORjVh0xtILDjVWumJJjp47vCslU0Orw9agjNmqG/LcA/Hronq5CUuJydnb8xifyJ/9f7SJy6qKTrKa4/w10tJhVwZzC4Ut5cs+lEfSEgaocisQbJLowVIZP0ea2iyTRuF41ZhyUy6l961O9L/skD0/joSXtoqQTeHihUtU6QBd+But1jMh35FHvQBsR9SUN8L9fyd9LHmb+c2xOCEs/DHv2pzSmNUjUa7WrdH0hvZN+Wwi+GmcZQ4vuBAFn8WFk/LP0bQlrGEqK/qFZu0RKE/NsAwwk+qnbuCJUCQc1Gwum/4aNHXNr+zVLU8Ryb0g/rTCOBZhFCyJoBtIQZ8WH6jofBzPVz1Y8iYI4ntOMMLTCRO9liexn8zscylbEc6YCxo7/q3we5J7160kSN7lusO2oIsSF3Hp8/kNAt/6SPHjxaRFf+EN/wOqoMX5zsn5+mXn+K4DUdgkTmjJyOAFov4jbKwIlyHy6aB/yzbZMlIRTgaTp+TKbmrGz6/Yaaseq30LMk52XeOeAjcPw/f7umXZZn4ysxDA/YlGAT2VhbFVlHE9Cvw+8ukztCy550nb7BouldR37JKK/av5wAAAA=="},{"id":"g_star_arch","n":"星飾りのアーチ・金","lay":"starch","own":true,"dk":false,"mg":"#d9a647","tp":"#3a2b16","tn":"#3a2b16","pl":{"y":1385,"x0":0,"x1":940},"cpy":1606,"tx":{"nx":470,"ny":92,"ns":0.72,"cx":470,"Y0":1447,"kc":0.00026,"w":500,"ndy":-13,"jdy":9,"fz":26,"jz":20},"th":"data:image/webp;base64,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"},{"id":"g_sun_gold","n":"金の扇・唐草","lay":"sunfan","own":true,"dk":false,"mg":"#c9a368","tp":"#3a2b16","tn":"#3a2b16","pl":{"y":1400,"x0":0,"x1":940},"cpy":1594,"tx":{"nx":470,"ny":94,"ns":0.6,"cx":470,"Y0":1530,"kc":0,"w":420,"ndy":-15,"jdy":20,"fz":28,"jz":22},"th":"data:image/webp;base64,UklGRgAFAABXRUJQVlA4IPQEAAAwFgCdASpAAG8APm0skkakIiGhKTv8yIANiWctAGSBugOYOz/iCGM6r3lIegCCDZX0K1Njm/Dz7fj5nAdRPerKOev+YukUzIv6z6Hmch6v9gvypfXJ+2/s0hjuCgbrAGG9IPBOkYTDSDer+pHcFwIolC0jruIN8POMxmsAbDMlmATwcOFktCR4q4r7dE3qUEhP8DZuEN8J+7ysB5SUELApgPF6ikhFt04rpxgloJSkrCyw1vL2i/QWigAA/C6deoBkYvsXzw8nrO6H5RV8jNalLRb9NN5YOWLHTKGuRVtK0reiMgEW2CCYWuKaIoUsR22WRJm9DK2v817D5+xVsS+9Nm4INT7NVyl4XxcpAjTdiwn85Z/UUm0f/93G+0KfYUvFB/F3Ibr8pwoVC2OLHFq/XJ86ttG7T1ILKXrwWykOREvYte2Pf4z9jMR9+znTSCywZeO5AeZe1yFnGKtvAb1V+JeE07LidrJhZwpOf4sdzSghb4JbpznUEQZrjtM8WUbWwU5dtbXTK/9hlIyeaDeML3suzkSlcDgp2WusotNIMby1tA3isezVTyi63+fX/paB8hQoaupnpvWj3szNbeKa28pKs0bJB0s8waVSGfW3rYN+AxgDgRCBHYEwa9ldwZ96EJ7dAcooQdQwuwPR2Rq5bIxLe8UzTniXpwpvEoWviAT4qJrOCvpGki3nEBbHUPmKNOQrD8W3tkJ+oleSpTz9q5Bcknxw0tLyG3OWC5qvwEp6HAsTZqB8r/Y7H90OKpdKLhaqoeghfgABQ5Z/n9Q+xgHciXk3aXEzaP4dg+cbqjWOarKxU2WygvRRS7mj1srxLL7wO6DcL+IRxMu9gF5EKysAFHYA0SEjlttIdrII+nYgIFBOsEM1Ssb5nwAMfk0FOLpGFlo6j/DR3Dbxy9+++zrSr1od0UyCpLZxSdTWvwia0VVJWu6wNI9zV7KW2OF8fVODs9fsekIRx9xgWlNCEgQftDUeJlvwlIe+CDAjw2GdRnwQVbQ0mIAHExolaEsggodSX2FPMpvRoiSL7b02hARkPjHhjztUnS7iAmDUO5SstTW1y2DbKpRBEqFla4V9U3LwGyu6p+roVAUm6AxTXylwjvBF7Zk0iBe8lRieHxlXj4DHGiuRQu6UxPqAqNGJVHb9/1aDfB2qA+QSLsCnemLXA7Pe2ljM0t6qRrN+21IJi+U5ePQdeAO3ZpeuHwNpA8aR2n++RZydYPY34JcyJYICMwLNXnj0ANwfGV9Cd7ZCUXTWiRd1u76/7tUVQFpL+UPogI6/3odsR69Iamh1GV/La+8fgPuFptSdNekfrSy6LpbGP5eHvNHLayEK9hBeJY6NeuN+ySdlZlz4vF9YG3JNRKrk59ei5kmnQkXnn4/dERxBEjk4R88G6KKxgczcyf5DrQXVVK6knsXVK+as40gsUqcb9wd9O4qVekJ95vjzuhruw0yvB6fOuimFoYSclhy4qvxRz2jXVNRdHdCD+ZOw/tMtnaGPxcp/o3ALCXQUgBRTqpkZ8OQ0KUoCdi3tAuukFdu5cs73+zKxSmuRTY1Ex5YAIRWHtYwzqydwPxUrodn479PvVyBKpZHXfYEz9vgGil5//gOER93WtZ5xq72/VBSYnPeQv1rjnY5H4ZyNt1tXS6G8BnZ85fT7Xu4WPeYrB2N71E7EZHKCRhhtH9AAAA=="},{"id":"g_pillar","n":"二本の柱と雲","lay":"pillar","own":true,"dk":false,"mg":"#6f9a92","tp":"#3a2b16","tn":"#3a2b16","pl":{"y":1250,"x0":0,"x1":940},"cpy":1611,"tx":{"nx":470,"ny":1370,"ns":0.6,"cx":470,"Y0":1512,"kc":0,"w":440,"ndy":-16,"jdy":20,"fz":30},"np":1,"th":"data:image/webp;base64,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"},{"id":"g_moon_noir","n":"月の満ち欠け・黒金","lay":"moonnoir","own":true,"dk":true,"mg":"#16130e","tp":"#f0d37a","tn":"#1c1810","pl":{"y":1545,"x0":0,"x1":940},"cpy":1614,"tx":{"nx":470,"ny":84,"ns":0.5,"cx":470,"Y0":1402,"kc":-0.0007,"w":400,"ndy":-12,"jdy":20,"fz":28,"jz":22,"sh":1},"cpc":"#e6cd85","th":"data:image/webp;base64,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"}],MSK={};
+const FRM=[{"id":"g_lily","n":"ミュシャ風・ユリ","lay":"lily","gen":"lily","pal":"gold","tp":"#3a2b16","tn":"#3a2b16","dk":false,"mg":"#f5eedb","pl":{"y":1250,"x0":0,"x1":940},"cpy":1602,"tx":{"nx":470,"ny":119,"ns":0.85,"cx":470,"Y0":1336,"kc":0,"w":380,"ndy":-14,"jdy":20,"fz":30},"th":"data:image/webp;base64,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"},{"id":"g_deco","n":"アールデコ・金線アーチ","lay":"deco","gen":"deco","pal":"gold","pc":"#33566a","tp":"#4a3818","tn":"#4a3818","dk":false,"mg":"#f4ecd6","pl":{"y":1350,"x0":0,"x1":940},"cpy":1609,"tx":{"nx":470,"ny":150,"ns":0.68,"cx":470,"Y0":1476,"kc":0,"w":400,"ndy":-13,"jdy":21,"fz":30},"th":"data:image/webp;base64,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"},{"id":"g_star_arch","n":"星飾りのアーチ・金","lay":"starch","gen":"starch","pal":"gold","pc":"#2f7f8c","dk":false,"mg":"#d9a647","tp":"#3a2b16","tn":"#3a2b16","pl":{"y":1385,"x0":0,"x1":940},"cpy":1606,"tx":{"nx":470,"ny":92,"ns":0.72,"cx":470,"Y0":1452,"kc":0.0003,"w":500,"ndy":-11,"jdy":17,"fz":26,"jz":20},"th":"data:image/webp;base64,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"},{"id":"g_sun_gold","n":"金の扇・唐草","lay":"sunfan","gen":"sunfan","pal":"gold","pc":"#a9824a","dk":false,"mg":"#c9a368","tp":"#3a2b16","tn":"#3a2b16","pl":{"y":1400,"x0":0,"x1":940},"cpy":1594,"tx":{"nx":470,"ny":104,"ns":0.6,"cx":470,"Y0":1530,"kc":0,"w":420,"ndy":-15,"jdy":20,"fz":28,"jz":22},"th":"data:image/webp;base64,UklGRj4FAABXRUJQVlA4IDIFAACQFgCdASpAAG8APmEskUYkIqGhKBbc8IAMCWcyAEeU/quno5p0gAgxuo3J8GPoQwmzTOZATxTc74PRMHg93l7UG6iZP71LUCk1v7TxLJA/RRzmvU/sJeVj7C/Qr/YgUznjJoR2VWPjteelhY6JFG4mp5RnwT1E7XQJSp+Aezl4od6x/e6RFS6YTuqItx5GHyjf9s6LbH/C+YemdJeSwxWFNpb2RxAOl1DZKGSMiDKpcILk0G38ddDHwqyvuAAA/sDrFIkr1N9CXnuJwpX4Fg51iXbPh2bsToW1d3Mnt5ADAjBIGeVbzprDwKSQdbsYgGKMIEU26PuXFJSO3e3PJfYayamMI4yxa/4SkRMiF9vBj/ibNpfkRdOyH3N5K1RIFv+TNid1SrxqVguIzoDA7d9CVTEK1IvKAzpBR15ErNO5s8yr2TnKUc7i523aSGHs/+nxGwRHZjagLh+YixBJcLcYIf54FNTXIZHGaC5DavJo9AjW3kZhk0DsQ27rZWAi0e3BTDIwLfGZNeDYMmkHCCLbiltEkLDvTgmsu8uyP5PPHcCYG9mdXuFmTMRKu6y4uUz4RqwrfVOvbQbEzCyMPxqQuS+oMpV4cCvR1uSG/dmfDiYP5LXZ6diPQThznYYGL3pHkyBi8SOyRZcPoSK3YqoIsloOdYkFr5v9+EGL4Lhn1P3EIpm02SsfVbTSKqy2WRxbge3kqp9hR9hysbO4rm2u9QbPreJyZqtsnRxr5bqHPm4jy89s4zrWsTNbKVblEhOxkNB7cxVHj5Ug2nC+Xek40Fb/oou7H4xOMKfZ3fzkoRwv+UfaIFGy4iUlqks0ADU0hKj3ahLC68lJTXNJQIgKC9+92C5ZbuET4nOP0ie3ExwFiErILMdODERwZQgIMNLbIOGnKpkefdR42k0QlYfx35l1z+IXSl3V8L2j9HiXzw6UjuTy/QbmTgbPlQBDuHiiZWe3ex91XCJt/Bh2Wz8dIbA3VPEAWoX67wUplmj1/2h0exUYVvaw57ku6btgBhkyh+4s2fFd2m220o5VEHHtAy53Wvi787Z+C1NsDBbnjYF9EL04eek9z7Pfuen7vIWXca6gc5+CQJRTKE0ZLD8pQdO4/VXD059KC6ekkVK65IMTlcXVxFzv2+j+dg3XL+RToz7Fk3p39u/XWV//sZ89K4xmM3nZfFgOBtziPbv14wUBqNaWoNVhEKXpS92Q3Wfi0qh/10Nqh7yupu7ED0t3NLRRB9dkMlBf8Vc/ySQfNe2tLIdbkVkvJ4rYK8Jg5MdYWKHcx+uNlSkkJLXGwSfWsc/L9c2h/jbhTXf8IbQFdEYIK44sOwRR2XRvlWYJrvWct1FbKqP9si/EY7BTdjWhQZpnlnHnohLSAJg4VdnL+kTM6rrqZHEe5AikVnn+Fqf2Ohk4DF+bYW01H3XY7mE4f4mB20BGUgE6D0/AJRqhEbTaFbuHRZaDcy82hBj0sRfmQyX6aQub0x7nB1nqXh67hHIl1UqN/g0gyXQzJ5QaleH2SWtR3bSxFgPY3+N4Uir56qwEQ2Rw0lUqKjR49rtPwST7301nMTVQVPxdGpeFCN8t6XscQmztEwYdRjc7mQJ+8sS6iJqzNVTg53upX2cPCJIev6I/aFfgW5nnG+HcBp8eNM8l9c5R4MCAVNVFH59TAjj0KwXhGtfVShERIYceQMW6wAUF3WfcL62L7nueD1wQ3G5NwmB5fmAWDkicRM/r64myrTF1qvVwH57lCWkR3qaivr3NgbECSGiH8qOVq0AA"},{"id":"g_pillar","n":"二本の柱と雲","lay":"pillar","gen":"pillar","pal":"gold","pc":"#5f9690","dk":false,"mg":"#6f9a92","tp":"#3a2b16","tn":"#3a2b16","pl":{"y":1250,"x0":0,"x1":940},"cpy":1611,"tx":{"nx":470,"ny":1370,"ns":0.6,"cx":470,"Y0":1512,"kc":0,"w":440,"ndy":-16,"jdy":20,"fz":30},"np":1,"th":"data:image/webp;base64,UklGRgQGAABXRUJQVlA4IPgFAADwGQCdASpAAG8APmEqj0YkIqEhK3gLiIAMCWMAzQPtrX/D38do/0KbaP9oPUB5w/ot6Iz1SfQA6U3/K+bdWIOZf4BK+OI+tqfL+Q70ffSmpOHZNzKLoAfoP0Ts9b1L7BnSp9HMKlQbUyUqzXyLhankRiPIKZdIBb72Y9O81xQm7+G28T5jYr4uoNFmaLQCWa/rkVD2mLk85xo00U1xPhhQjDECvjSPry5OskPm2LH4xWTbhfWlgPRydgg8his1nwg07+RkBBCoB3vQkB21E3mSUKYOhyLLjwAA/uuxzrclRtz9myby/KcmdENhtZ1ONfWHoTGxkHrB6mqcV/u76m0ZO2+xB6x1lq70XuRXRmYrxqiyH207cg++oGp7crcvofETpvdm5AhoAUU2qGB62GoA8xIL+jx9NpVEf34GZAA8Kh1d1PeEYLKfsU7PauVVzphlTsr5vPp5OF3Vs/7vkjRzWB0aOeatKZXZR1V1eism27d0Hx98HmbDsLJYpmJf0arzD6s3oGUyKggkJMowQWlYFq+E6+vT2eEST7tqekhX3EvoEJutS0GiK0mc8GcHJRkzi4OOMDq/z/pQrBLAir7F8JYPx+8LlyWjsZ0ejkuSM+OED1L6+9B4Vq2wHXucauVWJyu1Ja08VdQfSDXLdyUHPaMfMHEW4pW9X+yaWDHDZPbxF0oiinM5SYeb0np/BGtJ6W7zzd/BbUyHVsSOOJOVoPKK3b3PfCntk8SShlFK6xSiaCeevxcN9SI0zFN8RxURwVSKl2ng/9Xdz2NjYXyKRmLjADEGUgROeBvWXnB0dwRpH8CiL+nJuWnckrg8zXqgySi3xJkC+cyzDno/qtA+EHS3gGXBqzpNnaypzC/PXqZ+ID/cdjVvy+mfix7sKsHwqgxFf9pNyP81GbVEfAw/Tbg9Sjw5Qbusab/ddbOtcdulT4sY/e3btX5PNL6YrsxuwlSkJTYbIT+3UmjKK9qJtCrlrSvWcjpeVSDg2FVZuyhG7s1wahHgjeo1kJYckl47XtBcS4xAg6qqi4uj00NEnqnj53QjKNZ/yfERoqOlhBfxcZ5VDAJ86apTzqKRJOtlXb1zcGWOicSZVmQOzmioPDcoiin1RBInk+upzLEGofs2p1EZjRObeXejxsMsCG1Z3NoQEXGQitnqHfHbMajWLFn4AcCqGCx05XjDjuk8A0M8YlSPr4mJnipgbCsS4W8BMB0TFCqL/HCr975cn3C9psBjgjylg18GFxIVP+XDhf8X4eq3soU4daL5Q9+XIfZMTv/22Edg3RQf0ashsFK203Q9QGA7QwTijUvOIf+JhczGLnSnCf/Wxv+DfC8gMZ2avH8dIIjv5WP1k4U7sl6Vc4FxCHU80wErhPilpcjkfh/zD9wcxnBmXwzDZyoH6eKiaWrejDVokEMSCkNI/yoF+nff5f7mZeqRGWzwB6HTx8yZSOUdwIE1sGAoEbz1kTv3GnBnlS7rnEPk6/mmrTHoi+aF5IIoAuEYdzCozdjyCYcn+zT6oisBFMNKOwZmeneSLrJTefzmlxWZaLZnyt71yFSzo1xlkoAh6VBIHDPR0f1wyV3H8Ya7VqTcYm9zg4wXHnedpF+BOi7MTHwQqu3wr9KsZzlMvXUYDy9y/sPgbJbZ9XQ0yvDjm6RRjNiyd84S7hmvuMV7iNORQ9XipSG6IJvxM/tTYduBL8fenmZN8uigL99Rc86A72Nj4bUG6J3a6jG06wcmkUntO05OcIqShEj5a0kSsa5ZpV1ItplhmKwYOwsp/fQQ6gQfIi/4z9A8mkmaUaIdC67gZj3SU2hb/+s1rQg1FhQLKFxWw7DG4LhuDIiuLuZvwh4AXUpO44A8lgGNiwquZGoVawkWhBv6BnQRDNCGjBzfyhid7MKnLNB2OYIp8FL1wFA/qRyCjHy1FSx3ObxJ7zXnA24Evm/NcxFcT5Ux/jp9kE+Dhihy8BsWzDdeJEXI0lN2wbfktx18Cglo0YsBA5Q2tp54smd3hNrofAy2AR98ENx6Yt1aIf3XSJiVxAAA"},{"id":"g_moon_noir","n":"月の満ち欠け・黒金","lay":"moonnoir","gen":"moon","pal":"gold","pc":"#17140f","dk":true,"mg":"#16130e","tp":"#f0d37a","tn":"#1c1810","pl":{"y":1545,"x0":0,"x1":940},"cpy":1614,"tx":{"nx":470,"ny":84,"ns":0.5,"cx":470,"Y0":1402,"kc":-0.0007,"w":400,"ndy":-12,"jdy":20,"fz":28,"jz":22,"sh":1},"cpc":"#e6cd85","th":"data:image/webp;base64,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"}],MSK={};
 const PAPER='#d9d2c7',LN='#7a6652',RB='#e1dacf',RB2='#c9bdab',TAN='#cbbda8',STAR='#bfa87e',STL='#85705a',RED='#d9604f',GOLD='#e2b848',INK='#5a4538',CF=['#d3d1dc','#ddd0b5','#e3dccb','#d0d4c6'];
 const RAY={on:false,x:470,y:720};
 const BGX={on:false,c0:'#bdae80',c1:'#a99a68',none:false,noray:false},FC={on:false,color:'#7c6aa8',amt:1};
@@ -775,16 +775,338 @@ function genDeco(S){
   c.setTransform(S,0,0,S,0,0);c.globalCompositeOperation='source-atop';c.globalAlpha=.55;c.fillStyle=patG;c.fillRect(0,0,W,H);c.globalAlpha=.18;c.fillStyle=patM;c.fillRect(0,0,W,H);c.globalAlpha=1;c.globalCompositeOperation='source-over';warp(c.canvas,S,.6);
   c=sv;return{art,pan,win,rest:null,ring:null}}
 
+// ===== 追加の生成枠（4種）共通 =====
+// 太さが一定の線（幾何学的な装飾向け）
+function gSk(p,w,col,closed){if(p.length<2)return;c.beginPath();p.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));if(closed)c.closePath();c.lineWidth=w;c.strokeStyle=col;c.stroke()}
+function gFl(p,col){c.beginPath();p.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fillStyle=col;c.fill()}
+// 超楕円の弧（角の丸みが円より四角寄り）
+function seArc(cx,cy,rx,ry,a0,a1,n,e){return Array.from({length:n+1},(_,i)=>{const a=a0+(a1-a0)*i/n,u=Math.cos(a),v=Math.sin(a);return[cx+Math.sign(u)*Math.pow(Math.abs(u),2/e)*rx,cy+Math.sign(v)*Math.pow(Math.abs(v),2/e)*ry]})}
+// カプセル形の窓（時計回り：左下→上→右→下）
+function capWin(X0,X1,Y0,Y1,ry,e){const o=[],rx=(X1-X0)/2,cx=(X0+X1)/2;
+  for(let y=Y1;y>Y0;y-=10)o.push([X0,y]);o.push(...seArc(cx,Y0,rx,ry,PI,2*PI,90,e));
+  for(let y=Y0+10;y<Y1;y+=10)o.push([X1,y]);o.push(...seArc(cx,Y1,rx,ry,0,PI,90,e).slice(0,-1));return o}
+// 8つ尖りの星（縦横が長く、斜めが短い）
+function star8P(x,y,R1,R2,ri,rot){const o=[];for(let i=0;i<16;i++){const a=(rot||0)-PI/2+i*PI/8,q=i%2?ri:(i%4==0?R1:R2);o.push([x+Math.cos(a)*q,y+Math.sin(a)*q])}return o}
+// 4つ尖りのきらめき（辺は内側へへこむ）
+function sp4P(x,y,rx,ry,k){k=k==null?.18:k;const T=[[x,y-ry],[x+rx,y],[x,y+ry],[x-rx,y]],o=[];
+  for(let i=0;i<4;i++){const a=T[i],b=T[(i+1)%4],m=[x+(a[0]+b[0]-2*x)*k,y+(a[1]+b[1]-2*y)*k];o.push(...bz(a,[a[0]+(m[0]-a[0])*.9,a[1]+(m[1]-a[1])*.9],[b[0]+(m[0]-b[0])*.9,b[1]+(m[1]-b[1])*.9],b,10).slice(0,-1))}return o}
+// 左右・上下の鏡像で描く
+function mir4(fn){for(const mx of[0,1])for(const my of[0,1]){c.save();if(mx){c.translate(W,0);c.scale(-1,1)}if(my){c.translate(0,H);c.scale(1,-1)}fn(mx,my);c.restore()}}
+function mirX2(fn){for(const mx of[0,1]){c.save();if(mx){c.translate(W,0);c.scale(-1,1)}fn(mx);c.restore()}}
+function mirY2(fn){for(const my of[0,1]){c.save();if(my){c.translate(0,H);c.scale(1,-1)}fn(my);c.restore()}}
+// 生成枠の土台：窓マスク・地色レイヤー・線画レイヤーを用意して描く
+function genBase(S,WIN,panFn,artFn,amp){const w=W*S,h=H*S,art=mk(w,h),pan=mk(w,h),win=mk(w,h),sv=c;
+  {const k=win.getContext('2d');k.setTransform(S,0,0,S,0,0);k.fillStyle='#fff';k.beginPath();lyPath(k,WIN);k.fill()}
+  c=pan.getContext('2d');c.setTransform(S,0,0,S,0,0);c.lineJoin=c.lineCap='round';panFn();
+  c.save();c.globalCompositeOperation='destination-out';c.beginPath();lyPath(c,WIN);c.fill();c.restore();
+  c.globalCompositeOperation='source-atop';c.fillStyle=patG;c.fillRect(0,0,W,H);c.globalAlpha=.5;c.fillStyle=patM;c.fillRect(0,0,W,H);c.globalAlpha=1;c.globalCompositeOperation='source-over';warp(c.canvas,S,amp);
+  c=art.getContext('2d');c.setTransform(S,0,0,S,0,0);c.lineJoin=c.lineCap='round';
+  // 窓を抜く処理は描画の途中で呼ぶ（窓にかかる飾りはその後に描く）
+  artFn(()=>{c.save();c.setTransform(S,0,0,S,0,0);c.globalCompositeOperation='destination-out';c.beginPath();lyPath(c,WIN);c.fill();c.restore()});c.setTransform(S,0,0,S,0,0);
+  c.globalCompositeOperation='source-atop';c.globalAlpha=.45;c.fillStyle=patG;c.fillRect(0,0,W,H);c.globalAlpha=.16;c.fillStyle=patM;c.fillRect(0,0,W,H);c.globalAlpha=1;c.globalCompositeOperation='source-over';warp(c.canvas,S,amp);
+  c=sv;return{art,pan,win,rest:null,ring:null}}
+// 線の終わりに渦巻きをつなげる
+function curlEnd(p,L,R0,dir){const n=p.length,a=p[n-2],b=p[n-1];return p.concat(crookP(b[0],b[1],Math.atan2(b[1]-a[1],b[0]-a[0]),L,R0,dir).slice(1))}
+// しずく形（先端tx,ty → 丸い頭hx,hy 半径r）
+function tdP(tx,ty,hx,hy,r){const L=Math.hypot(hx-tx,hy-ty),a=Math.atan2(hy-ty,hx-tx),T=(u,v)=>[tx+u*Math.cos(a)-v*Math.sin(a),ty+u*Math.sin(a)+v*Math.cos(a)];
+  const b=Math.acos(Math.min(.99,r/L)),o=[],P1=[L-r*Math.cos(b),r*Math.sin(b)];
+  o.push(...bz([0,0],[P1[0]*.4,P1[1]*.55],[P1[0]*.8,P1[1]*1.08],P1,10));
+  for(let i=1;i<=30;i++){const t=(PI-b)-2*(PI-b)*i/30;o.push([L+r*Math.cos(t),r*Math.sin(t)])}
+  o.push(...bz([P1[0],-P1[1]],[P1[0]*.8,-P1[1]*1.08],[P1[0]*.4,-P1[1]*.55],[0,0],10).slice(1,-1));return o.map(([u,v])=>T(u,v))}
+// 線の終わりに大きめの渦巻き（半径R0から少しずつ小さく、tr回転）
+function spiralEnd(p,R0,tr,dir){const n=p.length,a=p[n-2],b=p[n-1];let h=Math.atan2(b[1]-a[1],b[0]-a[0]),x=b[0],y=b[1],th=0;const o=p.slice(),T=tr*2*PI;
+  while(th<T){const r=R0*(1-.72*th/T),ds=2,dt=ds/r;h+=dir*dt;th+=dt;x+=Math.cos(h)*ds;y+=Math.sin(h)*ds;o.push([x,y])}return o}
+// ===== 枠⑧ 月の満ち欠け（黒と金）：コードで描く =====
+const MNP={bg:'#17140f',gold:'#f1d27c',goldD:'#c9a24e',dark:'#17140f'};
+const mnWin=()=>capWin(135,805,410,1210,239,2.15);
+// 月：k は中心からの番号（0=満月、1=十三夜、2=半月、3=三日月）。s は光る側（1=右、-1=左）
+function mnMoon(x,y,k,s){const G=MNP.gold;
+  if(k==0){gSk(ell(x,y,35,35,0,64),3.2,G,1);gFl(ell(x,y,28,28,0,64),G);return}
+  gSk(ell(x,y,37,37,0,64),3.4,G,1);gSk(ell(x,y,31.5,31.5,0,64),2,G,1);
+  const r=26,t=[0,-.55,0,.5][k],o=[];
+  for(let i=0;i<=40;i++){const a=-PI/2+PI*i/40;o.push([x+s*Math.cos(a)*r,y+Math.sin(a)*r])}
+  for(let i=40;i>=0;i--){const a=-PI/2+PI*i/40;o.push([x+s*t*Math.cos(a)*r,y+Math.sin(a)*r])}
+  gFl(o,G);gSk(ell(x,y,r,r,0,64),1.8,G,1)}
+// 金の玉（輪つき）
+function mnBead(x,y,r){gFl(ell(x,y,r,r,0,32),MNP.gold);gSk(ell(x,y,r*.78,r*.78,0,32),Math.max(.9,r*.07),MNP.dark,1)}
+function genMoon(S){const WIN=mnWin(),G=MNP.gold;
+  return genBase(S,WIN,()=>{c.fillStyle='#fff';c.fillRect(0,0,W,H)},cut=>{
+    // 外枠：二重線とひし形の列
+    gSk(RR(12,12,W-24,H-24,14),5,G,1);gSk(RR(40,40,W-80,H-80,8),6,G,1);gSk(RR(48.5,48.5,W-97,H-97,6),1.6,G,1);
+    {const dm=(x,y,ax,ay)=>gFl([[x,y-ay],[x+ax,y],[x,y+ay],[x-ax,y]],G);
+      const nx=36,ny=63;for(let i=0;i<=nx;i++){const x=26+(W-52)*i/nx;dm(x,26,6.5,5);dm(x,H-26,6.5,5)}
+      for(let i=1;i<ny;i++){const y=26+(H-52)*i/ny;dm(26,y,5,6.5);dm(W-26,y,5,6.5)}}
+    // 窓のまわりの三重線
+    const C=cp(WIN);gSk(offs(C,-11),6.5,G,1);gSk(offs(C,-24.5),5.5,G,1);gSk(offs(C,-36.5),2.4,G,1);
+    // 四隅：星・点・曲線
+    mir4(()=>{
+      gFl(star8P(113,108,55,43,21),G);gSk(star8P(113,108,45,35,16),2.4,MNP.dark,1);
+      for(const[x,y]of[[66,67],[164,67],[68,152]])gFl(ell(x,y,8,8,0,24),G);
+      ink(bz([48,174],[80,200],[134,200],[168,166],30),6,G,{s:3});ink(bz([62,194],[96,210],[138,207],[162,190],30),3.6,G,{s:5});
+      // 縦の線の端：二股の飾りときらめき
+      ink(bz([72,290],[72,246],[64,226],[46,212],24),2.6,G,{s:7});ink(bz([72,290],[72,244],[88,222],[122,212],24),2.6,G,{s:9});
+      gFl(sp4P(72,326,6.5,24,.16),G);
+      // 上の渦巻き
+      ink(spiralEnd(bz([456,152],[410,156],[350,156],[318,146],30),11,1.15,1),5.4,G,{s:11});
+      ink(spiralEnd(bz([404,154],[340,160],[268,186],[222,182],30),17,1.2,1),6.2,G,{s:13});
+      ink(bz([262,188],[320,180],[390,168],[446,162],30),2.6,G,{s:17});
+      // 月（中心以外）
+      for(const k of[1,2,3])mnMoon(470-77*k,83,k,1)});
+    // 中央：満月と下がり飾り（上下）
+    mirY2(()=>{mnMoon(470,83,0,1);
+      // 三つ葉の飾り（まわりを地色で縁取って線から浮かせる）
+      const pet=[tdP(470,162,470,133,12),tdP(468,160,441,133,10),tdP(472,160,499,133,10)];
+      for(const q of pet)gSk(q,9,MNP.dark,1);for(const q of pet)gFl(q,G);
+      gSk(tdP(470,154,470,134,6.5),1.6,MNP.dark,1);gSk(tdP(465,153,443,135,5.5),1.5,MNP.dark,1);gSk(tdP(475,153,497,135,5.5),1.5,MNP.dark,1)});
+    // 左右の縦の飾り（縦の線・玉・星）
+    mirX2(()=>{gSk([[72,290],[72,H-290]],1.6,G);
+      for(const d of[154,185,216]){mnBead(72,810-d,8.5);mnBead(72,810+d,8.5)}
+      mnBead(72,810-91,19);mnBead(72,810+91,19);
+      gFl(star8P(72,810,31,23,11),G);gSk(star8P(72,810,22,16,7),1.2,MNP.dark,1)});
+    cut()},.35)}
+// ===== 枠⑤ 星飾りのアーチ（金と青緑）：コードで描く =====
+const SAP={ink:'#3a2410',cream:'#fbe6c0',gold:['#ffcf76','#f0a443','#d98a2a'],goldF:'#eea443',arch:['#f7bd5c','#e9973a'],tan:['#a9884f','#7d6235'],white:'#fff8ea',teal:'#2f7f8c'};
+function saGrad(p,cols){cols=cols||SAP.gold;let a=1e9,b=1e9,d=-1e9,e=-1e9;for(const[x,y]of p){a=Math.min(a,x);b=Math.min(b,y);d=Math.max(d,x);e=Math.max(e,y)}const g=c.createLinearGradient(a,b,d,e);cols.forEach((k,i)=>g.addColorStop(i/(cols.length-1),k));return g}
+const saFill=(p,col,w)=>{gFl(p,col);gSk(p,w==null?2.6:w,SAP.ink,1)};
+function saWin(){const o=[];for(let y=1025;y>602;y-=10)o.push([107,y]);o.push(...ar(470,602,363,310,PI,2*PI,100));
+  for(let y=612;y<1025;y+=10)o.push([833,y]);o.push(...ar(470,1025,363,320,0,PI,100).slice(0,-1));return o}
+// 窓の点ごとの外向きの法線
+function saNorm(p){return p.map((q,i)=>{const a=p[(i-1+p.length)%p.length],b=p[(i+1)%p.length],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1;return[dy/L,-dx/L]})}
+// 方位磁針の星（16本）
+function saCompass(x,y,R){const I=SAP.ink;
+  const big=[],sm=[];for(let i=0;i<16;i++){const a=-PI/2+i*PI/8;(i%2?sm:big).push(a)}
+  for(const a of sm){const t=[x+Math.cos(a)*R*.66,y+Math.sin(a)*R*.66],l=[x+Math.cos(a-.36)*R*.22,y+Math.sin(a-.36)*R*.22],r=[x+Math.cos(a+.36)*R*.22,y+Math.sin(a+.36)*R*.22];saFill([[x,y],l,t,r],SAP.gold[1],1.2)}
+  for(const a of big){const t=[x+Math.cos(a)*R,y+Math.sin(a)*R],l=[x+Math.cos(a-.36)*R*.26,y+Math.sin(a-.36)*R*.26],r=[x+Math.cos(a+.36)*R*.26,y+Math.sin(a+.36)*R*.26];
+    gFl([[x,y],l,t],SAP.gold[0]);gFl([[x,y],t,r],SAP.gold[2]);gSk([l,t,r],1.4,I);gSk([[x,y],t],.9,I)}
+  gFl(ell(x,y,R*.08,R*.08,0,16),SAP.gold[1])}
+function saRosette(x,y,r){saFill(ell(x,y,r,r,0,72),saGrad([[x-r,y-r],[x+r,y+r]]),3);saFill(ell(x,y,r*.86,r*.86,0,72),SAP.cream,2.4);gSk(ell(x,y,r*.8,r*.8,0,72),1,SAP.ink,1);saCompass(x,y,r*.78)}
+function saMedal(x,y,r){saFill(ell(x,y,r,r,0,64),saGrad([[x-r,y-r],[x+r,y+r]]),2.6);saFill(ell(x,y,r*.88,r*.88,0,64),SAP.cream,2);saFill(ell(x,y,r*.76,r*.76,0,64),SAP.teal,2);
+  const st=star8P(x,y,r*.66,r*.5,r*.2);saFill(st,SAP.gold[0],1.4);for(let i=0;i<8;i++){const a=-PI/2+i*PI/4,q=i%2?r*.5:r*.66;gSk([[x,y],[x+Math.cos(a)*q,y+Math.sin(a)*q]],.8,SAP.ink)}}
+// クリームの唐草（太い帯＋渦巻き）
+function saScroll(p,w){ink(p,w+5,SAP.ink,{s:p[0][0]});ink(p,w,SAP.cream,{s:p[0][0]});c.save();c.globalAlpha=.8;ink(offs(p,w*.2),1.1,SAP.ink,{s:p[0][1]});c.restore()}
+function saLeaf(x0,y0,x1,y1,bend){const L=Math.hypot(x1-x0,y1-y0),a=Math.atan2(y1-y0,x1-x0),sd=Math.sign(bend)||1,o=[],q=[];
+  for(let k=0;k<=16;k++){const t=k/16,u=L*t,w=L*.27*Math.sin(PI*Math.pow(t,.7)),v=sd*L*.18*Math.sin(PI*t)*t;o.push([u,v-w]);q.push([u,v+w])}
+  const P=o.concat(q.reverse()).map(([u,v])=>[x0+u*Math.cos(a)-v*Math.sin(a),y0+u*Math.sin(a)+v*Math.cos(a)]);saFill(P,SAP.cream,2);
+  gSk(Array.from({length:12},(_,k)=>{const t=k/11*.8,u=L*t,v=sd*L*.18*Math.sin(PI*t)*t;return[x0+u*Math.cos(a)-v*Math.sin(a),y0+u*Math.sin(a)+v*Math.cos(a)]}),1,SAP.ink)}
+// 葉つきの唐草（茎に沿って左右交互に葉）
+function saAcan(p,w,step,L,side){const lv=[];along(p,step,(x,y,a,k,t)=>{if(t>.72)return;const sd=side||((k%2)?1:-1),ln=L*(1-.45*t),b=a+sd*.95;lv.push([x,y,x+Math.cos(b)*ln,y+Math.sin(b)*ln,sd*ln*.22])});
+  for(const[x0,y0,x1,y1,bd]of lv)saLeaf(x0,y0,x1,y1,bd);saScroll(p,w)}
+function genStarch(S){const WIN=saWin(),I=SAP.ink,N=saNorm(WIN),O=d=>WIN.map((q,i)=>[q[0]+N[i][0]*d,q[1]+N[i][1]*d]);
+  return genBase(S,WIN,()=>{c.fillStyle='#fff';c.fillRect(0,0,W,H)},cut=>{
+    // 左右の下地（黄土色のぼかし）
+    {const g=c.createLinearGradient(58,0,W-58,0);g.addColorStop(0,SAP.tan[1]);g.addColorStop(.35,SAP.tan[0]);g.addColorStop(.65,SAP.tan[0]);g.addColorStop(1,SAP.tan[1]);c.fillStyle=g;c.fillRect(58,330,W-116,1088)}
+    // 外側の大きな金のアーチ（上は水平、角は斜めに落とす）
+    {const E=ar(470,612,432,472,PI,1.5*PI,90).filter(([x])=>x<=214),OB=[[58,615],...E.filter(([x])=>x>=58),...bz([214,200],[240,150],[262,112],[310,112],12).slice(1),[630,112],...bz([630,112],[678,112],[700,150],[726,200],12).slice(1,-1),...E.filter(([x])=>x>=58).map(([x,y])=>[W-x,y]).reverse(),[W-58,615]];
+      c.save();c.beginPath();c.rect(58,0,W-116,615);c.clip();
+      gFl(OB,saGrad(OB,SAP.arch));
+      const ln=OB.slice(1,-1);gSk(ln,16,SAP.ink);gSk(ln,11,SAP.cream);c.restore()}
+    // 窓のまわりの帯（外から：金の細帯・クリームの石積み・白いひし形の金帯・青緑の細帯）
+    saFill(O(58),SAP.goldF,2.6);saFill(O(50),SAP.cream,2.4);
+    {let acc=0;for(let i=0;i<WIN.length;i++){const j=(i+1)%WIN.length;acc+=Math.hypot(WIN[j][0]-WIN[i][0],WIN[j][1]-WIN[i][1]);if(acc<23)continue;acc=0;gSk([[WIN[i][0]+N[i][0]*29,WIN[i][1]+N[i][1]*29],[WIN[i][0]+N[i][0]*49,WIN[i][1]+N[i][1]*49]],2.2,I)}}
+    saFill(O(28),saGrad(O(28)),2.4);
+    {let acc=0;for(let i=0;i<WIN.length;i++){const j=(i+1)%WIN.length;acc+=Math.hypot(WIN[j][0]-WIN[i][0],WIN[j][1]-WIN[i][1]);if(acc<34)continue;acc=0;
+      const p=[WIN[i][0]+N[i][0]*17,WIN[i][1]+N[i][1]*17],t=[-N[i][1],N[i][0]],n=N[i],a=9,b=6;
+      saFill([[p[0]+t[0]*a,p[1]+t[1]*a],[p[0]+n[0]*b,p[1]+n[1]*b],[p[0]-t[0]*a,p[1]-t[1]*a],[p[0]-n[0]*b,p[1]-n[1]*b]],SAP.white,1.6)}}
+    gSk(O(6),2.4,I,1);
+    c.save();c.globalCompositeOperation='destination-out';gFl(O(5),'#000');c.restore();
+    // アーチ上の星の円盤
+    mirX2(()=>{for(const[x,y]of[[343,210],[247,253],[167,317]])saMedal(x,y,34)});
+    saMedal(470,224,64);
+    // 上の数字の円
+    saFill(ell(470,90,72,62,0,72),saGrad([[398,28],[542,152]]),3);saFill(ell(470,90,58,49,0,72),SAP.cream,2.6);
+    // 上の隅：唐草と大きな円盤
+    mirX2(()=>{
+      saAcan(spiralEnd(bz([226,196],[180,150],[176,88],[206,58],30),18,1.1,-1),21,34,52,1);
+      saAcan(spiralEnd(bz([318,112],[276,106],[252,82],[266,56],24),13,1.1,1),16,28,38,-1);
+      saAcan(spiralEnd(bz([214,214],[136,198],[62,214],[62,258],30),18,1.1,-1),20,34,50,1);
+      saScroll(spiralEnd(bz([128,40],[90,34],[56,44],[58,68],20),10,1.2,-1),15);
+      saRosette(125,125,76);
+      // 横の柱（はしご状）と柱頭
+      saFill([[33,330],[58,330],[58,1405],[33,1405]],'#ffffff00',2.4);
+      for(let y=380;y<1400;y+=100)saFill([[33,y],[58,y],[58,y+9],[33,y+9]],SAP.cream,2);
+      saFill([[52,330],[60,330],[60,1405],[52,1405]],SAP.cream,2);
+      saFill(RR(20,318,58,14,5),SAP.cream,2.4);saFill(RR(25,331,48,12,4),SAP.cream,2.2)});
+    cut();gSk(cp(WIN),3,I,1);
+    // 下：地の枠（クリームの線）
+    mirX2(()=>{const fr=[[34,1600],[34,1446],...bz([34,1446],[34,1428],[44,1418],[64,1418],10).slice(1),[250,1418]];gSk(fr,10,I);gSk(fr,6,SAP.cream)});
+    // 下：唐草（リボンの後ろ）
+    mirX2(()=>{saAcan(spiralEnd(bz([404,1530],[356,1500],[300,1528],[296,1566],30),15,1.1,-1),16,30,38,1);
+      saAcan(spiralEnd(bz([400,1590],[330,1594],[256,1580],[236,1552],24),12,1.1,1),13,28,32,-1);
+      saAcan(spiralEnd(bz([150,1590],[90,1594],[52,1570],[62,1540],24),13,1.05,1),16,30,36,-1);
+      saAcan(spiralEnd(bz([150,1428],[110,1420],[70,1430],[74,1456],20),12,1.1,-1),14,26,30,1)});
+    // 下：名前のリボン
+    mirX2(()=>{
+      saFill([[54,1474],[180,1452],[182,1522],[56,1548],[96,1511]],SAP.cream,2.6);
+      gSk([[70,1482],[176,1464]],1.1,I);
+      saFill([[150,1504],[206,1498],[210,1552],[156,1546]],SAP.goldF,2.4)});
+    saRosette(470,1552,58);
+    {const T=bz([150,1442],[300,1400],[640,1400],[790,1442],60),B=bz([790,1516],[640,1480],[300,1480],[150,1516],60);saFill(T.concat(B),SAP.cream,3);
+      gSk(bz([160,1450],[300,1410],[640,1410],[780,1450],60),1,I);
+      mirX2(()=>{saFill([...bz([150,1442],[136,1450],[132,1504],[150,1516],10),...bz([150,1516],[160,1494],[160,1460],[150,1442],10).slice(1,-1)],SAP.creamD||'#efd3a0',2.4)})}
+    // 外枠
+    c.beginPath();c.rect(0,0,W,H);c.rect(32,32,W-64,H-64);c.save();c.clip('evenodd');c.fillStyle=SAP.cream;c.fillRect(0,0,W,H);c.restore();
+    {const o=RR(4,4,W-8,H-8,8),i=RR(19,19,W-38,H-38,4);c.beginPath();lyPath(c,o);lyPath(c,i.slice().reverse());c.fillStyle=saGrad([[0,0],[W,H]]);c.fill()}
+    gSk(RR(4,4,W-8,H-8,8),3,I,1);gSk(RR(19,19,W-38,H-38,4),2.4,I,1);gSk(RR(32,32,W-64,H-64,3),3,I,1);
+  },.5)}
+// ===== 枠⑥ 金の扇と唐草：コードで描く =====
+const SFP={ink:'#3a2410',cream:'#fde6bf',creamD:'#f2cf96',tanD:'#a87436',tan:'#c99a5c'};
+const sfFill=(p,col,w)=>{gFl(p,col);gSk(p,w==null?2.6:w*1.25,SFP.ink,1)};
+function sfWin(){const o=[];const top=bz([106,236],[150,222],[210,200],[262,198],16).concat(bz([262,198],[340,214],[420,236],[470,240],20).slice(1));
+  for(let y=1330;y>236;y-=10)o.push([106,y]);o.push(...top);
+  o.push(...top.slice(0,-1).map(([x,y])=>[W-x,y]).reverse());
+  for(let y=246;y<1330;y+=10)o.push([W-106,y]);
+  const bot=bz([W-106,1330],[W-120,1420],[W-190,1462],[W-250,1462],14).concat(bz([W-250,1462],[W-360,1442],[W-440,1428],[470,1398],20).slice(1));
+  o.push(...bot.slice(1));o.push(...bot.slice(0,-1).map(([x,y])=>[W-x,y]).reverse());return o}
+// アカンサスの葉：背骨（曲線）に沿って幅をつけ、外側のふちに切れ込み（房）を入れる
+function sfPlume(sp,wm,lobes,sd){const n=sp.length,cum=[0];for(let i=1;i<n;i++)cum.push(cum[i-1]+Math.hypot(sp[i][0]-sp[i-1][0],sp[i][1]-sp[i-1][1]));const T=cum[n-1];
+  const A=[],B=[],mid=[];for(let i=0;i<n;i++){const t=cum[i]/T,a=sp[Math.max(0,i-1)],b=sp[Math.min(n-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,nx=-dy/L*sd,ny=dx/L*sd;
+    const base=wm*Math.pow(Math.sin(PI*Math.pow(t,.8)),.8),lob=1-.38*Math.pow(1-Math.abs(Math.sin(lobes*PI*Math.pow(t,.9))),2.5);
+    A.push([sp[i][0]+nx*base*lob,sp[i][1]+ny*base*lob]);B.push([sp[i][0]-nx*base*.5,sp[i][1]-ny*base*.5]);mid.push([sp[i][0]+nx*base*.3,sp[i][1]+ny*base*.3])}
+  const P=A.concat(B.reverse());sfFill(P,SFP.cream,2.4);
+  c.save();c.globalAlpha=.6;ink(mid.slice(3,Math.floor(n*.8)),Math.max(2,wm*.22),SFP.creamD,{s:sd});c.restore();
+  gSk(sp.slice(2,Math.floor(n*.9)),1.3,SFP.ink);
+  for(let k=1;k<lobes;k++){const t=Math.pow(k/lobes,1/.9);let i=0;while(i<n-1&&cum[i]/T<t)i++;const q=A[i],r=sp[i];gSk([q,[r[0]+(q[0]-r[0])*.35,r[1]+(q[1]-r[1])*.35]],1.3,SFP.ink)}}
+function sfStem(p,w){ink(p,w+5,SFP.ink,{s:p[0][0]});ink(p,w,SFP.cream,{s:p[0][1]});c.save();c.globalAlpha=.7;ink(offs(p,-w*.15),Math.max(1,w*.25),SFP.creamD,{s:3});c.restore()}
+// 葉の束：根元(x,y)から、[角度, 長さ, 曲がり, 巻き方向, 幅, 房の数]
+// 渦巻きで終わる太い葉（コンマ形）。ふちに小さな切れ込み
+function sfComma(P,wm,R0,dir,lobes){const sp=spiralEnd(bz(P[0],P[1],P[2],P[3],30),R0,.95,dir),n=sp.length,cum=[0];for(let i=1;i<n;i++)cum.push(cum[i-1]+Math.hypot(sp[i][0]-sp[i-1][0],sp[i][1]-sp[i-1][1]));const T=cum[n-1];
+  const A=[],B=[],hl=[];for(let i=0;i<n;i++){const t=cum[i]/T,a=sp[Math.max(0,i-1)],b=sp[Math.min(n-1,i+1)],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,nx=dy/L*dir,ny=-dx/L*dir;
+    const w=(wm*Math.pow(1-t,.5)+3)*Math.min(1,.5+t*5),lob=lobes?1-.3*Math.pow(1-Math.abs(Math.sin(lobes*PI*Math.min(1,t/.55))),3)*(t<.55?1:0):1;
+    A.push([sp[i][0]+nx*w*.62*lob,sp[i][1]+ny*w*.62*lob]);B.push([sp[i][0]-nx*w*.38,sp[i][1]-ny*w*.38]);hl.push([sp[i][0]+nx*w*.18,sp[i][1]+ny*w*.18])}
+  sfFill(A.concat(B.reverse()),SFP.cream,2.4);
+  c.save();c.globalAlpha=.65;ink(hl.slice(2,Math.floor(n*.55)),Math.max(2,wm*.2),SFP.creamD,{s:dir});c.restore();
+  gSk(sp.slice(3,Math.floor(n*.62)).map((q,i)=>[q[0]+(B[B.length-1-(i+3)][0]-q[0])*-.0,q[1]]),0,SFP.ink);
+  gSk(offs(sp.slice(3,Math.floor(n*.5)),0).map((q,i)=>q),1.2,SFP.ink)}
+function genSunfan(S){const WIN=sfWin(),I=SFP.ink;
+  return genBase(S,WIN,()=>{c.fillStyle='#fff';c.fillRect(0,0,W,H)},cut=>{
+    // 外枠：濃い帯と玉縁
+    c.beginPath();c.rect(0,0,W,H);c.rect(21,21,W-42,H-42);c.fillStyle=I;c.fill('evenodd');
+    {const n=66,m=114;for(let i=0;i<=n;i++){const x=10.5+(W-21)*i/n;for(const y of[10.5,H-10.5])sfFill(ell(x,y,5.4,5.4,0,14),SFP.cream,1.2)}
+      for(let i=1;i<m;i++){const y=10.5+(H-21)*i/m;for(const x of[10.5,W-10.5])sfFill(ell(x,y,5.4,5.4,0,14),SFP.cream,1.2)}}
+    sfFill(RR(21,21,W-42,H-42,2),SFP.cream,2.4);c.save();c.globalCompositeOperation='destination-out';gFl(RR(33,33,W-66,H-66,2),'#000');c.restore();gSk(RR(33,33,W-66,H-66,2),3,I,1);
+    // 左右の柱（帯と、はしご状の板）
+    mirX2(()=>{sfFill([[50,232],[62,232],[62,1330],[50,1330]],SFP.cream,2.4);
+      sfFill([[64,232],[86,232],[86,1330],[64,1330]],SFP.cream,2.6);for(let y=290;y<1320;y+=95){gFl([[64,y],[86,y],[86,y+8],[64,y+8]],I)}
+      gSk([[68,240],[68,1324]],1,I);gSk([[82,240],[82,1324]],1,I);
+      sfFill([[88,232],[100,232],[100,1330],[88,1330]],SFP.cream,2.4);gFl([[100,232],[107,232],[107,1330],[100,1330]],I)});
+    // 上の隅：放射線と楕円の中の星
+    mirX2(()=>{c.save();c.beginPath();c.rect(34,34,200,200);c.clip();c.globalAlpha=.5;for(let i=0;i<14;i++){const a=i*PI/26;gSk([[34,34],[34+Math.cos(a)*240,34+Math.sin(a)*240]],1.3,I)}c.restore();
+      const E=ell(100,132,64,84,-.25,72);sfFill(E,SFP.tanD,3);c.save();gFl(E,'rgba(0,0,0,0)');c.beginPath();lyPath(c,E);c.clip();c.globalAlpha=.35;for(let i=0;i<30;i++){const a=i*PI/15;gSk([[100,132],[100+Math.cos(a)*120,132+Math.sin(a)*120]],1,I)}c.restore();
+      sfFill(star8P(98,128,52,30,13,0).map(([x,y],i)=>i%2?[x,y]:[x,y]),SFP.cream,2.2);
+      gSk(ell(100,132,72,92,-.25,72),7,SFP.cream,1);gSk(ell(100,132,68,88,-.25,72),1.4,I,1);gSk(ell(100,132,76,96,-.25,72),2.4,I,1)});
+    // 上の中央：扇とひし形
+    {const cx=470,cy=236,F=[[cx,cy],...ar(cx,cy,205,150,PI*1.02,PI*1.98,60)];
+      const FB=bz([272,216],[350,232],[420,244],[470,246],20).concat(bz([470,246],[520,244],[590,232],[668,216],20).slice(1));
+      sfFill(F,SFP.cream,3);for(let i=0;i<=12;i++){const a=PI*1.02+PI*.96*i/12;gSk([[cx,cy],[cx+Math.cos(a)*205,cy+Math.sin(a)*150]],2.6,I)}
+      gSk(ar(cx,cy,175,126,PI*1.02,PI*1.98,60),2.4,I);gSk(ar(cx,cy,190,138,PI*1.02,PI*1.98,60),1.4,I);
+      const D=(h,v)=>[[cx,104-v],[cx+h,104],[cx,104+v],[cx-h,104]];sfFill(D(78,100),SFP.cream,3);gSk(D(66,86),2.4,I,1);gSk(D(60,79),1.4,I,1);
+      gFl(FB.concat([[668,200],[272,200]]).reverse().concat([]).slice(0,0),'#0000')}
+    // 上の唐草（扇の左右）
+    mirX2(()=>{sfStem(spiralEnd(bz([170,234],[150,170],[170,70],[252,66],30),44,1.1,1),17);
+      sfComma([[226,92],[236,62],[272,40],[316,42]],30,16,1,2);
+      sfComma([[262,160],[262,104],[302,62],[354,64]],50,22,1,3);
+      sfComma([[296,190],[318,138],[362,112],[404,124]],40,17,1,2);
+      sfComma([[248,188],[232,164],[210,156],[192,166]],22,10,-1,0)});
+    cut();gSk(cp(WIN),3,I,1);
+    // 窓にかかる隅の唐草（上）
+    mirX2(()=>{sfComma([[140,226],[122,262],[116,300],[126,326]],24,10,-1,0);
+      sfComma([[178,226],[218,252],[234,292],[218,330]],44,15,1,2);
+      sfComma([[152,222],[180,262],[180,336],[150,376]],56,18,-1,3)});
+    // 下：名前の板
+    {const top=bz([106,1330],[116,1420],[190,1462],[250,1462],14).concat(bz([250,1462],[360,1442],[440,1428],[470,1398],20).slice(1)),T2=top.concat(top.slice(0,-1).map(([x,y])=>[W-x,y]).reverse());
+      const P=T2.concat([[W-106,1592],[106,1592]]);sfFill(P,SFP.cream,3);
+      gSk(offs(T2,-8),9,SFP.creamD);gSk(offs(T2,-13),2.8,I);gSk(offs(T2,-21),1.4,I);
+      sfFill([[34,1574],[W-34,1574],[W-34,1590],[34,1590]],SFP.cream,2.4);gSk([[100,1566],[W-100,1566]],1.4,I)}
+    // 下の隅：大きな唐草
+    mirX2(()=>{c.save();c.beginPath();c.rect(34,1440,140,150);c.clip();c.globalAlpha=.5;for(let i=0;i<10;i++){const a=-i*PI/20;gSk([[60,1580],[60+Math.cos(a)*160,1580+Math.sin(a)*160]],1.2,I)}c.restore();
+      sfStem(spiralEnd(bz([104,1578],[50,1520],[54,1396],[126,1352],30),40,1.1,1),17);
+      sfComma([[150,1586],[200,1586],[244,1566],[262,1534]],34,13,1,2);
+      sfComma([[118,1580],[160,1530],[214,1496],[250,1446]],50,18,1,3);
+      sfComma([[96,1574],[110,1490],[150,1420],[210,1396]],66,24,1,4);
+      sfComma([[86,1556],[86,1500],[92,1446],[118,1414]],26,11,1,0)});
+  },.5)}
+// ===== 枠⑦ 二本の柱と雲：コードで描く =====
+const PLP={ink:'#3a2a16',cream:'#fbe8c6',creamD:'#f0d6a8',gold:['#f7d27a','#e8b04a','#c98d2c'],goldF:'#e9b552'};
+function plGrad(p){let a=1e9,b=1e9,d=-1e9,e=-1e9;for(const[x,y]of p){a=Math.min(a,x);b=Math.min(b,y);d=Math.max(d,x);e=Math.max(e,y)}const g=c.createLinearGradient(a,b,d,e);g.addColorStop(0,PLP.gold[0]);g.addColorStop(.5,PLP.gold[1]);g.addColorStop(1,PLP.gold[2]);return g}
+const plFill=(p,col,w)=>{gFl(p,col);gSk(p,w==null?2.6:w,PLP.ink,1)};
+// 窓（左下→左上の角→上→右上の角→右下）
+function plWin(){const L=[];for(let y=1380;y>380;y-=10)L.push([148,y]);
+  const corner=[...bz([148,380],[148,362],[152,344],[162,334],10),...bz([162,334],[178,318],[206,322],[218,296],12).slice(1),...bz([218,296],[230,262],[256,248],[300,248],14).slice(1)];
+  L.push(...corner);const R=L.map(([x,y])=>[W-x,y]).reverse();return L.concat(R)}
+// 雲：円の集まり（外形を一つにまとめ、内側に弧線）
+function plCloud(P,arcs){for(const[x,y,r]of P)gSk(ell(x,y,r,r,0,48),6,PLP.ink,1);for(const[x,y,r]of P)gFl(ell(x,y,r,r,0,48),PLP.cream);
+  if(arcs!==false)for(const[x,y,r]of P){for(const f of[.78,.6])gSk(ar(x,y,r*f,r*f,PI*1.12,PI*1.88,24),1.6,PLP.ink);}}
+// 帯（リボン）：中心線と幅から
+function plBand(p,w,stripes){const a=offs(p,w/2),b=offs(p,-w/2),poly=a.concat(b.slice().reverse());gFl(poly,PLP.cream);
+  for(const k of stripes||[])gSk(offs(p,w*k),1.5,PLP.ink);gSk(a,2.6,PLP.ink);gSk(b,2.6,PLP.ink);gSk([a[0],b[0]],2.6,PLP.ink);gSk([a[a.length-1],b[b.length-1]],2.6,PLP.ink)}
+// 角の円盤（金の輪・地色・星）
+function plMedal(x,y,r){plFill(ell(x,y,r,r,0,64),plGrad([[x-r,y-r],[x+r,y+r]]),3);gFl(ell(x,y,r-9,r-9,0,64),'#4f7d78');gSk(ell(x,y,r-9,r-9,0,64),2,PLP.ink,1);
+  c.save();c.globalAlpha=.55;for(let i=0;i<48;i++){const a=i*PI/24;gSk([[x+Math.cos(a)*(r*.36),y+Math.sin(a)*(r*.36)],[x+Math.cos(a)*(r-11),y+Math.sin(a)*(r-11)]],1,PLP.ink)}c.restore();
+  plFill(star8P(x,y,r*.74,r*.5,r*.2),PLP.gold[0],1.6)}
+// 柱頭・柱礎の段
+function plSlab(x0,x1,y0,y1,col){plFill(RR(x0,y0,x1-x0,y1-y0,Math.min(8,(y1-y0)/2)),col,2.4)}
+function plGoldBand(x0,x1,y0,y1){plFill([[x0,y0],[x1,y0],[x1,y1],[x0,y1]],PLP.goldF,2.4);for(let x=x0+11;x<x1-4;x+=12)gSk([[x,y0+2],[x,y1-2]],1.4,PLP.ink)}
+function genPillar(S){const WIN=plWin(),I=PLP.ink;
+  return genBase(S,WIN,()=>{c.fillStyle='#fff';c.fillRect(0,0,W,H)},cut=>{
+    // 外枠（クリームの帯と線）
+    c.beginPath();c.rect(0,0,W,H);c.rect(27,27,W-54,H-54);c.fillStyle=PLP.cream;c.fill('evenodd');
+    gSk(RR(3,3,W-6,H-6,6),3,I,1);gSk(RR(15,15,W-30,H-30,4),1.6,I,1);gSk(RR(27,27,W-54,H-54,2),3,I,1);
+    // 光の筋（上の左右）
+    c.save();c.beginPath();c.rect(28,28,W-56,300);c.clip();
+    mirX2(()=>{for(const d of[-92,-108,-124,-140,-157,-174]){const a=d*PI/180,cx=292,cy=250,u=[Math.cos(a),Math.sin(a)],v=[-u[1],u[0]],r0=110,r1=420,hw=7;
+      plFill([[cx+u[0]*r0+v[0]*hw,cy+u[1]*r0+v[1]*hw],[cx+u[0]*r1+v[0]*hw*1.6,cy+u[1]*r1+v[1]*hw*1.6],[cx+u[0]*r1-v[0]*hw*1.6,cy+u[1]*r1-v[1]*hw*1.6],[cx+u[0]*r0-v[0]*hw,cy+u[1]*r0-v[1]*hw]],PLP.cream,2.2)}});
+    c.restore();
+    // アーチと大きな星
+    {const A=ar(470,218,186,186,PI,2*PI,80),B=ar(470,218,170,170,2*PI,PI,80);gFl(A.concat(B),PLP.cream);gSk(A,2.8,I);gSk(B,2.8,I);
+      gFl(ar(470,218,169,169,PI,2*PI,80),'rgba(0,0,0,0)');
+      const st=[];const RS=[112,82,122,82,112,82,122,82];for(let i=0;i<16;i++){const a=-PI/2+i*PI/8,q=i%2?30:RS[i/2];st.push([470+Math.cos(a)*q,130+Math.sin(a)*q])}
+      plFill(st,plGrad(st),3);
+      for(let i=0;i<8;i++){const a=-PI/2+i*PI/4,q=RS[i],tip=[470+Math.cos(a)*q,130+Math.sin(a)*q],r=[470+Math.cos(a+PI/8)*30,130+Math.sin(a+PI/8)*30];
+        c.save();c.globalAlpha=.32;gFl([[470,130],tip,r],PLP.gold[2]);c.restore();gSk([[470,130],tip],1.3,I)}
+      plFill([[300,206],[640,206],[640,224],[300,224]],PLP.cream,2.6)}
+    // 窓の外側の帯
+    plFill(offs(cp(WIN),-15),PLP.cream,2.8);
+    // 柱・雲・柱頭（左を描き、右は鏡像）
+    mirX2(()=>{
+      plFill([[46,380],[145,380],[145,1400],[46,1400]],PLP.cream,2.6);
+      for(const[x,w]of[[62,2.2],[69,1.2],[86,2.2],[93,1.2],[110,2.2],[117,1.2],[132,2.2]])gSk([[x,384],[x,1396]],w,I);
+      plCloud([[73,262,46],[134,268,40],[127,220,58],[203,175,53],[256,226,40],[300,200,46]]);
+      plSlab(24,150,306,326,PLP.cream);plSlab(32,141,326,342,PLP.cream);plGoldBand(36,137,342,364);plSlab(28,145,364,384,PLP.cream);
+      plSlab(28,145,1388,1408,PLP.cream);plGoldBand(36,137,1408,1432);plSlab(22,150,1432,1454,PLP.cream);
+    });
+    cut();gSk(cp(WIN),3,I,1);
+    // 窓の下の帯と、下の地
+    plFill([[148,1380],[792,1380],[792,1396],[148,1396]],PLP.cream,2.6);
+    // 名前の楕円プレート
+    {const o=RR(104,1394,W-208,206,100),i=RR(117,1407,W-234,180,88),j=RR(132,1420,W-264,154,76);
+      plFill(o,plGrad(o),3);plFill(i,PLP.cream,2.6);gSk(j,1.6,I,1)}
+    // リボン（柱に巻きつく）
+    mirX2(()=>{
+      const gb=(p)=>plFill(p,PLP.goldF,2.4);
+      gb([...bz([52,1036],[72,1040],[84,1060],[80,1084],10),...bz([80,1084],[66,1076],[56,1062],[48,1060],10)]);
+      gb([...bz([120,1236],[146,1232],[166,1238],[170,1262],10),...bz([170,1262],[150,1278],[128,1270],[118,1252],10)]);
+      gb([...bz([50,1196],[70,1198],[84,1216],[80,1240],10),...bz([80,1240],[66,1232],[56,1222],[48,1222],10)]);
+      plBand(bz([52,1046],[22,1090],[60,1122],[110,1144],30).concat(bz([110,1144],[150,1162],[168,1196],[160,1240],30).slice(1)),56,[-.22,.22]);
+      plBand(bz([52,1206],[20,1252],[60,1282],[110,1302],30).concat(bz([110,1302],[166,1324],[188,1362],[188,1424],30).slice(1)),60,[-.22,.22]);
+    });
+    // ひし形と小さな雲
+    mirX2(()=>plCloud([[300,1370,24],[330,1356,30],[362,1372,22]],true));
+    {const D=(h,v)=>[[470,1372-v],[470+h,1372],[470,1372+v],[470-h,1372]];plFill(D(74,78),plGrad(D(74,78)),3);plFill(D(58,62),PLP.cream,2.4);gSk(D(50,54),1.4,I,1)}
+    // 四隅の円盤
+    mirX2(()=>{plMedal(76,64,45);plMedal(56,1552,44)});
+  },.5)}
+
 // 地色（枠の色の設定を反映）
 function lyMix(a,b,t){const A=hx2rgb(a),B=hx2rgb(b);return rgb2hx(A.map((v,i)=>v+(B[i]-v)*t))}
 const lyPanelCol=f=>{const b=(f&&f.pc)||LYP.panel;return FC.on?lyMix(b,FC.color,FC.amt):b};
-const GENF={lily:genLily,deco:genDeco},GSP={};
+const GENF={lily:genLily,deco:genDeco,moon:genMoon,starch:genStarch,sunfan:genSunfan,pillar:genPillar},GSP={},LYC={lily:1,deco:1,moon:1,starch:1,sunfan:1,pillar:1};
 
 // ---- 枠のパーツ分けとレイヤー（外枠／円環／名前プレート）----
 const ORD=['out','ring','plate'],SPKS={};
-const EXS={ring:[[133,136,60],[1020,136,60],[570,173,50],[576,395,60],[250,520,34],[900,520,34]],arch:[[133,136,60],[1020,136,60],[570,173,50]],lily:[[470,94,56],[122,116,46],[818,116,46],[470,1519,56]],deco:[],starch:[[157,137,56],[1002,137,56],[575,269,56],[575,1901,56]],sunfan:[[97,183,40],[1051,183,40],[575,117,40]],pillar:[[576,82,46],[77,82,46],[1077,82,46],[77,1917,46],[1077,1917,46]],moonnoir:[[138,153,46],[1016,153,46],[138,1865,46],[1016,1865,46]]};
+const EXS={ring:[[133,136,60],[1020,136,60],[570,173,50],[576,395,60],[250,520,34],[900,520,34]],arch:[[133,136,60],[1020,136,60],[570,173,50]],lily:[[470,94,56],[122,116,46],[818,116,46],[470,1519,56]],deco:[]};
 for(const k in EXS)EXS[k]=EXS[k].map(([x,y,r])=>[x*W/1152,y*H/2000,r]);
 const FPX={rect:{w:790,h:1200,y:1392,box:[100,250,840,1392]},ring:{w:800,h:1040,y:1300,box:[100,270,840,1270]},arch:{w:800,h:1130,y:1330,box:[100,300,840,1290]},lily:{w:700,h:1080,y:1345,box:[138,196,802,1412]},deco:{w:700,h:1060,y:1404,box:[63,200,877,1416]},starch:{"w":640,"h":930,"y":1318,"box":[106,292,831,1345]},sunfan:{"w":700,"h":1100,"y":1420,"box":[106,189,833,1466]},pillar:{"w":620,"h":1000,"y":1345,"box":[128,248,812,1380]},moonnoir:{"w":640,"h":1020,"y":1290,"box":[135,171,800,1450]}};
+GSP.starch=[[125,125,56],[815,125,56],[470,224,50],[470,1552,48]];GSP.sunfan=[[98,128,40],[842,128,40],[470,104,44]];GSP.pillar=[[470,130,60],[76,64,36],[864,64,36],[56,1552,36],[884,1552,36]];GSP.moonnoir=[[113,108,46],[827,108,46],[113,1512,46],[827,1512,46],[72,810,30],[868,810,30]];
 const MC={};if(Object.keys(MSK).length)(async()=>{try{for(const[k,u]of Object.entries(MSK)){const im=new Image();im.src=u;await im.decode();const e=mk(im.width,im.height),x=e.getContext('2d',{willReadFrequently:true});x.drawImage(im,0,0);
   const d=x.getImageData(0,0,e.width,e.height),a=d.data;for(let i=0;i<a.length;i+=4){a[i+3]=a[i]>127?255:0;a[i]=a[i+1]=a[i+2]=255}x.putImageData(d,0,0);MC[k]=e}}catch(e){console.warn('mask load failed')}poke()})();
 
@@ -827,7 +1149,7 @@ function loadFrame(i){const f=FRM[i];f.loading=true;st('枠を読み込み中…
   s.onerror=()=>{f.loading=false;st('枠の読み込みに失敗しました。index.html と同じ場所に frames フォルダを置いてください。');setFS(0)};document.head.append(s)}
 function extFrame(S){const f=FRM[FS-3],FS0=FS,K=FS*10+S;if(xc[K])return xc[K];
   if(f.gen){
-    const build=()=>{let G_;if(f.gen=='lily'||f.gen=='deco'){const gc=f.gc||(f.gc={}),gp=gc[S]||GENF[f.gen](S);if(S==1)gc[1]=gp;G_={...gp,rest:lilyCompose(gp,lyPanelCol(f))}}else{G_=GENF[f.gen](S,GPAL[f.pal]);if(FC.on){recolor(G_.rest,f);if(G_.ring)recolor(G_.ring,f)}}let mg=null;
+    const build=()=>{let G_;if(LYC[f.gen]){const gc=f.gc||(f.gc={}),gp=gc[S]||GENF[f.gen](S);if(S==1)gc[1]=gp;G_={...gp,rest:lilyCompose(gp,lyPanelCol(f))}}else{G_=GENF[f.gen](S,GPAL[f.pal]);if(FC.on){recolor(G_.rest,f);if(G_.ring)recolor(G_.ring,f)}}let mg=null;
       if(!MARG.none){mg=mk(W*S,H*S);const m=mg.getContext('2d');m.fillStyle=MARG.color;m.fillRect(0,0,W*S,H*S);m.globalCompositeOperation='destination-out';m.drawImage(G_.win,0,0)}
       SPKS[FS0]=GSP[f.lay]||EXS[f.lay];return xc[K]={rest:G_.rest,ring:G_.ring,mg,win:G_.win}};
     if(S>1||(f.gc&&f.gc[S]))return build();
